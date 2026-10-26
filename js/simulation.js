@@ -1,0 +1,35 @@
+import {clone,empty,labels,validate} from './automata.js';
+const key=c=>JSON.stringify([c.state,c.pos,c.stack,c.tapes,c.heads,c.output,c.path,c.calls,c.entered]);
+export function initial(m,input){validate(m);const s=m.states.find(s=>s.initial);const inputs=Array.isArray(input)?input:[input];return {state:s.id,pos:0,stack:'Z',tapes:Array.from({length:m.tapes||1},(_,i)=>Object.fromEntries([...inputs[i]||''].map((c,j)=>[j,c]))),heads:Array(m.tapes||1).fill(0),output:m.type==='moore'?s.output||'':'',path:[],calls:[],entered:false,trace:[]};}
+function currentMachine(root,path){return path.reduce((m,id)=>m.states.find(s=>s.id===id).block,root);}
+function tapeRead(t,h){return t[h]??'';}
+export function next(root,c,input,options={}) {
+ const m=currentMachine(root,c.path),s=m.states.find(s=>s.id===c.state),isTM=['turing','turingbb'].includes(root.type);let children=[];
+ if(isTM&&s.block&&!c.entered){validate(s.block);return[{...clone(c),state:s.block.states.find(s=>s.initial).id,path:[...c.path,s.id],calls:[...c.calls,s.id],entered:false}];}
+ if(isTM&&s.final&&!c.path.length&&!options.finalTransitions)return [];
+ for(const t of m.transitions.filter(t=>t.from===c.state)){
+  if(isTM){const reads=Array.isArray(t.read)?t.read:[t.read],writes=Array.isArray(t.write)?t.write:[t.write??''],moves=Array.isArray(t.move)?t.move:[t.move||'R'];
+   if(!c.tapes.every((tape,i)=>empty(reads[i])===tapeRead(tape,c.heads[i])))continue;
+   const n=clone({...c,trace:[]});n.state=t.to;n.entered=false;n.trace=[];n.tapes.forEach((tape,i)=>{const w=empty(writes[i]);if(w)tape[n.heads[i]]=w;else delete tape[n.heads[i]];n.heads[i]+=moves[i]==='L'?-1:moves[i]==='R'?1:0;});children.push(n);
+  }else for(const read of labels(t.read)){
+   if(!input.startsWith(read,c.pos))continue;
+   if(m.type==='pda'&&!c.stack.startsWith(empty(t.pop)))continue;
+   const n={...c,state:t.to,pos:c.pos+read.length,trace:[]};
+   if(m.type==='pda')n.stack=empty(t.push)+c.stack.slice(empty(t.pop).length);
+   if(m.type==='mealy')n.output+=t.output||'';
+   if(m.type==='moore')n.output+=m.states.find(s=>s.id===t.to).output||'';
+   children.push(n);
+  }
+ }
+ if(isTM&&!children.length&&c.path.length){const n=clone({...c,trace:[]});n.state=n.calls.pop();n.path.pop();n.entered=true;n.trace=[];children.push(n);}
+ return children;
+}
+export function accepting(m,c,input,options={},children=null){const s=m.states.find(s=>s.id===c.state);if(['turing','turingbb'].includes(m.type)){if(c.path.length||!s)return false;const mode=options.acceptance||'final';return ((mode==='final'||mode==='both')&&s.final)||((mode==='halt'||mode==='both')&&(children??next(m,c,input,options)).length===0);}if(c.pos!==input.length)return false;if(['mealy','moore'].includes(m.type))return true;return m.type==='pda'&&options.acceptance==='empty'?c.stack.length===0:s.final;}
+export function tapeOutput(c){return c.tapes.map((t,i)=>{let h=c.heads[i],s='';while(t[h]!==undefined&&s.length<10000)s+=t[h++];return s;});}
+export class Runner {
+ constructor(m,input,options={}){this.m=clone(m);this.input=Array.isArray(input)?input[0]||'':input;this.options=options;const c=initial(m,input);this.frontier=[c];this.visited=new Set([key(c)]);this.steps=0;this.count=1;this.status='running';this.accepted=[];this.layers=[[c]];this.limit=options.limit||20000;this.inspect();}
+ inspect(){for(const c of this.frontier)if(accepting(this.m,c,this.input,this.options))this.accepted.push(c);if(this.accepted.length)this.status='accepted';else if(!this.frontier.length)this.status='rejected';}
+ step(){if(this.status!=='running')return this.status;let frontier=[];let repeats=false;for(const c of this.frontier){for(const n of next(this.m,c,this.input,this.options)){const k=key(n);if(this.visited.has(k)){repeats=true;continue;}this.visited.add(k);n.trace=[...c.trace,{state:c.state,pos:c.pos,stack:c.stack,output:c.output,heads:c.heads,tapes:c.tapes,path:c.path}];frontier.push(n);this.count++;if(this.count>=this.limit){this.status='limit';break;}}if(this.status==='limit')break;}this.frontier=frontier;this.steps++;this.layers.push(frontier);if(this.layers.length>300)this.layers.shift();if(this.status==='limit')return this.status;this.inspect();if(this.status==='rejected'&&repeats&&['turing','turingbb'].includes(this.m.type))this.status='loop';return this.status;}
+ run(){while(this.status==='running')this.step();return {status:this.status,steps:this.steps,count:this.count,config:this.accepted[0]||this.frontier[0],trace:this.accepted[0]?.trace||[],outputs:this.accepted.map(c=>['turing','turingbb'].includes(this.m.type)?tapeOutput(c):c.output)};}
+}
+export function simulate(m,input,options={}){return new Runner(m,input,options).run();}
