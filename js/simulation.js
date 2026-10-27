@@ -29,8 +29,30 @@ export function tapeOutput(c){return c.tapes.map((t,i)=>{let h=c.heads[i],s='';w
 export class Runner {
  constructor(m,input,options={}){this.m=clone(m);this.input=Array.isArray(input)?input[0]||'':input;this.options=options;const c=initial(m,input);this.frontier=[c];this.visited=new Set([key(c)]);this.steps=0;this.count=1;this.status='running';this.accepted=[];this.layers=[[c]];this.limit=options.limit||20000;this.inspect();}
  inspect(){this.accepted=[];for(const c of this.frontier)if(accepting(this.m,c,this.input,this.options))this.accepted.push(c);if(this.accepted.length)this.status='accepted';else if(!this.frontier.length)this.status='rejected';else if(this.frontier.every(c=>c.frozen))this.status='paused';else this.status='running';}
- step(){if(this.status!=='running')return this.status;let frontier=[];let repeats=false;for(const c of this.frontier){if(c.frozen){frontier.push(c);continue;}for(const n of next(this.m,c,this.input,this.options)){const k=key(n);if(this.visited.has(k)){repeats=true;continue;}this.visited.add(k);n.trace=[...c.trace,{state:c.state,pos:c.pos,stack:c.stack,output:c.output,heads:c.heads,tapes:c.tapes,path:c.path}];frontier.push(n);this.count++;if(this.count>=this.limit){this.status='limit';break;}}if(this.status==='limit')break;}this.frontier=frontier;this.steps++;this.layers.push(frontier);if(this.layers.length>300)this.layers.shift();if(this.status==='limit')return this.status;this.inspect();if(this.status==='rejected'&&repeats&&['turing','turingbb'].includes(this.m.type))this.status='loop';return this.status;}
+ step(){
+  if(this.status!=='running')return this.status;
+  this.pending??={source:[...this.frontier],index:0,child:0,children:null,frontier:[],repeats:false};
+  const p=this.pending;
+  while(p.index<p.source.length){const c=p.source[p.index];
+   if(c.frozen){p.frontier.push(c);p.index++;continue;}
+   p.children??=next(this.m,c,this.input,this.options);
+   while(p.child<p.children.length){const n=p.children[p.child],k=key(n);
+    if(this.visited.has(k)){p.repeats=true;p.child++;continue;}
+    if(this.count>=this.limit){this.status='limit';return this.status;}
+    this.visited.add(k);p.child++;n.trace=[...c.trace,{state:c.state,pos:c.pos,stack:c.stack,output:c.output,heads:c.heads,tapes:c.tapes,path:c.path}];p.frontier.push(n);this.count++;
+   }
+   p.index++;p.child=0;p.children=null;
+  }
+  this.frontier=p.frontier;this.pending=null;this.steps++;this.layers.push(this.frontier);if(this.layers.length>300)this.layers.shift();this.inspect();
+  if(this.status==='rejected'&&p.repeats&&['turing','turingbb'].includes(this.m.type))this.status='loop';return this.status;
+ }
+ resume(additional=this.options.limit||20000){
+  if(this.status!=='limit')return this.status;
+  if(!Number.isFinite(additional)||additional<1)throw Error('Additional search budget must be positive.');
+  this.limit=this.count+Math.floor(additional);this.status='running';return this.status;
+ }
  control(configurations,action){
+  if(this.pending)throw Error('Continue the pending step before changing configurations.');
   if(!['freeze','thaw','remove'].includes(action))throw Error('Unknown configuration action.');
   for(const c of configurations){if(!this.frontier.includes(c))continue;
    if(action==='remove')this.frontier=this.frontier.filter(x=>x!==c);

@@ -53,3 +53,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 ## Feature-parity updates
 
 - Task 02: Freeze, thaw and remove selected configurations are implemented. Frozen-only searches pause. Browser freeze/thaw/step check and 58 regression tests passed.
+
+- Task 03: Search limits retain the pending step and all branches. Continue search adds budget. Browser limit-to-acceptance check and 61 tests passed.
