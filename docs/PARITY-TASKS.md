@@ -7,7 +7,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | Task | Done | Scope and acceptance check | Audit |
 |---|---|---|---|
 | 01 | [x] | Live simulation graph: highlight active states and nested-block location without changing execution. | S05 |
-| 02 | [ ] | Freeze/thaw/remove configurations; frozen-only frontier stays paused and branches remain individually controllable. | S02–S04 |
+| 02 | [x] | Freeze/thaw/remove configurations; frozen-only frontier stays paused and branches remain individually controllable. | S02–S04 |
 | 03 | [ ] | Resume after search limit without losing pending branches; match uninterrupted result. | S07 |
 | 04 | [ ] | Keep looking after acceptance; show subsequent distinct accepting traces without repeating the last result. | S06 |
 | 05 | [ ] | FA closure stepping, including initial closure and epsilon cycles; match ordinary simulation. | S01 |
@@ -83,3 +83,5 @@ Every feature commit updates its checkbox and the implementation notes below. Th
 Backlog created from the 27 October audit. Original mode remains available while this independent port is developed.
 
 Task 01: live simulation graph and nested-view selector. Browser check: Start/Step highlighted q0 at input position 1; existing 54 regression checks passed.
+
+Task 02: Freeze, thaw and remove selected configurations are implemented. Frozen-only searches pause. Browser freeze/thaw/step check and 58 regression tests passed.

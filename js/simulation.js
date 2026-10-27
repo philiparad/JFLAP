@@ -28,8 +28,17 @@ export function accepting(m,c,input,options={},children=null){const s=m.states.f
 export function tapeOutput(c){return c.tapes.map((t,i)=>{let h=c.heads[i],s='';while(t[h]!==undefined&&s.length<10000)s+=t[h++];return s;});}
 export class Runner {
  constructor(m,input,options={}){this.m=clone(m);this.input=Array.isArray(input)?input[0]||'':input;this.options=options;const c=initial(m,input);this.frontier=[c];this.visited=new Set([key(c)]);this.steps=0;this.count=1;this.status='running';this.accepted=[];this.layers=[[c]];this.limit=options.limit||20000;this.inspect();}
- inspect(){for(const c of this.frontier)if(accepting(this.m,c,this.input,this.options))this.accepted.push(c);if(this.accepted.length)this.status='accepted';else if(!this.frontier.length)this.status='rejected';}
- step(){if(this.status!=='running')return this.status;let frontier=[];let repeats=false;for(const c of this.frontier){for(const n of next(this.m,c,this.input,this.options)){const k=key(n);if(this.visited.has(k)){repeats=true;continue;}this.visited.add(k);n.trace=[...c.trace,{state:c.state,pos:c.pos,stack:c.stack,output:c.output,heads:c.heads,tapes:c.tapes,path:c.path}];frontier.push(n);this.count++;if(this.count>=this.limit){this.status='limit';break;}}if(this.status==='limit')break;}this.frontier=frontier;this.steps++;this.layers.push(frontier);if(this.layers.length>300)this.layers.shift();if(this.status==='limit')return this.status;this.inspect();if(this.status==='rejected'&&repeats&&['turing','turingbb'].includes(this.m.type))this.status='loop';return this.status;}
+ inspect(){this.accepted=[];for(const c of this.frontier)if(accepting(this.m,c,this.input,this.options))this.accepted.push(c);if(this.accepted.length)this.status='accepted';else if(!this.frontier.length)this.status='rejected';else if(this.frontier.every(c=>c.frozen))this.status='paused';else this.status='running';}
+ step(){if(this.status!=='running')return this.status;let frontier=[];let repeats=false;for(const c of this.frontier){if(c.frozen){frontier.push(c);continue;}for(const n of next(this.m,c,this.input,this.options)){const k=key(n);if(this.visited.has(k)){repeats=true;continue;}this.visited.add(k);n.trace=[...c.trace,{state:c.state,pos:c.pos,stack:c.stack,output:c.output,heads:c.heads,tapes:c.tapes,path:c.path}];frontier.push(n);this.count++;if(this.count>=this.limit){this.status='limit';break;}}if(this.status==='limit')break;}this.frontier=frontier;this.steps++;this.layers.push(frontier);if(this.layers.length>300)this.layers.shift();if(this.status==='limit')return this.status;this.inspect();if(this.status==='rejected'&&repeats&&['turing','turingbb'].includes(this.m.type))this.status='loop';return this.status;}
+ control(configurations,action){
+  if(!['freeze','thaw','remove'].includes(action))throw Error('Unknown configuration action.');
+  for(const c of configurations){if(!this.frontier.includes(c))continue;
+   if(action==='remove')this.frontier=this.frontier.filter(x=>x!==c);
+   else if(action==='thaw')c.frozen=false;
+   else if(!accepting(this.m,c,this.input,this.options)&&next(this.m,c,this.input,this.options).length)c.frozen=true;
+  }
+  this.inspect();return this.status;
+ }
  run(){while(this.status==='running')this.step();return {status:this.status,steps:this.steps,count:this.count,config:this.accepted[0]||this.frontier[0],trace:this.accepted[0]?.trace||[],outputs:this.accepted.map(c=>['turing','turingbb'].includes(this.m.type)?tapeOutput(c):c.output)};}
 }
 export function simulate(m,input,options={}){return new Runner(m,input,options).run();}

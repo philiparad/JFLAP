@@ -1,5 +1,7 @@
 # Coverage and compatibility
 
+The initial-release table below is retained as a baseline. See [PARITY-TASKS.md](PARITY-TASKS.md) and the updates at the end for subsequently implemented features.
+
 There are two deliberately labeled modes. The **JavaScript workbench is a substantial reconstruction, not a complete independent port**. **Original mode executes the unmodified JFLAP 7.1 JAR** and provides its original feature implementations through a browser runtime. Keeping the original implementations available is different from proving every workflow works under that runtime.
 
 | Feature family | JavaScript workbench | Original mode |
@@ -47,3 +49,7 @@ There are two deliberately labeled modes. The **JavaScript workbench is a substa
 ## What was not established
 
 No exhaustive cross-version comparison, proof of all algorithm implementations, exhaustive original-mode acceptance testing, mobile original-mode certification, or compatibility with all historical JFLAP files was performed. See VALIDATION.md for actual checks.
+
+## Feature-parity updates
+
+- Task 02: Freeze, thaw and remove selected configurations are implemented. Frozen-only searches pause. Browser freeze/thaw/step check and 58 regression tests passed.
