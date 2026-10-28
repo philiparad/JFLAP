@@ -1,3 +1,4 @@
+import {parseInputs} from '../js/batch.js';
 import * as A from '../js/automata.js';
 import * as G from '../js/grammar.js';
 import {simulate,Runner} from '../js/simulation.js';
@@ -78,4 +79,7 @@ test('PDA closure mode preserves stack-distinct configurations',()=>{const m=A.m
 test('PDA closure and state stepping agree on bounded sample language',()=>{for(const w of words('ab',5))equal(simulate(example('pda'),w,{stepMode:'closure'}).status,simulate(example('pda'),w).status);});
 test('Infinite epsilon stack growth pauses and resumes without rejection',()=>{const m=A.machine('pda');A.state(m);A.edge(m,0,0,'',{pop:'',push:'A'});const r=new Runner(m,'',{stepMode:'closure',limit:10});equal(r.status,'limit');equal(r.count,10);r.resume(5);r.run();equal(r.status,'limit');equal(r.count,15);});
 test('Acceptance discovered inside an unfinished epsilon closure is retained',()=>{const m=A.machine('pda');A.state(m).final=true;A.edge(m,0,0,'',{pop:'',push:'A'});equal(simulate(m,'',{stepMode:'closure',limit:10}).status,'accepted');});
+
+test('Input files normalize BOM and Windows line endings without losing blanks',()=>{equal(parseInputs('\uFEFFa\r\n\r\nb\r\n'),['a','','b','']);});
+test('Input file parser preserves tape separators and whitespace',()=>{equal(parseInputs('a|b\n |11'),['a|b',' |11']);});
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;

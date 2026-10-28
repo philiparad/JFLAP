@@ -12,7 +12,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 04 | [x] | Keep looking after acceptance; show subsequent distinct accepting traces without repeating the last result. | S06 |
 | 05 | [x] | FA closure stepping, including initial closure and epsilon cycles; match ordinary simulation. | S01 |
 | 06 | [x] | PDA closure stepping with stack-aware configurations and bounded infinite epsilon growth. | S01 |
-| 07 | [ ] | Import input-string files into machine runs, preserving blank lines and tape separators. | B03 |
+| 07 | [x] | Import input-string files into machine runs, preserving blank lines and tape separators. | B03 |
 | 08 | [ ] | Multi-machine batch testing: selected open models, result matrix and CSV. | B01 |
 | 09 | [ ] | Batch add/remove/edit machine files and imported input files. | B02 |
 | 10 | [ ] | Grammar multiple brute-force parsing with per-input result and derivation. | B04 |
@@ -93,3 +93,5 @@ Task 04: Keep looking discovers further accepting traces, retaining distinct mer
 Task 05: FA Step with Closure expands initial and post-input closures with traces and resumable limits. Browser closure run and 67 tests passed.
 
 Task 06: PDA closure stepping distinguishes stacks, bounds infinite epsilon growth and preserves acceptance found before a limit. Browser aabb acceptance and 71 tests passed.
+
+Task 07: Load input-string files into Multiple Run, preserving blank lines and tape separators and normalizing BOM/line endings. Four-line file browser check and 73 tests passed.
