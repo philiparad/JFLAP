@@ -43,7 +43,7 @@ function* stepChildren(m,c,input,options,closureMode,initializing){
  }
 }
 export class Runner {
- constructor(m,input,options={}){this.m=clone(m);this.input=Array.isArray(input)?input[0]||'':input;this.options=options;const c=initial(m,input);this.frontier=[c];this.visited=new Set([key(c)]);this.steps=0;this.count=1;this.status='running';this.accepted=[];this.reported=new WeakSet();this.foundAcceptance=false;this.layers=[[c]];this.limit=options.limit||20000;this.closureMode=options.stepMode==='closure'&&m.type==='fa';this.initializing=this.closureMode;if(this.initializing)this.step();else this.inspect();}
+ constructor(m,input,options={}){this.m=clone(m);this.input=Array.isArray(input)?input[0]||'':input;this.options=options;const c=initial(m,input);this.frontier=[c];this.visited=new Set([key(c)]);this.steps=0;this.count=1;this.status='running';this.accepted=[];this.reported=new WeakSet();this.foundAcceptance=false;this.layers=[[c]];this.limit=options.limit||20000;this.closureMode=options.stepMode==='closure'&&['fa','pda'].includes(m.type);this.initializing=this.closureMode;if(this.initializing)this.step();else this.inspect();}
  inspect(){this.accepted=[];for(const c of this.frontier)if(!this.reported.has(c)&&accepting(this.m,c,this.input,this.options))this.accepted.push(c);if(this.accepted.length){this.status='accepted';this.foundAcceptance=true;}else if(!this.frontier.length)this.status=this.foundAcceptance?'exhausted':'rejected';else if(this.frontier.every(c=>c.frozen))this.status='paused';else this.status='running';}
  step(){
   if(this.status!=='running')return this.status;
@@ -55,7 +55,7 @@ export class Runner {
    while(true){p.item??=p.children.next();if(p.item.done)break;
     const n=p.item.value,k=key(n);
     if(this.options.tracePaths?(c.ancestors||[key(c)]).includes(k):this.visited.has(k)){p.repeats=true;p.item=null;continue;}
-    if(this.count>=this.limit){this.status='limit';return this.status;}
+    if(this.count>=this.limit){this.frontier=p.frontier;this.inspect();if(this.status!=='accepted')this.status='limit';return this.status;}
     this.visited.add(k);p.item=null;p.frontier.push(n);this.count++;
    }
    p.index++;p.child=0;p.children=null;p.item=null;
