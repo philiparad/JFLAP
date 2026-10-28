@@ -9,7 +9,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 01 | [x] | Live simulation graph: highlight active states and nested-block location without changing execution. | S05 |
 | 02 | [x] | Freeze/thaw/remove configurations; frozen-only frontier stays paused and branches remain individually controllable. | S02–S04 |
 | 03 | [x] | Resume after search limit without losing pending branches; match uninterrupted result. | S07 |
-| 04 | [ ] | Keep looking after acceptance; show subsequent distinct accepting traces without repeating the last result. | S06 |
+| 04 | [x] | Keep looking after acceptance; show subsequent distinct accepting traces without repeating the last result. | S06 |
 | 05 | [ ] | FA closure stepping, including initial closure and epsilon cycles; match ordinary simulation. | S01 |
 | 06 | [ ] | PDA closure stepping with stack-aware configurations and bounded infinite epsilon growth. | S01 |
 | 07 | [ ] | Import input-string files into machine runs, preserving blank lines and tape separators. | B03 |
@@ -87,3 +87,5 @@ Task 01: live simulation graph and nested-view selector. Browser check: Start/St
 Task 02: Freeze, thaw and remove selected configurations are implemented. Frozen-only searches pause. Browser freeze/thaw/step check and 58 regression tests passed.
 
 Task 03: Search limits retain the pending step and all branches. Continue search adds budget. Browser limit-to-acceptance check and 61 tests passed.
+
+Task 04: Keep looking discovers further accepting traces, retaining distinct merged histories. Repeated configurations within each trace are suppressed and this bound is explained in the UI. Browser check and 64 tests passed.

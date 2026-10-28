@@ -27,8 +27,8 @@ export function next(root,c,input,options={}) {
 export function accepting(m,c,input,options={},children=null){const s=m.states.find(s=>s.id===c.state);if(['turing','turingbb'].includes(m.type)){if(c.path.length||!s)return false;const mode=options.acceptance||'final';return ((mode==='final'||mode==='both')&&s.final)||((mode==='halt'||mode==='both')&&(children??next(m,c,input,options)).length===0);}if(c.pos!==input.length)return false;if(['mealy','moore'].includes(m.type))return true;return m.type==='pda'&&options.acceptance==='empty'?c.stack.length===0:s.final;}
 export function tapeOutput(c){return c.tapes.map((t,i)=>{let h=c.heads[i],s='';while(t[h]!==undefined&&s.length<10000)s+=t[h++];return s;});}
 export class Runner {
- constructor(m,input,options={}){this.m=clone(m);this.input=Array.isArray(input)?input[0]||'':input;this.options=options;const c=initial(m,input);this.frontier=[c];this.visited=new Set([key(c)]);this.steps=0;this.count=1;this.status='running';this.accepted=[];this.layers=[[c]];this.limit=options.limit||20000;this.inspect();}
- inspect(){this.accepted=[];for(const c of this.frontier)if(accepting(this.m,c,this.input,this.options))this.accepted.push(c);if(this.accepted.length)this.status='accepted';else if(!this.frontier.length)this.status='rejected';else if(this.frontier.every(c=>c.frozen))this.status='paused';else this.status='running';}
+ constructor(m,input,options={}){this.m=clone(m);this.input=Array.isArray(input)?input[0]||'':input;this.options=options;const c=initial(m,input);this.frontier=[c];this.visited=new Set([key(c)]);this.steps=0;this.count=1;this.status='running';this.accepted=[];this.reported=new WeakSet();this.foundAcceptance=false;this.layers=[[c]];this.limit=options.limit||20000;this.inspect();}
+ inspect(){this.accepted=[];for(const c of this.frontier)if(!this.reported.has(c)&&accepting(this.m,c,this.input,this.options))this.accepted.push(c);if(this.accepted.length){this.status='accepted';this.foundAcceptance=true;}else if(!this.frontier.length)this.status=this.foundAcceptance?'exhausted':'rejected';else if(this.frontier.every(c=>c.frozen))this.status='paused';else this.status='running';}
  step(){
   if(this.status!=='running')return this.status;
   this.pending??={source:[...this.frontier],index:0,child:0,children:null,frontier:[],repeats:false};
@@ -37,14 +37,18 @@ export class Runner {
    if(c.frozen){p.frontier.push(c);p.index++;continue;}
    p.children??=next(this.m,c,this.input,this.options);
    while(p.child<p.children.length){const n=p.children[p.child],k=key(n);
-    if(this.visited.has(k)){p.repeats=true;p.child++;continue;}
+    if(this.options.tracePaths?(c.ancestors||[key(c)]).includes(k):this.visited.has(k)){p.repeats=true;p.child++;continue;}
     if(this.count>=this.limit){this.status='limit';return this.status;}
-    this.visited.add(k);p.child++;n.trace=[...c.trace,{state:c.state,pos:c.pos,stack:c.stack,output:c.output,heads:c.heads,tapes:c.tapes,path:c.path}];p.frontier.push(n);this.count++;
+    this.visited.add(k);p.child++;if(this.options.tracePaths)n.ancestors=[...(c.ancestors||[key(c)]),k];n.trace=[...c.trace,{state:c.state,pos:c.pos,stack:c.stack,output:c.output,heads:c.heads,tapes:c.tapes,path:c.path}];p.frontier.push(n);this.count++;
    }
    p.index++;p.child=0;p.children=null;
   }
   this.frontier=p.frontier;this.pending=null;this.steps++;this.layers.push(this.frontier);if(this.layers.length>300)this.layers.shift();this.inspect();
   if(this.status==='rejected'&&p.repeats&&['turing','turingbb'].includes(this.m.type))this.status='loop';return this.status;
+ }
+ keepLooking(){
+  if(this.status!=='accepted')return this.status;
+  this.accepted.forEach(c=>this.reported.add(c));this.accepted=[];this.status='running';return this.run();
  }
  resume(additional=this.options.limit||20000){
   if(this.status!=='limit')return this.status;
