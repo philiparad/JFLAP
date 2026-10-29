@@ -79,3 +79,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 14: 85 tests pass. Added ~ wildcard on all tapes and single-tape !a negation per TMSimulator.matches bytecode. Blank and literal punctuation, execution, multi-tape matching and XML round-trip checked. Browser verified !□ editing.
 
 - Task 15: 88 tests pass. Single-tape a,b}x capture, later variable writes, blank capture, unchanged ~ writes, branch isolation and restart tested. Multi-tape assignment explicitly rejected to match original scope. Browser capture editing and accepted run verified. See TURING-PATTERNS.md.
+
+- Task 16: 92 tests pass. Incremental breadth-first search supports progress, pause, resume, cancellation and expansion of count and form-length bounds. Tests compare resumed derivations and immutable grammar snapshots. Browser resumed a 100-form limit to accepted with 145 forms and 71 derivation steps. Leaving the view cancels ongoing work.

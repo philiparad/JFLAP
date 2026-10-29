@@ -21,7 +21,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 13 | [x] | Turing Stay preference, retaining existing S moves until edited as original does. | T03 |
 | 14 | [x] | Turing wildcard and negated-read syntax from original bytecode; literal/blank fixtures. | T01 |
 | 15 | [x] | Turing variable assignment/reuse; branch-local bindings and multi-tape fixtures. | T01 |
-| 16 | [ ] | Incremental grammar search with pause/resume/cancel and progress; preserve results. | G08 |
+| 16 | [x] | Incremental grammar search with pause/resume/cancel and progress; preserve results. | G08 |
 | 17 | [ ] | User-controlled grammar rewrites: choose production and occurrence; undo derivation. | G01 |
 | 18 | [ ] | Structured grammar-variable representation for generated converters; preserve old files. | Compatibility |
 | 19 | [ ] | PDA→CFG core conversion with explicit supported normalization and language tests. | C01 |
@@ -111,3 +111,5 @@ Task 13: 83 tests pass. Browser verified disabled Stay choices, cancel preservin
 Task 14: 85 tests pass. Added ~ wildcard on all tapes and single-tape !a negation per TMSimulator.matches bytecode. Blank and literal punctuation, execution, multi-tape matching and XML round-trip checked. Browser verified !□ editing.
 
 Task 15: 88 tests pass. Single-tape a,b}x capture, later variable writes, blank capture, unchanged ~ writes, branch isolation and restart tested. Multi-tape assignment explicitly rejected to match original scope. Browser capture editing and accepted run verified. See TURING-PATTERNS.md.
+
+Task 16: 92 tests pass. Incremental breadth-first search supports progress, pause, resume, cancellation and expansion of count and form-length bounds. Tests compare resumed derivations and immutable grammar snapshots. Browser resumed a 100-form limit to accepted with 145 forms and 71 derivation steps. Leaving the view cancels ongoing work.

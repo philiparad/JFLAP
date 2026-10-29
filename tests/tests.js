@@ -138,5 +138,19 @@ test('Turing blank capture and multi-tape unchanged writes',()=>{
  equal(simulate(m,['a','b']).config.tapes,[{0:'a'},{0:'b'}]);
  let rejected=false;try{validateTapeRead('a,b}x',2);}catch{rejected=true;}assert(rejected);
 });
+
+test('Incremental grammar search preserves derivation across pause and resume',()=>{
+ const p=G.parseGrammar('S -> aSb | λ'),s=new G.DerivationSearch(p,'aabb');s.chunk(1);s.pause();const before=s.result();s.chunk(100);equal(s.result(),before);s.resume();while(s.status==='running')s.chunk(1);equal(s.status,'accepted');equal(s.rows,G.derive(p,'aabb').rows);
+});
+test('Grammar count limit resumes without dropping pending candidates',()=>{
+ const p=G.parseGrammar('S -> aS | λ'),s=new G.DerivationSearch(p,'aaa',{limit:2});s.chunk(100);equal(s.status,'limit');for(let i=0;i<10&&s.status==='limit';i++){s.resume(2);while(s.status==='running')s.chunk(2);}equal(s.status,'accepted');equal(s.rows,G.derive(p,'aaa').rows);
+});
+test('Grammar length limits can expand and cancellation is terminal',()=>{
+ const p=G.parseGrammar('S -> aS | λ'),s=new G.DerivationSearch(p,'aaaa',{maxLength:2});while(s.status==='running')s.chunk(10);equal(s.result().reason,'length');s.resume();while(s.status==='running')s.chunk(10);equal(s.status,'accepted');
+ const c=new G.DerivationSearch(p,'b');c.chunk(2);c.cancel();const before=c.result();c.resume();c.chunk(20);equal(c.result(),before);equal(c.status,'cancelled');
+});
+test('Incremental grammar search reports finite rejection and owns its grammar snapshot',()=>{
+ const p=G.parseGrammar('S -> a'),s=new G.DerivationSearch(p,'b');p[0].right='b';while(s.status==='running')s.chunk(1);equal(s.status,'rejected');
+});
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 
