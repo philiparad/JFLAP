@@ -73,3 +73,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 11: Multiple Parse offers CYK with per-input charts and normalized grammar, including empty-word checks. Browser four-input results/chart and 80 tests passed.
 
 - Task 12: Multi-tape creation offers 1–5 tapes and displays tape count. Browser five-tape creation and 82 tests including all tape-count XML simulations passed.
+
+- Task 13: 83 tests pass. Browser verified disabled Stay choices, cancel preserving existing S, and Apply converting edited S to R. Fixed SVG selection redraw so double-click editing reliably opens.

@@ -1,3 +1,4 @@
+import {tapeMoveChoices} from '../js/turing.js';
 import {parseInputs,runBatch,batchCSV,parseGrammarBatch} from '../js/batch.js';
 import * as A from '../js/automata.js';
 import * as G from '../js/grammar.js';
@@ -95,4 +96,6 @@ test('CYK batch reports unsupported unrestricted grammar explicitly',()=>{const 
 
 test('New multi-tape machines support all 1–5 tape counts and XML simulation',()=>{for(let n=1;n<=5;n++){const m=blank('multitape',n);A.state(m);A.state(m).final=true;A.edge(m,0,1,Array(n).fill('a'),{write:Array(n).fill('b'),move:Array(n).fill('S')});const copy=deserialize(serialize(m));equal(copy.tapes,n);equal(simulate(copy,Array(n).fill('a')).outputs,[Array(n).fill('b')]);}});
 test('Invalid new tape counts are rejected',()=>{for(const n of [0,6,1.5,NaN]){let failed=false;try{blank('multitape',n);}catch{failed=true;}assert(failed);}});
+
+test('Stay preference changes editor choices without changing existing transitions',()=>{const m=example('turing'),old=A.clone(m.transitions);equal(tapeMoveChoices('S',false),{value:'R',options:[['L','Left'],['R','Right']]});assert(tapeMoveChoices('S',true).options.some(o=>o[0]==='S'));equal(m.transitions,old);equal(simulate(m,'111',{allowStay:false}).status,'accepted');});
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
