@@ -3,7 +3,7 @@ import * as A from '../js/automata.js';
 import * as G from '../js/grammar.js';
 import {simulate,Runner} from '../js/simulation.js';
 import {serialize,deserialize} from '../js/files.js';
-import {example} from '../js/examples.js';
+import {example,blank} from '../js/examples.js';
 import {expand,turtle,arithmetic} from '../js/lsystem.js';
 import {languages,pump,findSplit} from '../js/pumping.js';
 let passed=0,failed=0;const results=document.querySelector('#results');
@@ -92,4 +92,7 @@ test('Grammar batch retains limits and unrestricted productions',()=>{const p=G.
 
 test('CYK batch includes empty input and per-input charts',()=>{const p=G.parseGrammar('S -> aSb | λ');const rows=parseGrammarBatch(p,['λ','ab','aabb','aab'],15000,'cyk');equal(rows.map(r=>r.status),['accepted','accepted','accepted','rejected']);equal(rows[0].cells,[]);equal(rows[2].cells.length,4);assert(rows[2].cells[3][0].includes(rows[2].grammar[0].left));});
 test('CYK batch reports unsupported unrestricted grammar explicitly',()=>{const p=G.parseGrammar('S -> AB\nAB -> ab');const rows=parseGrammarBatch(p,['ab'],15000,'cyk');equal(rows[0].status,'error');assert(rows[0].error.includes('single uppercase'));});
+
+test('New multi-tape machines support all 1–5 tape counts and XML simulation',()=>{for(let n=1;n<=5;n++){const m=blank('multitape',n);A.state(m);A.state(m).final=true;A.edge(m,0,1,Array(n).fill('a'),{write:Array(n).fill('b'),move:Array(n).fill('S')});const copy=deserialize(serialize(m));equal(copy.tapes,n);equal(simulate(copy,Array(n).fill('a')).outputs,[Array(n).fill('b')]);}});
+test('Invalid new tape counts are rejected',()=>{for(const n of [0,6,1.5,NaN]){let failed=false;try{blank('multitape',n);}catch{failed=true;}assert(failed);}});
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
