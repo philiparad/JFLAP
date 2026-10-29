@@ -1,4 +1,4 @@
-import {parseInputs,runBatch,batchCSV} from '../js/batch.js';
+import {parseInputs,runBatch,batchCSV,parseGrammarBatch} from '../js/batch.js';
 import * as A from '../js/automata.js';
 import * as G from '../js/grammar.js';
 import {simulate,Runner} from '../js/simulation.js';
@@ -86,4 +86,7 @@ test('Input file parser preserves tape separators and whitespace',()=>{equal(par
 test('Multi-machine matrix distinguishes languages on shared inputs',()=>{const a=A.regexToFA('a*'),b=A.regexToFA('aa*');equal(runBatch([a,b],['','a','b']).map(r=>r.results.map(c=>c.status)),[['accepted','rejected'],['accepted','accepted'],['rejected','rejected']]);});
 test('Batch isolates malformed machines and refuses mixed types',()=>{const a=example('fa'),b=A.machine();equal(runBatch([a,b],['01'])[0].results.map(r=>r.status),['accepted','error']);let failed=false;try{runBatch([a,example('pda')],['']);}catch{failed=true;}assert(failed);});
 test('Batch CSV quotes machine names and preserves inconclusive outcomes',()=>{const m=example('fa');m.name='A,"B"';const rows=runBatch([m],['01'],{limit:1});assert(batchCSV([m],rows).includes('"A,""B"""'));assert(batchCSV([m],rows).includes('"limit"'));});
+
+test('Grammar batch parsing preserves each input result and derivation',()=>{const p=G.parseGrammar('S -> aSb | λ');const rows=parseGrammarBatch(p,['λ','ab','aabb','aab']);equal(rows.map(r=>r.status),['accepted','accepted','accepted','limit']);equal(rows[2].rows.at(-1).word,'aabb');equal(parseGrammarBatch(G.parseGrammar('S -> ab'),['aab'])[0].status,'rejected');});
+test('Grammar batch retains limits and unrestricted productions',()=>{const p=G.parseGrammar('S -> AB\nAB -> ab');equal(parseGrammarBatch(p,['ab'])[0].status,'accepted');equal(parseGrammarBatch(p,['ab'],1)[0].status,'limit');});
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
