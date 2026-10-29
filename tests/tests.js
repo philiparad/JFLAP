@@ -1,4 +1,4 @@
-import {parseInputs} from '../js/batch.js';
+import {parseInputs,runBatch,batchCSV} from '../js/batch.js';
 import * as A from '../js/automata.js';
 import * as G from '../js/grammar.js';
 import {simulate,Runner} from '../js/simulation.js';
@@ -82,4 +82,8 @@ test('Acceptance discovered inside an unfinished epsilon closure is retained',()
 
 test('Input files normalize BOM and Windows line endings without losing blanks',()=>{equal(parseInputs('\uFEFFa\r\n\r\nb\r\n'),['a','','b','']);});
 test('Input file parser preserves tape separators and whitespace',()=>{equal(parseInputs('a|b\n |11'),['a|b',' |11']);});
+
+test('Multi-machine matrix distinguishes languages on shared inputs',()=>{const a=A.regexToFA('a*'),b=A.regexToFA('aa*');equal(runBatch([a,b],['','a','b']).map(r=>r.results.map(c=>c.status)),[['accepted','rejected'],['accepted','accepted'],['rejected','rejected']]);});
+test('Batch isolates malformed machines and refuses mixed types',()=>{const a=example('fa'),b=A.machine();equal(runBatch([a,b],['01'])[0].results.map(r=>r.status),['accepted','error']);let failed=false;try{runBatch([a,example('pda')],['']);}catch{failed=true;}assert(failed);});
+test('Batch CSV quotes machine names and preserves inconclusive outcomes',()=>{const m=example('fa');m.name='A,"B"';const rows=runBatch([m],['01'],{limit:1});assert(batchCSV([m],rows).includes('"A,""B"""'));assert(batchCSV([m],rows).includes('"limit"'));});
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
