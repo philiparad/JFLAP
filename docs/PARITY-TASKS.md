@@ -16,7 +16,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 08 | [x] | Multi-machine batch testing: selected open models, result matrix and CSV. | B01 |
 | 09 | [x] | Batch add/remove/edit machine files and imported input files. | B02 |
 | 10 | [x] | Grammar multiple brute-force parsing with per-input result and derivation. | B04 |
-| 11 | [ ] | Grammar multiple CYK parsing with per-input charts. | B05 |
+| 11 | [x] | Grammar multiple CYK parsing with per-input charts. | B05 |
 | 12 | [ ] | Tape-count chooser (1–5); create, edit, simulate and round-trip each count. | T02 |
 | 13 | [ ] | Turing Stay preference, retaining existing S moves until edited as original does. | T03 |
 | 14 | [ ] | Turing wildcard and negated-read syntax from original bytecode; literal/blank fixtures. | T01 |
@@ -101,3 +101,5 @@ Task 08: Batch Test compares selected same-type machines on shared inputs, isola
 Task 09: Batch supports adding model files, removing members without deleting documents, editing members and importing shared inputs. Browser add/edit/remove/input preservation checks and 76 tests passed.
 
 Task 10: Multiple Parse runs brute-force grammar searches and exposes each derivation. Input-file loading is included; unfinished searches remain limits. Browser derivation check and 78 tests passed.
+
+Task 11: Multiple Parse offers CYK with per-input charts and normalized grammar, including empty-word checks. Browser four-input results/chart and 80 tests passed.

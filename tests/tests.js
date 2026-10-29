@@ -89,4 +89,7 @@ test('Batch CSV quotes machine names and preserves inconclusive outcomes',()=>{c
 
 test('Grammar batch parsing preserves each input result and derivation',()=>{const p=G.parseGrammar('S -> aSb | λ');const rows=parseGrammarBatch(p,['λ','ab','aabb','aab']);equal(rows.map(r=>r.status),['accepted','accepted','accepted','limit']);equal(rows[2].rows.at(-1).word,'aabb');equal(parseGrammarBatch(G.parseGrammar('S -> ab'),['aab'])[0].status,'rejected');});
 test('Grammar batch retains limits and unrestricted productions',()=>{const p=G.parseGrammar('S -> AB\nAB -> ab');equal(parseGrammarBatch(p,['ab'])[0].status,'accepted');equal(parseGrammarBatch(p,['ab'],1)[0].status,'limit');});
+
+test('CYK batch includes empty input and per-input charts',()=>{const p=G.parseGrammar('S -> aSb | λ');const rows=parseGrammarBatch(p,['λ','ab','aabb','aab'],15000,'cyk');equal(rows.map(r=>r.status),['accepted','accepted','accepted','rejected']);equal(rows[0].cells,[]);equal(rows[2].cells.length,4);assert(rows[2].cells[3][0].includes(rows[2].grammar[0].left));});
+test('CYK batch reports unsupported unrestricted grammar explicitly',()=>{const p=G.parseGrammar('S -> AB\nAB -> ab');const rows=parseGrammarBatch(p,['ab'],15000,'cyk');equal(rows[0].status,'error');assert(rows[0].error.includes('single uppercase'));});
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;

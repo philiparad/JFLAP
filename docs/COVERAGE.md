@@ -69,3 +69,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 09: Batch supports adding model files, removing members without deleting documents, editing members and importing shared inputs. Browser add/edit/remove/input preservation checks and 76 tests passed.
 
 - Task 10: Multiple Parse runs brute-force grammar searches and exposes each derivation. Input-file loading is included; unfinished searches remain limits. Browser derivation check and 78 tests passed.
+
+- Task 11: Multiple Parse offers CYK with per-input charts and normalized grammar, including empty-word checks. Browser four-input results/chart and 80 tests passed.
