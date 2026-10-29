@@ -1,3 +1,4 @@
+import {ManualDerivation} from '../js/grammar-rewrite.js';
 import {tapeMoveChoices,matchesTapeRead,validateTapeRead} from '../js/turing.js';
 import {parseInputs,runBatch,batchCSV,parseGrammarBatch} from '../js/batch.js';
 import * as A from '../js/automata.js';
@@ -151,6 +152,14 @@ test('Grammar length limits can expand and cancellation is terminal',()=>{
 });
 test('Incremental grammar search reports finite rejection and owns its grammar snapshot',()=>{
  const p=G.parseGrammar('S -> a'),s=new G.DerivationSearch(p,'b');p[0].right='b';while(s.status==='running')s.chunk(1);equal(s.status,'rejected');
+});
+
+test('Manual derivation selects occurrence and supports undo and restart',()=>{
+ const s=new ManualDerivation(G.parseGrammar('S -> AA\nA -> a | λ'));s.apply(0,0);equal(s.occurrences(1),[0,1]);equal(s.apply(1,1),'Aa');equal(s.apply(2,0),'a');equal(s.undo(),'Aa');equal(s.undo(),'AA');s.reset();equal(s.word,'S');s.undo();equal(s.rows.length,1);
+});
+test('Manual derivation supports overlapping unrestricted rewrites and empty result',()=>{
+ const s=new ManualDerivation([{left:'AAA',right:'AAA'},{left:'AA',right:'b'},{left:'Ab',right:''}]);equal(s.occurrences(1),[0,1]);equal(s.apply(1,1),'Ab');equal(s.apply(2,0),'');
+ let error=false;try{s.apply(1,0);}catch{error=true;}assert(error);equal(s.rows.length,3);
 });
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 

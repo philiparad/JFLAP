@@ -81,3 +81,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 15: 88 tests pass. Single-tape a,b}x capture, later variable writes, blank capture, unchanged ~ writes, branch isolation and restart tested. Multi-tape assignment explicitly rejected to match original scope. Browser capture editing and accepted run verified. See TURING-PATTERNS.md.
 
 - Task 16: 92 tests pass. Incremental breadth-first search supports progress, pause, resume, cancellation and expansion of count and form-length bounds. Tests compare resumed derivations and immutable grammar snapshots. Browser resumed a 100-form limit to accepted with 145 forms and 71 derivation steps. Leaving the view cancels ongoing work.
+
+- Task 17: 94 tests pass. Added Manual Derivation tab with production and occurrence choice, history, undo and restart. Tests cover repeated and overlapping occurrences, unrestricted rules, blank result and invalid selections. Browser verified S to aabb and undo to aaSbb.
