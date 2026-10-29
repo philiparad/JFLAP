@@ -19,7 +19,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 11 | [x] | Grammar multiple CYK parsing with per-input charts. | B05 |
 | 12 | [x] | Tape-count chooser (1–5); create, edit, simulate and round-trip each count. | T02 |
 | 13 | [x] | Turing Stay preference, retaining existing S moves until edited as original does. | T03 |
-| 14 | [ ] | Turing wildcard and negated-read syntax from original bytecode; literal/blank fixtures. | T01 |
+| 14 | [x] | Turing wildcard and negated-read syntax from original bytecode; literal/blank fixtures. | T01 |
 | 15 | [ ] | Turing variable assignment/reuse; branch-local bindings and multi-tape fixtures. | T01 |
 | 16 | [ ] | Incremental grammar search with pause/resume/cancel and progress; preserve results. | G08 |
 | 17 | [ ] | User-controlled grammar rewrites: choose production and occurrence; undo derivation. | G01 |
@@ -107,3 +107,5 @@ Task 11: Multiple Parse offers CYK with per-input charts and normalized grammar,
 Task 12: Multi-tape creation offers 1–5 tapes and displays tape count. Browser five-tape creation and 82 tests including all tape-count XML simulations passed.
 
 Task 13: 83 tests pass. Browser verified disabled Stay choices, cancel preserving existing S, and Apply converting edited S to R. Fixed SVG selection redraw so double-click editing reliably opens.
+
+Task 14: 85 tests pass. Added ~ wildcard on all tapes and single-tape !a negation per TMSimulator.matches bytecode. Blank and literal punctuation, execution, multi-tape matching and XML round-trip checked. Browser verified !□ editing.

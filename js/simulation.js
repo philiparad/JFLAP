@@ -1,3 +1,4 @@
+import {matchesTapeRead,tapeSymbol} from './turing.js';
 import {clone,empty,labels,validate} from './automata.js';
 const key=c=>JSON.stringify([c.state,c.pos,c.stack,c.tapes,c.heads,c.output,c.path,c.calls,c.entered]);
 export function initial(m,input){validate(m);const s=m.states.find(s=>s.initial);const inputs=Array.isArray(input)?input:[input];return {state:s.id,pos:0,stack:'Z',tapes:Array.from({length:m.tapes||1},(_,i)=>Object.fromEntries([...inputs[i]||''].map((c,j)=>[j,c]))),heads:Array(m.tapes||1).fill(0),output:m.type==='moore'?s.output||'':'',path:[],calls:[],entered:false,trace:[]};}
@@ -9,8 +10,8 @@ export function next(root,c,input,options={}) {
  if(isTM&&s.final&&!c.path.length&&!options.finalTransitions)return [];
  for(const t of m.transitions.filter(t=>t.from===c.state)){
   if(isTM){const reads=Array.isArray(t.read)?t.read:[t.read],writes=Array.isArray(t.write)?t.write:[t.write??''],moves=Array.isArray(t.move)?t.move:[t.move||'R'];
-   if(!c.tapes.every((tape,i)=>empty(reads[i])===tapeRead(tape,c.heads[i])))continue;
-   const n=clone({...c,trace:[]});n.state=t.to;n.entered=false;n.trace=[];n.tapes.forEach((tape,i)=>{const w=empty(writes[i]);if(w)tape[n.heads[i]]=w;else delete tape[n.heads[i]];n.heads[i]+=moves[i]==='L'?-1:moves[i]==='R'?1:0;});children.push(n);
+   if(!c.tapes.every((tape,i)=>matchesTapeRead(reads[i],tapeRead(tape,c.heads[i]),c.tapes.length)))continue;
+   const n=clone({...c,trace:[]});n.state=t.to;n.entered=false;n.trace=[];n.tapes.forEach((tape,i)=>{const w=tapeSymbol(writes[i]);if(w)tape[n.heads[i]]=w;else delete tape[n.heads[i]];n.heads[i]+=moves[i]==='L'?-1:moves[i]==='R'?1:0;});children.push(n);
   }else for(const read of labels(t.read)){
    if(!input.startsWith(read,c.pos))continue;
    if(m.type==='pda'&&!c.stack.startsWith(empty(t.pop)))continue;
