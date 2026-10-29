@@ -1,7 +1,7 @@
-import {matchesTapeRead,tapeSymbol} from './turing.js';
+import {matchesTapeRead,captureTapeRead,resolveTapeWrite} from './turing.js';
 import {clone,empty,labels,validate} from './automata.js';
-const key=c=>JSON.stringify([c.state,c.pos,c.stack,c.tapes,c.heads,c.output,c.path,c.calls,c.entered]);
-export function initial(m,input){validate(m);const s=m.states.find(s=>s.initial);const inputs=Array.isArray(input)?input:[input];return {state:s.id,pos:0,stack:'Z',tapes:Array.from({length:m.tapes||1},(_,i)=>Object.fromEntries([...inputs[i]||''].map((c,j)=>[j,c]))),heads:Array(m.tapes||1).fill(0),output:m.type==='moore'?s.output||'':'',path:[],calls:[],entered:false,trace:[]};}
+const key=c=>JSON.stringify([c.state,c.pos,c.stack,c.tapes,c.heads,c.output,c.path,c.calls,c.entered,c.bindings]);
+export function initial(m,input){validate(m);const s=m.states.find(s=>s.initial);const inputs=Array.isArray(input)?input:[input];return {state:s.id,pos:0,stack:'Z',tapes:Array.from({length:m.tapes||1},(_,i)=>Object.fromEntries([...inputs[i]||''].map((c,j)=>[j,c]))),heads:Array(m.tapes||1).fill(0),output:m.type==='moore'?s.output||'':'',path:[],calls:[],entered:false,bindings:{},trace:[]};}
 function currentMachine(root,path){return path.reduce((m,id)=>m.states.find(s=>s.id===id).block,root);}
 function tapeRead(t,h){return t[h]??'';}
 export function next(root,c,input,options={}) {
@@ -11,7 +11,7 @@ export function next(root,c,input,options={}) {
  for(const t of m.transitions.filter(t=>t.from===c.state)){
   if(isTM){const reads=Array.isArray(t.read)?t.read:[t.read],writes=Array.isArray(t.write)?t.write:[t.write??''],moves=Array.isArray(t.move)?t.move:[t.move||'R'];
    if(!c.tapes.every((tape,i)=>matchesTapeRead(reads[i],tapeRead(tape,c.heads[i]),c.tapes.length)))continue;
-   const n=clone({...c,trace:[]});n.state=t.to;n.entered=false;n.trace=[];n.tapes.forEach((tape,i)=>{const w=tapeSymbol(writes[i]);if(w)tape[n.heads[i]]=w;else delete tape[n.heads[i]];n.heads[i]+=moves[i]==='L'?-1:moves[i]==='R'?1:0;});children.push(n);
+   const n=clone({...c,trace:[]});n.state=t.to;n.entered=false;n.trace=[];if(c.tapes.length===1)n.bindings=captureTapeRead(reads[0],tapeRead(c.tapes[0],c.heads[0]),c.bindings);n.tapes.forEach((tape,i)=>{const w=resolveTapeWrite(writes[i],tapeRead(tape,n.heads[i]),n.bindings,c.tapes.length);if(w)tape[n.heads[i]]=w;else delete tape[n.heads[i]];n.heads[i]+=moves[i]==='L'?-1:moves[i]==='R'?1:0;});children.push(n);
   }else for(const read of labels(t.read)){
    if(!input.startsWith(read,c.pos))continue;
    if(m.type==='pda'&&!c.stack.startsWith(empty(t.pop)))continue;
@@ -27,7 +27,7 @@ export function next(root,c,input,options={}) {
 }
 export function accepting(m,c,input,options={},children=null){const s=m.states.find(s=>s.id===c.state);if(['turing','turingbb'].includes(m.type)){if(c.path.length||!s)return false;const mode=options.acceptance||'final';return ((mode==='final'||mode==='both')&&s.final)||((mode==='halt'||mode==='both')&&(children??next(m,c,input,options)).length===0);}if(c.pos!==input.length)return false;if(['mealy','moore'].includes(m.type))return true;return m.type==='pda'&&options.acceptance==='empty'?c.stack.length===0:s.final;}
 export function tapeOutput(c){return c.tapes.map((t,i)=>{let h=c.heads[i],s='';while(t[h]!==undefined&&s.length<10000)s+=t[h++];return s;});}
-const snapshot=c=>({state:c.state,pos:c.pos,stack:c.stack,output:c.output,heads:c.heads,tapes:c.tapes,path:c.path});
+const snapshot=c=>({state:c.state,pos:c.pos,stack:c.stack,output:c.output,heads:c.heads,tapes:c.tapes,path:c.path,bindings:c.bindings});
 function traced(c,n){return {...n,trace:[...c.trace,snapshot(c)],ancestors:[...(c.ancestors||[key(c)]),key(n)]};}
 function* epsilonClosure(m,seed,input,options){
  const queue=[seed],seen=new Set();

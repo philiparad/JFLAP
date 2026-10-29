@@ -77,3 +77,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 13: 83 tests pass. Browser verified disabled Stay choices, cancel preserving existing S, and Apply converting edited S to R. Fixed SVG selection redraw so double-click editing reliably opens.
 
 - Task 14: 85 tests pass. Added ~ wildcard on all tapes and single-tape !a negation per TMSimulator.matches bytecode. Blank and literal punctuation, execution, multi-tape matching and XML round-trip checked. Browser verified !□ editing.
+
+- Task 15: 88 tests pass. Single-tape a,b}x capture, later variable writes, blank capture, unchanged ~ writes, branch isolation and restart tested. Multi-tape assignment explicitly rejected to match original scope. Browser capture editing and accepted run verified. See TURING-PATTERNS.md.

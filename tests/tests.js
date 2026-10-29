@@ -2,7 +2,7 @@ import {tapeMoveChoices,matchesTapeRead,validateTapeRead} from '../js/turing.js'
 import {parseInputs,runBatch,batchCSV,parseGrammarBatch} from '../js/batch.js';
 import * as A from '../js/automata.js';
 import * as G from '../js/grammar.js';
-import {simulate,Runner} from '../js/simulation.js';
+import {simulate,Runner,next,initial} from '../js/simulation.js';
 import {serialize,deserialize} from '../js/files.js';
 import {example,blank} from '../js/examples.js';
 import {expand,turtle,arithmetic} from '../js/lsystem.js';
@@ -114,6 +114,29 @@ test('Turing wildcard and negation execute and round-trip',()=>{
  const copy=deserialize(serialize(m));equal(copy.transitions[0].read,['!a']);equal(simulate(copy,'b').status,'accepted');
  m.tapes=2;m.transitions[0].read=['~','b'];m.transitions[0].write=['','x'];m.transitions[0].move=['S','S'];
  equal(simulate(m,['','b']).status,'accepted');equal(simulate(m,['a','c']).status,'rejected');
+});
+
+test('Turing captures a symbol and reuses it after moving',()=>{
+ const m=A.machine('turing');A.state(m);A.state(m);A.state(m).final=true;
+ A.edge(m,0,1,['a,b}x'],{read:['a,b}x'],write:['~'],move:['R']});
+ A.edge(m,1,2,[''],{read:[''],write:['x'],move:['S']});
+ for(const word of ['a','b']){const r=simulate(deserialize(serialize(m)),word);equal(r.status,'accepted');equal(r.config.tapes[0][1],word);equal(r.config.bindings,{x:word});}
+ equal(simulate(m,'c').status,'rejected');
+});
+test('Turing capture branches and runner restart keep bindings isolated',()=>{
+ const m=A.machine('turing');A.state(m);A.state(m).final=true;
+ A.edge(m,0,1,['a}x'],{read:['a}x'],write:['x'],move:['S']});
+ A.edge(m,0,1,['a}y'],{read:['a}y'],write:['y'],move:['S']});
+ const root=initial(m,'a'),branches=next(m,root,'a');equal(branches.length,2);equal(root.bindings,{});
+ equal(branches[0].bindings,{x:'a'});equal(branches[1].bindings,{y:'a'});
+ branches[0].bindings.x='b';equal(branches[1].bindings,{y:'a'});equal(initial(m,'b').bindings,{});
+});
+test('Turing blank capture and multi-tape unchanged writes',()=>{
+ const m=A.machine('turing');A.state(m);A.state(m).final=true;
+ A.edge(m,0,1,['□}x'],{read:['□}x'],write:['x'],move:['S']});equal(simulate(m,'').config.tapes,[{}]);
+ m.tapes=2;m.transitions[0].read=['~','~'];m.transitions[0].write=['~','~'];m.transitions[0].move=['S','R'];
+ equal(simulate(m,['a','b']).config.tapes,[{0:'a'},{0:'b'}]);
+ let rejected=false;try{validateTapeRead('a,b}x',2);}catch{rejected=true;}assert(rejected);
 });
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 
