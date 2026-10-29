@@ -14,7 +14,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 06 | [x] | PDA closure stepping with stack-aware configurations and bounded infinite epsilon growth. | S01 |
 | 07 | [x] | Import input-string files into machine runs, preserving blank lines and tape separators. | B03 |
 | 08 | [x] | Multi-machine batch testing: selected open models, result matrix and CSV. | B01 |
-| 09 | [ ] | Batch add/remove/edit machine files and imported input files. | B02 |
+| 09 | [x] | Batch add/remove/edit machine files and imported input files. | B02 |
 | 10 | [ ] | Grammar multiple brute-force parsing with per-input result and derivation. | B04 |
 | 11 | [ ] | Grammar multiple CYK parsing with per-input charts. | B05 |
 | 12 | [ ] | Tape-count chooser (1–5); create, edit, simulate and round-trip each count. | T02 |
@@ -97,3 +97,5 @@ Task 06: PDA closure stepping distinguishes stacks, bounds infinite epsilon grow
 Task 07: Load input-string files into Multiple Run, preserving blank lines and tape separators and normalizing BOM/line endings. Four-line file browser check and 73 tests passed.
 
 Task 08: Batch Test compares selected same-type machines on shared inputs, isolates per-machine errors and exports CSV. Browser two-machine matrix and 76 tests passed.
+
+Task 09: Batch supports adding model files, removing members without deleting documents, editing members and importing shared inputs. Browser add/edit/remove/input preservation checks and 76 tests passed.
