@@ -1,3 +1,4 @@
+import {turingToGrammar,deriveTuringGrammar} from '../js/turing-grammar.js';
 import {pdaToGrammar,normalizePDA} from '../js/pda-grammar.js';
 import {V,T,tokenGrammar,fromLegacyGrammar,compileTokenGrammar,TokenDerivationSearch,TokenManualDerivation} from '../js/token-grammar.js';
 import {ManualDerivation} from '../js/grammar-rewrite.js';
@@ -200,6 +201,29 @@ test('PDA conversion handles empty stack recovery and empty language',()=>{
 });
 test('PDA conversion has explicit construction bounds',()=>{
  let error=false;try{pdaToGrammar(example('pda'),{maxProductions:2});}catch(e){error=e.message.includes('productions');}assert(error);
+});
+
+test('Turing grammar preserves input while the machine overwrites its tape',()=>{
+ const m=example('turing'),g=turingToGrammar(m,{alphabet:['1']});
+ for(const word of ['','1','11','111']){const r=deriveTuringGrammar(g,word);equal(r.status,simulate(m,word).status);equal(r.status,'accepted');
+  let form=[V('Start')];for(const row of r.rows){const p=g.productions[row.rule];equal(form.slice(row.position,row.position+p.left.length),p.left);form=[...form.slice(0,row.position),...p.right,...form.slice(row.position+p.left.length)];}equal(form,[...word].map(T));
+ }
+});
+test('Turing grammar supports left boundary expansion, Stay and nondeterminism',()=>{
+ const m=A.machine('turing');for(let i=0;i<4;i++)A.state(m);m.states[3].final=true;
+ A.edge(m,0,1,['a'],{read:['a'],write:['b'],move:['L']});A.edge(m,1,2,[''],{read:[''],write:['x'],move:['R']});A.edge(m,2,3,['b'],{read:['b'],write:[''],move:['S']});
+ A.edge(m,0,2,['a'],{read:['a'],write:['a'],move:['S']});
+ const g=turingToGrammar(m,{alphabet:['a','b']});for(const word of words('ab',2))equal(deriveTuringGrammar(g,word).status,simulate(m,word).status);
+});
+test('Turing grammar supports wildcard, negation and unchanged writes',()=>{
+ const m=A.machine('turing');A.state(m);A.state(m).final=true;A.edge(m,0,1,['!a'],{read:['!a'],write:['~'],move:['S']});
+ const g=turingToGrammar(m,{alphabet:['a','b']});for(const word of ['','a','b','ba'])equal(deriveTuringGrammar(g,word).status,simulate(m,word).status);
+ equal(deriveTuringGrammar(g,'c').reason,'outside-alphabet');equal(deriveTuringGrammar(deserialize(JSON.stringify(g)),'b').status,'accepted');
+});
+test('Turing grammar rejects unsupported structures and reports bounded search',()=>{
+ const m=A.machine('turing');A.state(m);A.edge(m,0,0,['~'],{read:['~'],write:['~'],move:['R']});const g=turingToGrammar(m,{alphabet:['a']});equal(deriveTuringGrammar(g,'a',{limit:10}).status,'limit');
+ m.tapes=2;let error=false;try{turingToGrammar(m,{alphabet:['a']});}catch{error=true;}assert(error);
+ m.tapes=1;m.transitions[0].read=['a}x'];error=false;try{turingToGrammar(m,{alphabet:['a']});}catch{error=true;}assert(error);
 });
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 
