@@ -28,10 +28,20 @@ export function compileTokenGrammar(m){
  const encode=s=>{const key=identity(s);if(!codes.has(key)){if(symbols.length>=6400)throw Error('Grammar exceeds 6,400 distinct symbols.');const code=String.fromCharCode(0xE000+symbols.length);symbols.push({...s});codes.set(key,code);}return codes.get(key);};
  const productions=m.productions.map(p=>({left:p.left.map(encode).join(''),right:p.right.map(encode).join('')}));
  const decode=word=>[...word].map(c=>{const symbol=symbols[c.charCodeAt(0)-0xE000];if(!symbol)throw Error('Unknown encoded symbol.');return {...symbol};});
- return {productions,decode,encodeInput:input=>[...input].map(c=>encode(T(c))).join('')};
+ return {productions,decode,symbols,encodeInput:input=>[...input].map(c=>encode(T(c))).join('')};
 }
 export class TokenDerivationSearch {
- constructor(m,input,options={}){this.codec=compileTokenGrammar(m);this.search=new DerivationSearch(this.codec.productions,this.codec.encodeInput(input),options);this.productions=structuredClone(m.productions);}
+ constructor(m,input,options={}){
+  this.codec=compileTokenGrammar(m);const encoded=this.codec.encodeInput(input),cfg=m.productions.every(p=>p.left.length===1&&p.left[0].kind==='variable');
+  const terminal=c=>this.codec.symbols[c.charCodeAt(0)-0xE000].kind==='terminal';
+  const prune=cfg?word=>{
+   const letters=[...word];if(letters.filter(terminal).length>encoded.length)return true;
+   let prefix='',suffix='';for(const c of letters){if(!terminal(c))break;prefix+=c;}
+   for(let i=letters.length-1;i>=0&&terminal(letters[i]);i--)suffix=letters[i]+suffix;
+   return !encoded.startsWith(prefix)||!encoded.endsWith(suffix);
+  }:null;
+  this.search=new DerivationSearch(this.codec.productions,encoded,{...options,prune});this.productions=structuredClone(m.productions);
+ }
  get status(){return this.search.status;}
  chunk(budget){this.search.chunk(budget);return this.result();}
  pause(){this.search.pause();}resume(additional){this.search.resume(additional);}cancel(){this.search.cancel();}

@@ -1,9 +1,9 @@
 // Incremental breadth-first derivation search. Each chunk has a bounded amount
 // of work; pending candidates survive pause and configuration limits.
 export class DerivationSearch {
- constructor(productions,input,{limit=15000,maxLength=Math.max(20,input.length*3+6)}={}){
+ constructor(productions,input,{limit=15000,maxLength=Math.max(20,input.length*3+6),prune=null}={}){
   if(!productions.length||productions.some(p=>!p.left))throw Error('Provide productions with nonempty left sides.');
-  this.productions=productions.map(p=>({...p}));this.input=input;this.limit=limit;this.maxLength=maxLength;
+  this.productions=productions.map(p=>({...p}));this.input=input;this.limit=limit;this.maxLength=maxLength;this.prune=prune;
   this.queue=[{word:productions[0].left,parent:null}];this.seen=new Set([this.queue[0].word]);
   this.head=0;this.work=0;this.deferred=[];this.status='running';this.rows=[];this.cursor=null;this.pending=null;
  }
@@ -21,7 +21,7 @@ export class DerivationSearch {
    this.pending??=this.cursor.next();
    if(this.pending.done){this.cursor=null;this.pending=null;continue;}
    const c=this.pending.value;
-   if(!c||this.seen.has(c.word)){this.pending=null;continue;}
+   if(!c||this.seen.has(c.word)||this.prune?.(c.word)){this.pending=null;continue;}
    if(c.word.length>this.maxLength){this.deferred.push(c);this.pending=null;continue;}
    if(this.queue.length>=this.limit){this.status='limit';this.reason='count';break;}
    this.seen.add(c.word);this.queue.push(c);this.pending=null;

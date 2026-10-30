@@ -24,7 +24,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 16 | [x] | Incremental grammar search with pause/resume/cancel and progress; preserve results. | G08 |
 | 17 | [x] | User-controlled grammar rewrites: choose production and occurrence; undo derivation. | G01 |
 | 18 | [x] | Structured grammar-variable representation for generated converters; preserve old files. | Compatibility |
-| 19 | [ ] | PDA→CFG core conversion with explicit supported normalization and language tests. | C01 |
+| 19 | [x] | PDA→CFG core conversion with explicit supported normalization and language tests. | C01 |
 | 20 | [ ] | PDA→CFG UI, variable legend, export and derived-word checks. | C01 |
 | 21 | [ ] | Turing→unrestricted grammar core construction and bounded semantic fixtures. | C02 |
 | 22 | [ ] | Turing-generated grammar UI and parsing workflow. | C02 |
@@ -117,3 +117,5 @@ Task 16: 92 tests pass. Incremental breadth-first search supports progress, paus
 Task 17: 94 tests pass. Added Manual Derivation tab with production and occurrence choice, history, undo and restart. Tests cover repeated and overlapping occurrences, unrestricted rules, blank result and invalid selections. Browser verified S to aabb and undo to aaSbb.
 
 Task 18: 98 tests pass. Added explicit variable/terminal tokens, atomic multi-character names, legacy migration, token-aware derivation adapters and validated JSON persistence. Forty-variable and uppercase-terminal fixtures pass. Named-variable documents display safely and save JSON; original character grammars and XML remain unchanged. Conversion workflows follow in tasks 19-20.
+
+Task 19: 102 tests pass. PDA-to-CFG core normalizes no-pop, multi-pop and long pushes with a protected bottom symbol; supports final-state and empty-stack acceptance, empty languages and explicit production bounds. Tested both languages through length four plus stack recovery and uppercase terminals. Sound CFG terminal pruning improves generated-grammar search.

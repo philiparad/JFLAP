@@ -1,3 +1,4 @@
+import {pdaToGrammar,normalizePDA} from '../js/pda-grammar.js';
 import {V,T,tokenGrammar,fromLegacyGrammar,compileTokenGrammar,TokenDerivationSearch,TokenManualDerivation} from '../js/token-grammar.js';
 import {ManualDerivation} from '../js/grammar-rewrite.js';
 import {tapeMoveChoices,matchesTapeRead,validateTapeRead} from '../js/turing.js';
@@ -174,11 +175,31 @@ test('Generated grammars support more than 26 variables and preserve JSON',()=>{
  let error=false;try{serialize(m);}catch{error=true;}assert(error);
 });
 test('Token grammar migration preserves legacy language and manual positions',()=>{
- const old=example('grammar'),m=fromLegacyGrammar(old);for(const word of ['', 'ab','aabb','abb']){const s=new TokenDerivationSearch(m,word);while(s.status==='running')s.chunk(100);equal(s.status,G.derive(old.productions,word).status);}
+ const old=example('grammar'),m=fromLegacyGrammar(old);for(const word of ['', 'ab','aabb','abb']){const s=new TokenDerivationSearch(m,word);while(s.status==='running')s.chunk(100);equal(s.status,word==='abb'?'rejected':'accepted');}
  const manual=new TokenManualDerivation(tokenGrammar([{left:[V('long start')],right:[V('item'),V('item')]},{left:[V('item')],right:[]}])) ;manual.apply(0,0);equal(manual.occurrences(1),[0,1]);manual.apply(1,1);equal(manual.word,[V('item')]);manual.undo();equal(manual.word,[V('item'),V('item')]);
 });
 test('Token grammar input validation rejects malformed token files',()=>{
  let error=false;try{deserialize(JSON.stringify({type:'grammar',format:'tokens-v1',productions:[{left:[],right:[]}]}));}catch{error=true;}assert(error);
+});
+
+const tokenAccepts=(m,word)=>{const s=new TokenDerivationSearch(m,word,{limit:50000});while(s.status==='running')s.chunk(1000);return s.status;};
+test('PDA to CFG preserves balanced language in both acceptance modes',()=>{
+ const pda=example('pda');for(const acceptance of ['final','empty']){const g=pdaToGrammar(pda,{acceptance});for(const word of words('ab',4))equal(tokenAccepts(g,word),simulate(pda,word,{acceptance}).status);}
+});
+test('PDA normalization supports no-pop, multi-pop, long pushes and multi-symbol input',()=>{
+ const m=A.machine('pda');A.state(m);A.state(m);A.state(m).final=true;
+ A.edge(m,0,1,'ab',{pop:'',push:'ABC'});A.edge(m,1,2,'c',{pop:'ABCZ',push:''});
+ const n=normalizePDA(m);assert(n.machine.transitions.every(t=>t.pop.length===1&&t.push.length<=2));
+ const g=pdaToGrammar(m);for(const w of ['','abc','ab','abbc','ac'])equal(tokenAccepts(g,w),simulate(m,w).status);
+});
+test('PDA conversion handles empty stack recovery and empty language',()=>{
+ const m=A.machine('pda');A.state(m);A.state(m);A.state(m).final=true;
+ A.edge(m,0,1,'',{pop:'Z',push:''});A.edge(m,1,2,'A',{pop:'',push:''});
+ for(const acceptance of ['empty','final']){const g=pdaToGrammar(m,{acceptance});for(const w of ['','A','AA'])equal(tokenAccepts(g,w),simulate(m,w,{acceptance}).status);}
+ m.states.forEach(s=>s.final=false);equal(tokenAccepts(pdaToGrammar(m),'A'),'rejected');
+});
+test('PDA conversion has explicit construction bounds',()=>{
+ let error=false;try{pdaToGrammar(example('pda'),{maxProductions:2});}catch(e){error=e.message.includes('productions');}assert(error);
 });
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 

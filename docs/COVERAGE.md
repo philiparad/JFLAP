@@ -85,3 +85,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 17: 94 tests pass. Added Manual Derivation tab with production and occurrence choice, history, undo and restart. Tests cover repeated and overlapping occurrences, unrestricted rules, blank result and invalid selections. Browser verified S to aabb and undo to aaSbb.
 
 - Task 18: 98 tests pass. Added explicit variable/terminal tokens, atomic multi-character names, legacy migration, token-aware derivation adapters and validated JSON persistence. Forty-variable and uppercase-terminal fixtures pass. Named-variable documents display safely and save JSON; original character grammars and XML remain unchanged. Conversion workflows follow in tasks 19-20.
+
+- Task 19: 102 tests pass. PDA-to-CFG core normalizes no-pop, multi-pop and long pushes with a protected bottom symbol; supports final-state and empty-stack acceptance, empty languages and explicit production bounds. Tested both languages through length four plus stack recovery and uppercase terminals. Sound CFG terminal pruning improves generated-grammar search.
