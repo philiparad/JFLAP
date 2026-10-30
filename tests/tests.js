@@ -1,3 +1,4 @@
+import {derivationTree,lrParseTree,cykParseTree,layoutParseTree} from '../js/parse-tree.js';
 import {turingToGrammar,deriveTuringGrammar} from '../js/turing-grammar.js';
 import {pdaToGrammar,normalizePDA} from '../js/pda-grammar.js';
 import {V,T,tokenGrammar,fromLegacyGrammar,compileTokenGrammar,TokenDerivationSearch,TokenManualDerivation} from '../js/token-grammar.js';
@@ -224,6 +225,21 @@ test('Turing grammar rejects unsupported structures and reports bounded search',
  const m=A.machine('turing');A.state(m);A.edge(m,0,0,['~'],{read:['~'],write:['~'],move:['R']});const g=turingToGrammar(m,{alphabet:['a']});equal(deriveTuringGrammar(g,'a',{limit:10}).status,'limit');
  m.tapes=2;let error=false;try{turingToGrammar(m,{alphabet:['a']});}catch{error=true;}assert(error);
  m.tapes=1;m.transitions[0].read=['a}x'];error=false;try{turingToGrammar(m,{alphabet:['a']});}catch{error=true;}assert(error);
+});
+
+const treeYield=n=>n.children.length?n.children.map(treeYield).join(''):n.kind==='epsilon'?'':n.label;
+test('CFG derivation tree preserves repeated occurrences and epsilon leaves',()=>{
+ const p=G.parseGrammar('S -> AA\nA -> a | λ');const r=G.derive(p,'a'),tree=derivationTree(p,r.rows);equal(tree.label,'S');equal(treeYield(tree),'a');assert(JSON.stringify(tree).includes('epsilon'));
+ const normal=layoutParseTree(tree),inverted=layoutParseTree(tree,true);for(const n of normal.nodes){const inv=inverted.nodes.find(x=>x.id===n.id);equal(n.x,inv.x);equal(n.y+inv.y,normal.height);}
+});
+test('LL and SLR parser traces build trees with the accepted terminal yield',()=>{
+ const p=G.parseGrammar('S -> aSb | λ');for(const word of ['', 'ab','aabb']){equal(treeYield(derivationTree(p,G.llParse(p,word).rows)),word);equal(treeYield(lrParseTree(p,G.lrParse(p,word).rows)),word);}
+});
+test('CYK charts reconstruct a CNF tree including empty input',()=>{
+ const p=G.parseGrammar('S -> aSb | λ');for(const word of ['', 'ab','aabb'])equal(treeYield(cykParseTree(G.cyk(p,word),word)),word);equal(cykParseTree(G.cyk(p,'aab'),'aab'),null);
+});
+test('Multi-parent unrestricted rewrites are not misrepresented as CFG trees',()=>{
+ equal(derivationTree([{left:'S',right:'AB'},{left:'AB',right:'a'}],[{word:'AB',action:'S → AB',position:0},{word:'a',action:'AB → a',position:0}]),null);
 });
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 
