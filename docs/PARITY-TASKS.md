@@ -25,7 +25,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 17 | [x] | User-controlled grammar rewrites: choose production and occurrence; undo derivation. | G01 |
 | 18 | [x] | Structured grammar-variable representation for generated converters; preserve old files. | Compatibility |
 | 19 | [x] | PDA→CFG core conversion with explicit supported normalization and language tests. | C01 |
-| 20 | [ ] | PDA→CFG UI, variable legend, export and derived-word checks. | C01 |
+| 20 | [x] | PDA→CFG UI, variable legend, export and derived-word checks. | C01 |
 | 21 | [ ] | Turing→unrestricted grammar core construction and bounded semantic fixtures. | C02 |
 | 22 | [ ] | Turing-generated grammar UI and parsing workflow. | C02 |
 | 23 | [ ] | Context-free parse-tree data and drawing, normal/inverted views. | G02 |
@@ -119,3 +119,5 @@ Task 17: 94 tests pass. Added Manual Derivation tab with production and occurren
 Task 18: 98 tests pass. Added explicit variable/terminal tokens, atomic multi-character names, legacy migration, token-aware derivation adapters and validated JSON persistence. Forty-variable and uppercase-terminal fixtures pass. Named-variable documents display safely and save JSON; original character grammars and XML remain unchanged. Conversion workflows follow in tasks 19-20.
 
 Task 19: 102 tests pass. PDA-to-CFG core normalizes no-pop, multi-pop and long pushes with a protected bottom symbol; supports final-state and empty-stack acceptance, empty languages and explicit production bounds. Tested both languages through length four plus stack recovery and uppercase terminals. Sound CFG terminal pruning improves generated-grammar search.
+
+Task 20: 102 tests pass. Added PDA conversion acceptance chooser, generated grammar view and variable legend, JSON/readable export, resumable parsing and source-PDA comparison. Browser verified accepted aabb, rejected aab, and JSON download/reopen preserving grammar and legend. Named grammars currently use a read-only view and derivation search; see PDA-TO-GRAMMAR.md.
