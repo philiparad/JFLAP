@@ -95,3 +95,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 22: 106 tests pass. Added Turing conversion menu and alphabet chooser, paired-cell explanation, JSON/text export and generated-grammar parsing with source comparison. Browser verified unary input 11 accepts with a 16-step derivation ending in the original input. General search offers incremental pause/resume; fixed-input search is separately bounded.
 
 - Task 23: 110 tests pass. Added CFG parse-tree reconstruction for derivation, LL, SLR and CYK results, including epsilon and repeated occurrences. Normal/inverted SVG views retain node identity and terminal yield. Browser verified both orientations. Unrestricted multi-parent rewrites are excluded from CFG trees and follow in task 24.
+
+- Task 24: 113 tests pass. Added unrestricted derivation graphs with grouped multi-parent rewrite junctions, unchanged-symbol links and explicit epsilon replacements. Supports ordinary and named-token grammars; validates occurrences and caps large displays. Browser verified S to xABy to xcy with AB replaced together.

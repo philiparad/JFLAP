@@ -7,3 +7,5 @@
 .config.frozen{background:#e5f0ff;border-color:#6993c5}.config label{display:block;margin-bottom:8px}.config button{margin-top:8px}
 /* Keep parse trees readable; wide trees scroll horizontally. */
 #parse-output:has(.tree-drawing), .tree-drawing { max-height: none; }
+
+#parse-output:has(.derivation-drawing), .derivation-drawing { max-height: none; }

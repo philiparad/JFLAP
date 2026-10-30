@@ -1,3 +1,4 @@
+import {derivationGraph,layoutDerivationGraph} from '../js/derivation-graph.js';
 import {derivationTree,lrParseTree,cykParseTree,layoutParseTree} from '../js/parse-tree.js';
 import {turingToGrammar,deriveTuringGrammar} from '../js/turing-grammar.js';
 import {pdaToGrammar,normalizePDA} from '../js/pda-grammar.js';
@@ -240,6 +241,21 @@ test('CYK charts reconstruct a CNF tree including empty input',()=>{
 });
 test('Multi-parent unrestricted rewrites are not misrepresented as CFG trees',()=>{
  equal(derivationTree([{left:'S',right:'AB'},{left:'AB',right:'a'}],[{word:'AB',action:'S → AB',position:0},{word:'a',action:'AB → a',position:0}]),null);
+});
+
+test('Unrestricted graph groups two-parent replacements and preserves context',()=>{
+ const p=G.parseGrammar('S -> xABy\nAB -> c');const graph=derivationGraph(p,G.derive(p,'xcy').rows);
+ equal(graph.rewrites[1].parents.length,2);equal(graph.rewrites[1].children.length,1);equal(graph.final.map(s=>s.name).join(''),'xcy');equal(graph.edges.filter(e=>e.step===1).length,2);
+ const layout=layoutDerivationGraph(graph);assert(layout.nodes.every(n=>Number.isFinite(n.x)&&Number.isFinite(n.y)));
+});
+test('Unrestricted graph handles deletion without treating epsilon as a future symbol',()=>{
+ const p=G.parseGrammar('S -> ABA\nB -> λ\nAA -> a');const rows=[{action:'S → ABA',position:0},{action:'B → λ',position:1},{action:'AA → a',position:0}];
+ const graph=derivationGraph(p,rows);equal(graph.layers[2].map(n=>n.symbol.name),['A','λ','A']);equal(graph.rewrites[2].parents.length,2);equal(graph.final,[T('a')]);
+});
+test('Unrestricted graph supports named tokens and rejects mismatched occurrences',()=>{
+ const m=tokenGrammar([{left:[V('Start')],right:[V('long A'),V('long B')]},{left:[V('long A'),V('long B')],right:[T('x')]}]);
+ const graph=derivationGraph(m.productions,[{rule:0,position:0,action:'expand'},{rule:1,position:0,action:'replace pair'}]);equal(graph.final,[T('x')]);
+ let failed=false;try{derivationGraph(m.productions,[{rule:1,position:0}]);}catch{failed=true;}assert(failed);
 });
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 
