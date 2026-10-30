@@ -27,7 +27,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 19 | [x] | PDA→CFG core conversion with explicit supported normalization and language tests. | C01 |
 | 20 | [x] | PDA→CFG UI, variable legend, export and derived-word checks. | C01 |
 | 21 | [x] | Turing→unrestricted grammar core construction and bounded semantic fixtures. | C02 |
-| 22 | [ ] | Turing-generated grammar UI and parsing workflow. | C02 |
+| 22 | [x] | Turing-generated grammar UI and parsing workflow. | C02 |
 | 23 | [ ] | Context-free parse-tree data and drawing, normal/inverted views. | G02 |
 | 24 | [ ] | Unrestricted derivation graph with grouped multiple-parent replacements. | G02 |
 | 25 | [ ] | Synchronize parse step with highlighted tree node and table cell. | G07 |
@@ -123,3 +123,5 @@ Task 19: 102 tests pass. PDA-to-CFG core normalizes no-pop, multi-pop and long p
 Task 20: 102 tests pass. Added PDA conversion acceptance chooser, generated grammar view and variable legend, JSON/readable export, resumable parsing and source-PDA comparison. Browser verified accepted aabb, rejected aab, and JSON download/reopen preserving grammar and legend. Named grammars currently use a read-only view and derivation search; see PDA-TO-GRAMMAR.md.
 
 Task 21: 106 tests pass. Added paired-cell Turing-to-unrestricted-grammar construction and production-based derivation search. Fixtures compare simulator languages and replay actual grammar steps, including overwrite, blank input, left expansion, Stay and nondeterminism. Explicit scope: single tape, no blocks or assignments, final-state acceptance. Static original converter evidence and differences documented in TURING-TO-GRAMMAR.md.
+
+Task 22: 106 tests pass. Added Turing conversion menu and alphabet chooser, paired-cell explanation, JSON/text export and generated-grammar parsing with source comparison. Browser verified unary input 11 accepts with a 16-step derivation ending in the original input. General search offers incremental pause/resume; fixed-input search is separately bounded.
