@@ -1,3 +1,4 @@
+import {V,T,tokenGrammar,fromLegacyGrammar,compileTokenGrammar,TokenDerivationSearch,TokenManualDerivation} from '../js/token-grammar.js';
 import {ManualDerivation} from '../js/grammar-rewrite.js';
 import {tapeMoveChoices,matchesTapeRead,validateTapeRead} from '../js/turing.js';
 import {parseInputs,runBatch,batchCSV,parseGrammarBatch} from '../js/batch.js';
@@ -160,6 +161,24 @@ test('Manual derivation selects occurrence and supports undo and restart',()=>{
 test('Manual derivation supports overlapping unrestricted rewrites and empty result',()=>{
  const s=new ManualDerivation([{left:'AAA',right:'AAA'},{left:'AA',right:'b'},{left:'Ab',right:''}]);equal(s.occurrences(1),[0,1]);equal(s.apply(1,1),'Ab');equal(s.apply(2,0),'');
  let error=false;try{s.apply(1,0);}catch{error=true;}assert(error);equal(s.rows.length,3);
+});
+
+test('Named grammar variables and uppercase terminals have distinct identities',()=>{
+ const m=tokenGrammar([{left:[V('q0,Z,q1')],right:[T('A'),V('A')]},{left:[V('A')],right:[T('b')]}]);
+ const s=new TokenDerivationSearch(m,'Ab');while(s.status==='running')s.chunk(10);equal(s.status,'accepted');assert(s.result().rows[0].word.includes('⟨A⟩'));
+ const bad=new TokenDerivationSearch(m,'ab');while(bad.status==='running')bad.chunk(10);equal(bad.status,'rejected');
+});
+test('Generated grammars support more than 26 variables and preserve JSON',()=>{
+ const rules=Array.from({length:40},(_,i)=>({left:[V('state '+i)],right:i===39?[T('x')]:[V('state '+(i+1))]})),m=tokenGrammar(rules),copy=deserialize(JSON.stringify(m));equal(copy,m);
+ const s=new TokenDerivationSearch(copy,'x');while(s.status==='running')s.chunk(5);equal(s.status,'accepted');equal(s.result().rows.length,40);
+ let error=false;try{serialize(m);}catch{error=true;}assert(error);
+});
+test('Token grammar migration preserves legacy language and manual positions',()=>{
+ const old=example('grammar'),m=fromLegacyGrammar(old);for(const word of ['', 'ab','aabb','abb']){const s=new TokenDerivationSearch(m,word);while(s.status==='running')s.chunk(100);equal(s.status,G.derive(old.productions,word).status);}
+ const manual=new TokenManualDerivation(tokenGrammar([{left:[V('long start')],right:[V('item'),V('item')]},{left:[V('item')],right:[]}])) ;manual.apply(0,0);equal(manual.occurrences(1),[0,1]);manual.apply(1,1);equal(manual.word,[V('item')]);manual.undo();equal(manual.word,[V('item'),V('item')]);
+});
+test('Token grammar input validation rejects malformed token files',()=>{
+ let error=false;try{deserialize(JSON.stringify({type:'grammar',format:'tokens-v1',productions:[{left:[],right:[]}]}));}catch{error=true;}assert(error);
 });
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 

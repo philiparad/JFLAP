@@ -83,3 +83,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 16: 92 tests pass. Incremental breadth-first search supports progress, pause, resume, cancellation and expansion of count and form-length bounds. Tests compare resumed derivations and immutable grammar snapshots. Browser resumed a 100-form limit to accepted with 145 forms and 71 derivation steps. Leaving the view cancels ongoing work.
 
 - Task 17: 94 tests pass. Added Manual Derivation tab with production and occurrence choice, history, undo and restart. Tests cover repeated and overlapping occurrences, unrestricted rules, blank result and invalid selections. Browser verified S to aabb and undo to aaSbb.
+
+- Task 18: 98 tests pass. Added explicit variable/terminal tokens, atomic multi-character names, legacy migration, token-aware derivation adapters and validated JSON persistence. Forty-variable and uppercase-terminal fixtures pass. Named-variable documents display safely and save JSON; original character grammars and XML remain unchanged. Conversion workflows follow in tasks 19-20.
