@@ -32,7 +32,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 24 | [x] | Unrestricted derivation graph with grouped multiple-parent replacements. | G02 |
 | 25 | [x] | Synchronize parse step with highlighted tree node and table cell. | G07 |
 | 26 | [x] | Editable FIRST/FOLLOW exercise with validation and selected-cell assistance. | G03 |
-| 27 | [ ] | Editable LL table exercise, Do Selected/Step/All and validation. | G04 |
+| 27 | [x] | Editable LL table exercise, Do Selected/Step/All and validation. | G04 |
 | 28 | [ ] | Editable LR table exercise and explicit conflict-action choices. | G04,G06 |
 | 29 | [ ] | Interactive LR item sets, closure and goto diagram construction. | G05 |
 | 30 | [ ] | Guided NFA→DFA subset-state and transition exercise. | C03 |
@@ -133,3 +133,5 @@ Task 24: 113 tests pass. Added unrestricted derivation graphs with grouped multi
 Task 25: 115 tests pass. Parser traces identify LL/SLR lookup cells and tree nodes for expansions, terminal matches, shifts, reductions and acceptance. Added synchronized highlighting, previous-step navigation and selectable trace rows; orientation survives stepping. Unrestricted graphs highlight the active rewrite and participating symbols. Browser verified LL and SLR lookup selection and terminal-match behavior.
 
 Task 26: 117 tests pass. Added FIRST/FOLLOW exercise with editable sets, selected-cell checking and assistance, complete validation and reset. Answers remain while switching tabs and reset when the grammar changes. Browser verified missing epsilon feedback, selected fill and correct complete sets.
+
+Task 27: 119 tests pass. Added editable LL table exercise with numbered productions, validation, Do selected, Step, Do all and reset. Conflicts require every applicable production and remain explicit after completion. Browser verified one-cell stepping and complete table validation.

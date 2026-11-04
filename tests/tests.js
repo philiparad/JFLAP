@@ -1,4 +1,4 @@
-import {FirstFollowExercise,parseSymbolSet} from '../js/grammar-exercises.js';
+import {FirstFollowExercise,LLTableExercise,parseSymbolSet} from '../js/grammar-exercises.js';
 import {derivationGraph,layoutDerivationGraph} from '../js/derivation-graph.js';
 import {derivationTree,lrParseTree,cykParseTree,layoutParseTree} from '../js/parse-tree.js';
 import {turingToGrammar,deriveTuringGrammar} from '../js/turing-grammar.js';
@@ -276,6 +276,13 @@ test('FIRST/FOLLOW exercise validates nullable chains and selected assistance',(
 test('Set exercises distinguish empty set, epsilon, punctuation and malformed input',()=>{
  equal([...parseSymbolSet('∅')],[]);equal([...parseSymbolSet('λ')],['']);equal([...parseSymbolSet('[",", "$", "ε"]')],[',','$','']);
  const ex=new FirstFollowExercise(G.parseGrammar('S -> a'));ex.answers['first:S']='["ab"]';assert(ex.check('first:S').error);ex.answers['first:S']='a, b';equal(ex.check('first:S').extra,['b']);
+});
+
+test('LL exercise validates nullable entries and advances one incorrect cell at a time',()=>{
+ const ex=new LLTableExercise(G.parseGrammar('S -> aSb | λ'));equal(ex.expected('S,a'),[1]);equal(ex.expected('S,$'),[2]);equal(ex.expected('S,b'),[2]);const key=ex.step();equal(key,'S,a');assert(ex.check(key).correct);assert(!ex.check('S,$').correct);ex.fillAll();assert(ex.checkAll().every(r=>r.correct));equal(ex.step(),null);ex.reset();assert(!ex.check('S,a').correct);
+});
+test('LL exercise preserves conflicts and validates all alternatives',()=>{
+ const ex=new LLTableExercise(G.parseGrammar('S -> aA | aB\nA -> b\nB -> c'));equal(ex.expected('S,a'),[1,2]);ex.answers['S,a']='2, 1, 1';assert(ex.check('S,a').correct);ex.answers['S,a']='1';equal(ex.check('S,a').missing,[2]);ex.answers['S,a']='99';assert(ex.check('S,a').error);ex.answers['S,a']='1x';assert(ex.check('S,a').error);ex.fillAll();assert(ex.data.conflicts.includes('S,a'));assert(ex.checkAll().every(r=>r.correct));
 });
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 
