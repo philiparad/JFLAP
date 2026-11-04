@@ -1,23 +1,24 @@
 import {tokenText} from './token-grammar.js';
 const tokens=side=>Array.isArray(side)?side:[...side].map(name=>({kind:/^[A-Z]$/.test(name)?'variable':'terminal',name}));
 const text=side=>Array.isArray(side)?tokenText(side):side||'λ';
-function builder(){let serial=0;return symbol=>{if(serial>=2000)throw Error('Tree display is limited to 2,000 nodes.');return {id:serial++,label:symbol.name,kind:symbol.kind,children:[]};};}
+function builder(){let serial=0;return symbol=>{if(serial>=2000)throw Error('Tree display is limited to 2,000 nodes.');return {id:serial++,label:symbol.name,kind:symbol.kind,children:[],steps:[]};};}
 export function derivationTree(productions,rows){
  if(!productions.length||!productions.every(p=>tokens(p.left).length===1&&tokens(p.left)[0].kind==='variable'))return null;
  const node=builder(),root=node(tokens(productions[0].left)[0]),frontier=[root];let used=0;
- for(const row of rows){
+ for(const [rowIndex,row] of rows.entries()){
+  if(row.action.startsWith('Match ')){const leaf=frontier.find(n=>n.kind==='terminal'&&!n.matched);if(leaf){leaf.steps.push(rowIndex);leaf.matched=true;}continue;}
   const p=productions.find(p=>text(p.left)+' → '+text(p.right)===row.action);if(!p)continue;
   const position=row.position??frontier.findIndex(n=>n.kind==='variable');
   const target=frontier[position];if(!target||target.kind!=='variable'||target.label!==tokens(p.left)[0].name)return null;
-  const children=tokens(p.right).map(node);target.children=children.length?children:[node({kind:'epsilon',name:'λ'})];target.step=used++;
+  const children=tokens(p.right).map(node);target.children=children.length?children:[node({kind:'epsilon',name:'λ'})];target.step=used++;target.steps.push(rowIndex);
   frontier.splice(position,1,...children);
  }
  return used?root:null;
 }
 export function lrParseTree(productions,rows){
  const node=builder(),stack=[];
- for(const row of rows){if(/^s\d+$/.test(row.action))stack.push(node({kind:'terminal',name:row.input[0]}));
-  else if(/^r\d+$/.test(row.action)){const p=productions[+row.action.slice(1)];if(!p)return null;const size=tokens(p.right).length;if(stack.length<size)return null;const parent=node(tokens(p.left)[0]);parent.children=size?stack.splice(stack.length-size,size):[node({kind:'epsilon',name:'λ'})];stack.push(parent);}
+ for(const [rowIndex,row] of rows.entries()){if(/^s\d+$/.test(row.action)){const leaf=node({kind:'terminal',name:row.input[0]});leaf.steps.push(rowIndex);stack.push(leaf);}
+  else if(/^r\d+$/.test(row.action)){const p=productions[+row.action.slice(1)];if(!p)return null;const size=tokens(p.right).length;if(stack.length<size)return null;const parent=node(tokens(p.left)[0]);parent.steps.push(rowIndex);parent.children=size?stack.splice(stack.length-size,size):[node({kind:'epsilon',name:'λ'})];stack.push(parent);}else if(row.action==='acc'&&stack.length===1)stack[0].steps.push(rowIndex);
  }
  return stack.length===1?stack[0]:null;
 }

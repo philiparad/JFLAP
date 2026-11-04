@@ -97,3 +97,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 23: 110 tests pass. Added CFG parse-tree reconstruction for derivation, LL, SLR and CYK results, including epsilon and repeated occurrences. Normal/inverted SVG views retain node identity and terminal yield. Browser verified both orientations. Unrestricted multi-parent rewrites are excluded from CFG trees and follow in task 24.
 
 - Task 24: 113 tests pass. Added unrestricted derivation graphs with grouped multi-parent rewrite junctions, unchanged-symbol links and explicit epsilon replacements. Supports ordinary and named-token grammars; validates occurrences and caps large displays. Browser verified S to xABy to xcy with AB replaced together.
+
+- Task 25: 115 tests pass. Parser traces identify LL/SLR lookup cells and tree nodes for expansions, terminal matches, shifts, reductions and acceptance. Added synchronized highlighting, previous-step navigation and selectable trace rows; orientation survives stepping. Unrestricted graphs highlight the active rewrite and participating symbols. Browser verified LL and SLR lookup selection and terminal-match behavior.

@@ -257,5 +257,14 @@ test('Unrestricted graph supports named tokens and rejects mismatched occurrence
  const graph=derivationGraph(m.productions,[{rule:0,position:0,action:'expand'},{rule:1,position:0,action:'replace pair'}]);equal(graph.final,[T('x')]);
  let failed=false;try{derivationGraph(m.productions,[{rule:1,position:0}]);}catch{failed=true;}assert(failed);
 });
+
+test('LL trace cells and tree nodes correspond to actual parser steps',()=>{
+ const p=G.parseGrammar('S -> aSb | λ'),r=G.llParse(p,'ab'),tree=derivationTree(p,r.rows),nodes=layoutParseTree(tree).nodes;
+ r.rows.forEach((row,i)=>{if(row.action.startsWith('Match ')){assert(!row.tableCell);assert(nodes.some(n=>n.kind==='terminal'&&n.steps.includes(i)));}else{equal(row.tableCell,{row:row.stack.at(-1),column:row.input[0]});assert(r.table.table[row.tableCell.row+','+row.tableCell.column]);assert(nodes.some(n=>n.steps.includes(i)));}});
+});
+test('SLR trace cells and tree nodes include shifts, reductions and acceptance',()=>{
+ const p=G.parseGrammar('S -> aSb | λ'),r=G.lrParse(p,'ab'),nodes=layoutParseTree(lrParseTree(p,r.rows)).nodes;
+ r.rows.forEach((row,i)=>{equal(row.tableCell,{row:row.stack.split(' ').at(-1),column:row.input[0]});assert(r.table.table[row.tableCell.row+','+row.tableCell.column].includes(row.action));assert(nodes.some(n=>n.steps.includes(i)));});
+});
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 
