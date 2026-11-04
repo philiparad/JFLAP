@@ -31,7 +31,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 23 | [x] | Context-free parse-tree data and drawing, normal/inverted views. | G02 |
 | 24 | [x] | Unrestricted derivation graph with grouped multiple-parent replacements. | G02 |
 | 25 | [x] | Synchronize parse step with highlighted tree node and table cell. | G07 |
-| 26 | [ ] | Editable FIRST/FOLLOW exercise with validation and selected-cell assistance. | G03 |
+| 26 | [x] | Editable FIRST/FOLLOW exercise with validation and selected-cell assistance. | G03 |
 | 27 | [ ] | Editable LL table exercise, Do Selected/Step/All and validation. | G04 |
 | 28 | [ ] | Editable LR table exercise and explicit conflict-action choices. | G04,G06 |
 | 29 | [ ] | Interactive LR item sets, closure and goto diagram construction. | G05 |
@@ -131,3 +131,5 @@ Task 23: 110 tests pass. Added CFG parse-tree reconstruction for derivation, LL,
 Task 24: 113 tests pass. Added unrestricted derivation graphs with grouped multi-parent rewrite junctions, unchanged-symbol links and explicit epsilon replacements. Supports ordinary and named-token grammars; validates occurrences and caps large displays. Browser verified S to xABy to xcy with AB replaced together.
 
 Task 25: 115 tests pass. Parser traces identify LL/SLR lookup cells and tree nodes for expansions, terminal matches, shifts, reductions and acceptance. Added synchronized highlighting, previous-step navigation and selectable trace rows; orientation survives stepping. Unrestricted graphs highlight the active rewrite and participating symbols. Browser verified LL and SLR lookup selection and terminal-match behavior.
+
+Task 26: 117 tests pass. Added FIRST/FOLLOW exercise with editable sets, selected-cell checking and assistance, complete validation and reset. Answers remain while switching tabs and reset when the grammar changes. Browser verified missing epsilon feedback, selected fill and correct complete sets.

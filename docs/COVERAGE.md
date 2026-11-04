@@ -99,3 +99,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 24: 113 tests pass. Added unrestricted derivation graphs with grouped multi-parent rewrite junctions, unchanged-symbol links and explicit epsilon replacements. Supports ordinary and named-token grammars; validates occurrences and caps large displays. Browser verified S to xABy to xcy with AB replaced together.
 
 - Task 25: 115 tests pass. Parser traces identify LL/SLR lookup cells and tree nodes for expansions, terminal matches, shifts, reductions and acceptance. Added synchronized highlighting, previous-step navigation and selectable trace rows; orientation survives stepping. Unrestricted graphs highlight the active rewrite and participating symbols. Browser verified LL and SLR lookup selection and terminal-match behavior.
+
+- Task 26: 117 tests pass. Added FIRST/FOLLOW exercise with editable sets, selected-cell checking and assistance, complete validation and reset. Answers remain while switching tabs and reset when the grammar changes. Browser verified missing epsilon feedback, selected fill and correct complete sets.

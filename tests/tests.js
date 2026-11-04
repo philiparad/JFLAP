@@ -1,3 +1,4 @@
+import {FirstFollowExercise,parseSymbolSet} from '../js/grammar-exercises.js';
 import {derivationGraph,layoutDerivationGraph} from '../js/derivation-graph.js';
 import {derivationTree,lrParseTree,cykParseTree,layoutParseTree} from '../js/parse-tree.js';
 import {turingToGrammar,deriveTuringGrammar} from '../js/turing-grammar.js';
@@ -265,6 +266,16 @@ test('LL trace cells and tree nodes correspond to actual parser steps',()=>{
 test('SLR trace cells and tree nodes include shifts, reductions and acceptance',()=>{
  const p=G.parseGrammar('S -> aSb | λ'),r=G.lrParse(p,'ab'),nodes=layoutParseTree(lrParseTree(p,r.rows)).nodes;
  r.rows.forEach((row,i)=>{equal(row.tableCell,{row:row.stack.split(' ').at(-1),column:row.input[0]});assert(r.table.table[row.tableCell.row+','+row.tableCell.column].includes(row.action));assert(nodes.some(n=>n.steps.includes(i)));});
+});
+
+test('FIRST/FOLLOW exercise validates nullable chains and selected assistance',()=>{
+ const ex=new FirstFollowExercise(G.parseGrammar('S -> AB\nA -> a | λ\nB -> b | λ'));
+ ex.answers['first:S']='b, λ, a, a';assert(ex.check('first:S').correct);ex.answers['follow:A']='b';equal(ex.check('follow:A').missing,['$']);ex.fill('follow:A');assert(ex.check('follow:A').correct);equal(ex.answers['first:A'],'');
+ for(const c of ex.cells)ex.fill(c.key);assert(ex.checkAll().every(r=>r.correct));ex.reset();assert(ex.checkAll().some(r=>!r.correct));
+});
+test('Set exercises distinguish empty set, epsilon, punctuation and malformed input',()=>{
+ equal([...parseSymbolSet('∅')],[]);equal([...parseSymbolSet('λ')],['']);equal([...parseSymbolSet('[",", "$", "ε"]')],[',','$','']);
+ const ex=new FirstFollowExercise(G.parseGrammar('S -> a'));ex.answers['first:S']='["ab"]';assert(ex.check('first:S').error);ex.answers['first:S']='a, b';equal(ex.check('first:S').extra,['b']);
 });
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 
