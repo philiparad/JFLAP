@@ -1,3 +1,4 @@
+import {RegexElimination} from '../js/regex-elimination.js';
 import {MinimizationExercise} from '../js/minimization-exercise.js';
 import {SubsetExercise} from '../js/subset-exercise.js';
 import {LRItemsExercise} from '../js/lr-items.js';
@@ -318,6 +319,14 @@ test('Guided minimization checks splits, preserves equivalent states and builds 
 });
 test('Guided minimization handles empty alphabet, all-final and trap states',()=>{
  const m=A.machine();A.state(m).final=true;const empty=new MinimizationExercise(m);empty.completeResult();equal(empty.export().states.length,1);assert(empty.export().states[0].final);A.edge(m,0,0,'a');const universal=new MinimizationExercise(m);universal.completeResult();equal(universal.export().states.length,1);A.state(m).final=true;A.edge(m,0,1,'b');const trap=new MinimizationExercise(m);trap.finish();trap.completeResult();assert(A.equivalent(m,trap.export()).equal);assert(trap.source.states.some(s=>s.label==='∅'));
+});
+
+
+test('Interactive regex elimination preserves language for different orders and undo',()=>{
+ const m=example('fa'),forward=new RegexElimination(m),reverse=new RegexElimination(m);const original=JSON.stringify(reverse.graph());const id=reverse.candidates().at(-1);reverse.eliminate(id);assert(!reverse.active.includes(id));assert(reverse.undo());equal(JSON.stringify(reverse.graph()),original);forward.finish();for(const id of [...reverse.candidates()].reverse())reverse.eliminate(id);assert(A.equivalent(m,A.regexToFA(forward.expression())).equal);assert(A.equivalent(m,A.regexToFA(reverse.expression())).equal);assert(JSON.stringify(forward.order)!==JSON.stringify(reverse.order));equal(reverse.export().expression,reverse.expression());reverse.reset();equal(reverse.order,[]);
+});
+test('Regex elimination supports epsilon, empty language and atomic expression bounds',()=>{
+ const m=A.machine();A.state(m).final=true;A.edge(m,0,0,'a');const ex=new RegexElimination(m);let protectedState=false;try{ex.eliminate(ex.start);}catch{protectedState=true;}assert(protectedState);ex.finish();assert(A.equivalent(m,A.regexToFA(ex.expression())).equal);m.states[0].final=false;const empty=new RegexElimination(m);empty.finish();equal(empty.expression(),'∅');const bounded=new RegexElimination(example('fa'),{maxExpression:1});const before=JSON.stringify(bounded.graph());let limited=false;try{bounded.eliminate(bounded.candidates()[0]);}catch{limited=true;}assert(limited);equal(JSON.stringify(bounded.graph()),before);equal(bounded.order,[]);
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;

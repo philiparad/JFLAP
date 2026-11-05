@@ -37,7 +37,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 29 | [x] | Interactive LR item sets, closure and goto diagram construction. | G05 |
 | 30 | [x] | Guided NFA→DFA subset-state and transition exercise. | C03 |
 | 31 | [x] | Guided minimization partition tree and result construction. | C04 |
-| 32 | [ ] | Interactive FA→regex elimination order and intermediate graphs. | C05 |
+| 32 | [x] | Interactive FA→regex elimination order and intermediate graphs. | C05 |
 | 33 | [ ] | Interactive regex decomposition and NFA construction. | C06 |
 | 34 | [ ] | Guided FA→grammar production construction and checking. | C07 |
 | 35 | [ ] | Guided right-linear grammar→FA construction and checking. | C07 |
@@ -143,3 +143,5 @@ Task 29: 123 tests pass. Added editable canonical LR(0) item sets and goto trans
 Task 30: 125 tests pass. Added guided subset construction with checked destination IDs, epsilon closures, one-transition and state-expansion assistance, completion and export of the constructed DFA. Empty targets are checked and omitted in the partial DFA. Tests verify source/result language equivalence and normalization. Browser verified missing-state feedback, a correct subset, completion and opening the exported DFA.
 
 Task 31: 127 tests pass. Added guided stable-partition refinement with checked symbol-based splits, partition tree, undo/reset and assistance. Result states represent stable partitions; checked transitions must be completed before export. Tests cover equivalent states, rejected oversplitting, trap states and language equivalence. Browser verified incorrect/correct split feedback, transition validation and result export.
+
+Task 32: 129 tests pass. Added selectable FA-to-regex elimination order, generalized intermediate graphs, current edge expressions and before/via/after updates, undo/reset, completion and expression export. Tests verify both elimination orders preserve language, epsilon/empty cases and atomic size limits. Browser verified selected q2 elimination, undo, complete expression and opening the result. Literal regex-operator input symbols are explicitly unsupported by the existing expression notation.
