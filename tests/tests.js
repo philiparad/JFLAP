@@ -1,3 +1,4 @@
+import {MinimizationExercise} from '../js/minimization-exercise.js';
 import {SubsetExercise} from '../js/subset-exercise.js';
 import {LRItemsExercise} from '../js/lr-items.js';
 import {FirstFollowExercise,LLTableExercise,LRTableExercise,parseSymbolSet} from '../js/grammar-exercises.js';
@@ -309,6 +310,14 @@ test('Guided subset construction checks closures and exports an equivalent DFA',
 });
 test('Guided subsets handle empty targets, normalization and empty alphabets',()=>{
  const m=A.machine();A.state(m);A.state(m).final=true;A.edge(m,0,1,'ab');const ex=new SubsetExercise(m);assert(ex.source.states.length===3);ex.finish();assert(A.equivalent(m,ex.export()).equal);assert(ex.done.size>ex.output.transitions.length);const empty=A.machine();A.state(empty).final=true;const done=new SubsetExercise(empty);equal(done.jobs(),[]);assert(done.export().states[0].final);let invalid=false;try{ex.parse('999');}catch{invalid=true;}assert(invalid);
+});
+
+
+test('Guided minimization checks splits, preserves equivalent states and builds result',()=>{
+ const m=A.machine();for(let i=0;i<4;i++)A.state(m);m.states[3].final=true;for(const [from,a,b] of [[0,1,2],[1,1,3],[2,1,3],[3,3,3]]){A.edge(m,from,a,'a');A.edge(m,from,b,'b');}const ex=new MinimizationExercise(m);let blocked=false;try{ex.export();}catch{blocked=true;}assert(blocked);assert(!ex.split(0,'b','0|1|2'));assert(!ex.split(0,'b','0|1,1,2'));assert(ex.split(0,'b','2,1|0'));equal(ex.groups().length,3);equal(ex.jobs(),[]);assert(ex.undo());equal(ex.groups().length,2);ex.finish();ex.beginResult();assert(!ex.connect(0,'a','999'));blocked=false;try{ex.export();}catch{blocked=true;}assert(blocked);ex.completeResult();const out=ex.export();equal(out.states.length,3);assert(A.equivalent(m,out).equal);assert(ex.nodes[1].children.length===2);ex.reset();assert(ex.result===null);equal(ex.history,[]);
+});
+test('Guided minimization handles empty alphabet, all-final and trap states',()=>{
+ const m=A.machine();A.state(m).final=true;const empty=new MinimizationExercise(m);empty.completeResult();equal(empty.export().states.length,1);assert(empty.export().states[0].final);A.edge(m,0,0,'a');const universal=new MinimizationExercise(m);universal.completeResult();equal(universal.export().states.length,1);A.state(m).final=true;A.edge(m,0,1,'b');const trap=new MinimizationExercise(m);trap.finish();trap.completeResult();assert(A.equivalent(m,trap.export()).equal);assert(trap.source.states.some(s=>s.label==='∅'));
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
