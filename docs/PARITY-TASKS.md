@@ -35,7 +35,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 27 | [x] | Editable LL table exercise, Do Selected/Step/All and validation. | G04 |
 | 28 | [x] | Editable LR table exercise and explicit conflict-action choices. | G04,G06 |
 | 29 | [x] | Interactive LR item sets, closure and goto diagram construction. | G05 |
-| 30 | [ ] | Guided NFA→DFA subset-state and transition exercise. | C03 |
+| 30 | [x] | Guided NFA→DFA subset-state and transition exercise. | C03 |
 | 31 | [ ] | Guided minimization partition tree and result construction. | C04 |
 | 32 | [ ] | Interactive FA→regex elimination order and intermediate graphs. | C05 |
 | 33 | [ ] | Interactive regex decomposition and NFA construction. | C06 |
@@ -139,3 +139,5 @@ Task 27: 119 tests pass. Added editable LL table exercise with numbered producti
 Task 28: 121 tests pass. Added editable SLR action/goto tables, validation and selected/step/all assistance. Conflicts retain all actions and require explicit validated choices before parsing. Browser verified complete-table parsing, blocked unresolved conflicts and accepted aaa after choosing a shift.
 
 Task 29: 123 tests pass. Added editable canonical LR(0) item sets and goto transitions, closure from entered items, goto assistance, selected/step/all completion, validation and a diagram of entered edges. Browser verified closure, goto and complete construction. State slots and canonical numbering are supplied rather than freely drawn.
+
+Task 30: 125 tests pass. Added guided subset construction with checked destination IDs, epsilon closures, one-transition and state-expansion assistance, completion and export of the constructed DFA. Empty targets are checked and omitted in the partial DFA. Tests verify source/result language equivalence and normalization. Browser verified missing-state feedback, a correct subset, completion and opening the exported DFA.

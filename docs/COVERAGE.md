@@ -107,3 +107,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 28: 121 tests pass. Added editable SLR action/goto tables, validation and selected/step/all assistance. Conflicts retain all actions and require explicit validated choices before parsing. Browser verified complete-table parsing, blocked unresolved conflicts and accepted aaa after choosing a shift.
 
 - Task 29: 123 tests pass. Added editable canonical LR(0) item sets and goto transitions, closure from entered items, goto assistance, selected/step/all completion, validation and a diagram of entered edges. Browser verified closure, goto and complete construction. State slots and canonical numbering are supplied rather than freely drawn.
+
+- Task 30: 125 tests pass. Added guided subset construction with checked destination IDs, epsilon closures, one-transition and state-expansion assistance, completion and export of the constructed DFA. Empty targets are checked and omitted in the partial DFA. Tests verify source/result language equivalence and normalization. Browser verified missing-state feedback, a correct subset, completion and opening the exported DFA.

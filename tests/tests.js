@@ -1,3 +1,4 @@
+import {SubsetExercise} from '../js/subset-exercise.js';
 import {LRItemsExercise} from '../js/lr-items.js';
 import {FirstFollowExercise,LLTableExercise,LRTableExercise,parseSymbolSet} from '../js/grammar-exercises.js';
 import {derivationGraph,layoutDerivationGraph} from '../js/derivation-graph.js';
@@ -300,6 +301,14 @@ test('LR item construction closes nullable recursive items and computes goto',()
 });
 test('LR construction detects malformed items, missing and extra edges and resets',()=>{
  const ex=new LRItemsExercise(G.parseGrammar('S -> a'));ex.answers[0]='1:2';assert(ex.checkState(0).error);ex.answers[0]='bad';assert(ex.checkState(0).error);ex.fillAll();ex.connect(0,'a','0');assert(!ex.check().correct);ex.connect(1,'a','0');assert(ex.check().extra.length);let count=0;while(!ex.check().correct&&count++<30)ex.step();assert(ex.check().correct);ex.reset();assert(!ex.check().correct);equal(ex.edges,{});let blocked=false;try{ex.doGoto(0,'a');}catch{blocked=true;}assert(blocked);
+});
+
+
+test('Guided subset construction checks closures and exports an equivalent DFA',()=>{
+ const m=A.machine();for(let i=0;i<3;i++)A.state(m);m.states[2].final=true;A.edge(m,0,1,'');A.edge(m,1,2,'a');A.edge(m,2,1,'');A.edge(m,0,0,'b');const ex=new SubsetExercise(m);equal(ex.subsets[0],[0,1]);let blocked=false;try{ex.export();}catch{blocked=true;}assert(blocked);equal(ex.submit(0,'a','2').missing,[1]);equal(ex.subsets.length,1);assert(ex.submit(0,'a','2, 1, 2').correct);assert(ex.output.states[1].final);ex.finish();assert(A.equivalent(m,ex.export()).equal);equal(ex.jobs(),[]);ex.reset();equal(ex.subsets.length,1);assert(ex.jobs().length);
+});
+test('Guided subsets handle empty targets, normalization and empty alphabets',()=>{
+ const m=A.machine();A.state(m);A.state(m).final=true;A.edge(m,0,1,'ab');const ex=new SubsetExercise(m);assert(ex.source.states.length===3);ex.finish();assert(A.equivalent(m,ex.export()).equal);assert(ex.done.size>ex.output.transitions.length);const empty=A.machine();A.state(empty).final=true;const done=new SubsetExercise(empty);equal(done.jobs(),[]);assert(done.export().states[0].final);let invalid=false;try{ex.parse('999');}catch{invalid=true;}assert(invalid);
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
