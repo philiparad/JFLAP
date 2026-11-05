@@ -1,4 +1,4 @@
-import {firstFollow,llTable,variable} from './grammar.js';
+import {firstFollow,llTable,lrTable,lrParse,variable} from './grammar.js';
 export function parseSymbolSet(value){
  const text=value.trim();if(!text||text==='∅')return new Set();
  let symbols;if(text.startsWith('[')){symbols=JSON.parse(text);if(!Array.isArray(symbols)||symbols.some(s=>typeof s!=='string'))throw Error('Use a JSON array of symbol strings.');}
@@ -33,4 +33,20 @@ export class LLTableExercise {
  step(){const cell=this.cells.find(c=>!this.check(c.key).correct);if(!cell)return null;this.fill(cell.key);return cell.key;}
  fillAll(){for(const c of this.cells)this.fill(c.key);}
  reset(){for(const c of this.cells)this.answers[c.key]='';}
+}
+
+export class LRTableExercise extends LLTableExercise {
+ constructor(productions){
+  super(productions);this.data=lrTable(productions);this.rows=this.data.sets.map((_,i)=>String(i));
+  this.columns=[...new Set([...this.columns,...this.data.vars])];this.cells=this.rows.flatMap(row=>this.columns.map(column=>({key:row+','+column,row,column})));
+  this.answers=Object.fromEntries(this.cells.map(c=>[c.key,'']));this.choices={};
+ }
+ expected(key){if(!this.cells.some(c=>c.key===key))throw Error('Select a table cell.');return this.data.table[key]||[];}
+ check(key){const expected=this.expected(key),text=this.answers[key].trim(),values=text?[...new Set(text.split(/[\s,]+/))]:[];
+  if(values.some(v=>!/^(s\d+|r\d+|acc|\d+)$/.test(v)))return{correct:false,error:'Use sN, rN, acc, or a goto state number; separate alternatives with commas.'};
+  return{correct:values.length===expected.length&&expected.every(v=>values.includes(v)),missing:expected.filter(v=>!values.includes(v)),extra:values.filter(v=>!expected.includes(v))};
+ }
+ resolve(key,action){if(!this.data.conflicts.includes(key)||!this.expected(key).includes(action))throw Error('Choose an available action for a conflicting cell.');this.choices[key]=action;}
+ parse(input){if(this.checkAll().some(r=>!r.correct))throw Error('Complete and check the table before parsing.');return lrParse(this.productions,input,this.choices);}
+ reset(){super.reset();this.choices={};}
 }

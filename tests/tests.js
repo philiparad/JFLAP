@@ -1,4 +1,4 @@
-import {FirstFollowExercise,LLTableExercise,parseSymbolSet} from '../js/grammar-exercises.js';
+import {FirstFollowExercise,LLTableExercise,LRTableExercise,parseSymbolSet} from '../js/grammar-exercises.js';
 import {derivationGraph,layoutDerivationGraph} from '../js/derivation-graph.js';
 import {derivationTree,lrParseTree,cykParseTree,layoutParseTree} from '../js/parse-tree.js';
 import {turingToGrammar,deriveTuringGrammar} from '../js/turing-grammar.js';
@@ -283,6 +283,15 @@ test('LL exercise validates nullable entries and advances one incorrect cell at 
 });
 test('LL exercise preserves conflicts and validates all alternatives',()=>{
  const ex=new LLTableExercise(G.parseGrammar('S -> aA | aB\nA -> b\nB -> c'));equal(ex.expected('S,a'),[1,2]);ex.answers['S,a']='2, 1, 1';assert(ex.check('S,a').correct);ex.answers['S,a']='1';equal(ex.check('S,a').missing,[2]);ex.answers['S,a']='99';assert(ex.check('S,a').error);ex.answers['S,a']='1x';assert(ex.check('S,a').error);ex.fillAll();assert(ex.data.conflicts.includes('S,a'));assert(ex.checkAll().every(r=>r.correct));
+});
+
+test('LR table exercise checks action/goto entries and parses only a completed table',()=>{
+ const ex=new LRTableExercise(G.parseGrammar('S -> aSb | λ'));let blocked=false;try{ex.parse('ab');}catch{blocked=true;}assert(blocked);ex.fillAll();assert(ex.checkAll().every(r=>r.correct));equal(ex.parse('aabb').status,'accepted');equal(ex.parse('aab').status,'rejected');ex.answers[ex.cells[0].key]='bad';assert(ex.check(ex.cells[0].key).error);
+});
+test('LR conflict choices are explicit and select the recorded parser action',()=>{
+ const ex=new LRTableExercise(G.parseGrammar('S -> SS | a'));assert(ex.data.conflicts.length);ex.fillAll();let blocked=false;try{ex.parse('aaa');}catch{blocked=true;}assert(blocked);
+ const conflict=ex.data.conflicts[0];ex.resolve(conflict,ex.expected(conflict).find(v=>v.startsWith('s')));const shift=ex.parse('aaa');equal(shift.status,'accepted');assert(shift.rows.filter(r=>r.tableCell.row+','+r.tableCell.column===conflict).every(r=>r.action===ex.choices[conflict]));
+ ex.resolve(conflict,ex.expected(conflict).find(v=>v.startsWith('r')));const reduce=ex.parse('aaa');equal(reduce.status,'accepted');assert(JSON.stringify(shift.rows)!==JSON.stringify(reduce.rows));ex.reset();equal(ex.choices,{});
 });
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 
