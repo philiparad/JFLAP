@@ -1,3 +1,4 @@
+import {LRItemsExercise} from '../js/lr-items.js';
 import {FirstFollowExercise,LLTableExercise,LRTableExercise,parseSymbolSet} from '../js/grammar-exercises.js';
 import {derivationGraph,layoutDerivationGraph} from '../js/derivation-graph.js';
 import {derivationTree,lrParseTree,cykParseTree,layoutParseTree} from '../js/parse-tree.js';
@@ -293,5 +294,13 @@ test('LR conflict choices are explicit and select the recorded parser action',()
  const conflict=ex.data.conflicts[0];ex.resolve(conflict,ex.expected(conflict).find(v=>v.startsWith('s')));const shift=ex.parse('aaa');equal(shift.status,'accepted');assert(shift.rows.filter(r=>r.tableCell.row+','+r.tableCell.column===conflict).every(r=>r.action===ex.choices[conflict]));
  ex.resolve(conflict,ex.expected(conflict).find(v=>v.startsWith('r')));const reduce=ex.parse('aaa');equal(reduce.status,'accepted');assert(JSON.stringify(shift.rows)!==JSON.stringify(reduce.rows));ex.reset();equal(ex.choices,{});
 });
+
+test('LR item construction closes nullable recursive items and computes goto',()=>{
+ const ex=new LRItemsExercise(G.parseGrammar('S -> A\nA -> aA | λ'));ex.answers[0]='0:0';ex.closeState(0);assert(ex.checkState(0).correct);assert(ex.parse(ex.answers[0]).some(([r,d])=>r===3&&d===0));const target=ex.doGoto(0,'a');assert(target!==null);assert(ex.checkState(target).correct);equal(ex.goto(ex.data.sets[0],'z'),[]);ex.fillAll();assert(ex.check().correct);
+});
+test('LR construction detects malformed items, missing and extra edges and resets',()=>{
+ const ex=new LRItemsExercise(G.parseGrammar('S -> a'));ex.answers[0]='1:2';assert(ex.checkState(0).error);ex.answers[0]='bad';assert(ex.checkState(0).error);ex.fillAll();ex.connect(0,'a','0');assert(!ex.check().correct);ex.connect(1,'a','0');assert(ex.check().extra.length);let count=0;while(!ex.check().correct&&count++<30)ex.step();assert(ex.check().correct);ex.reset();assert(!ex.check().correct);equal(ex.edges,{});let blocked=false;try{ex.doGoto(0,'a');}catch{blocked=true;}assert(blocked);
+});
+
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 

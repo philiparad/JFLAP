@@ -105,3 +105,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 27: 119 tests pass. Added editable LL table exercise with numbered productions, validation, Do selected, Step, Do all and reset. Conflicts require every applicable production and remain explicit after completion. Browser verified one-cell stepping and complete table validation.
 
 - Task 28: 121 tests pass. Added editable SLR action/goto tables, validation and selected/step/all assistance. Conflicts retain all actions and require explicit validated choices before parsing. Browser verified complete-table parsing, blocked unresolved conflicts and accepted aaa after choosing a shift.
+
+- Task 29: 123 tests pass. Added editable canonical LR(0) item sets and goto transitions, closure from entered items, goto assistance, selected/step/all completion, validation and a diagram of entered edges. Browser verified closure, goto and complete construction. State slots and canonical numbering are supplied rather than freely drawn.
