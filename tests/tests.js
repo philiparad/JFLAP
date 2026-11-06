@@ -1,3 +1,4 @@
+import {RegexConstruction,parseRegexTree} from '../js/regex-construction.js';
 import {RegexElimination} from '../js/regex-elimination.js';
 import {MinimizationExercise} from '../js/minimization-exercise.js';
 import {SubsetExercise} from '../js/subset-exercise.js';
@@ -327,6 +328,14 @@ test('Interactive regex elimination preserves language for different orders and 
 });
 test('Regex elimination supports epsilon, empty language and atomic expression bounds',()=>{
  const m=A.machine();A.state(m).final=true;A.edge(m,0,0,'a');const ex=new RegexElimination(m);let protectedState=false;try{ex.eliminate(ex.start);}catch{protectedState=true;}assert(protectedState);ex.finish();assert(A.equivalent(m,A.regexToFA(ex.expression())).equal);m.states[0].final=false;const empty=new RegexElimination(m);empty.finish();equal(empty.expression(),'∅');const bounded=new RegexElimination(example('fa'),{maxExpression:1});const before=JSON.stringify(bounded.graph());let limited=false;try{bounded.eliminate(bounded.candidates()[0]);}catch{limited=true;}assert(limited);equal(JSON.stringify(bounded.graph()),before);equal(bounded.order,[]);
+});
+
+
+test('Interactive regex decomposition preserves language in either expansion order',()=>{
+ for(const expression of ['(a+b)*abb','a(b+c)','(ab)*','λ','∅','(∅+a)*','a+','']){const ex=new RegexConstruction(expression);while(ex.pending().length)ex.expand(ex.pending().at(-1).id);const out=ex.export();assert(out.transitions.every(t=>!t.expressionNode));assert(A.equivalent(A.regexToFA(expression),out).equal,expression);const sequential=new RegexConstruction(expression);sequential.finish();assert(A.equivalent(out,sequential.export()).equal);}
+});
+test('Regex construction blocks premature export, restores undo and validates syntax',()=>{
+ const ex=new RegexConstruction('a+b');let blocked=false;try{ex.export();}catch{blocked=true;}assert(blocked);const before=JSON.stringify(ex.model);ex.step();equal(ex.pending().length,2);assert(ex.undo());equal(JSON.stringify(ex.model),before);ex.finish();assert(!ex.pending().length);ex.reset();equal(ex.steps,[]);equal(ex.pending().length,1);for(const text of ['(a','a)','*a']){let invalid=false;try{parseRegexTree(text);}catch{invalid=true;}assert(invalid,text);}
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;

@@ -38,7 +38,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 30 | [x] | Guided NFA→DFA subset-state and transition exercise. | C03 |
 | 31 | [x] | Guided minimization partition tree and result construction. | C04 |
 | 32 | [x] | Interactive FA→regex elimination order and intermediate graphs. | C05 |
-| 33 | [ ] | Interactive regex decomposition and NFA construction. | C06 |
+| 33 | [x] | Interactive regex decomposition and NFA construction. | C06 |
 | 34 | [ ] | Guided FA→grammar production construction and checking. | C07 |
 | 35 | [ ] | Guided right-linear grammar→FA construction and checking. | C07 |
 | 36 | [ ] | Guided CFG→PDA LL construction and checking. | C07 |
@@ -145,3 +145,5 @@ Task 30: 125 tests pass. Added guided subset construction with checked destinati
 Task 31: 127 tests pass. Added guided stable-partition refinement with checked symbol-based splits, partition tree, undo/reset and assistance. Result states represent stable partitions; checked transitions must be completed before export. Tests cover equivalent states, rejected oversplitting, trap states and language equivalence. Browser verified incorrect/correct split feedback, transition validation and result export.
 
 Task 32: 129 tests pass. Added selectable FA-to-regex elimination order, generalized intermediate graphs, current edge expressions and before/via/after updates, undo/reset, completion and expression export. Tests verify both elimination orders preserve language, epsilon/empty cases and atomic size limits. Browser verified selected q2 elimination, undo, complete expression and opening the result. Literal regex-operator input symbols are explicitly unsupported by the existing expression notation.
+
+Task 33: 131 tests pass. Added selectable regex-edge decomposition for union, concatenation, star, epsilon and empty language, decomposition tree, intermediate graph, undo/reset, assistance and guarded NFA export. Tests compare both expansion orders to the automatic converter. Browser verified decomposition, undo and opening the completed NFA.
