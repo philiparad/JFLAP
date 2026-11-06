@@ -45,7 +45,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 37 | [x] | Guided CFG→PDA LR construction and checking. | C07 |
 | 38 | [x] | Nullable-set and lambda-removal exercise. | C08 |
 | 39 | [x] | Unit-dependency and unit-removal exercise. | C08 |
-| 40 | [ ] | Useful-variable/dependency and useless-removal exercise. | C08 |
+| 40 | [x] | Useful-variable/dependency and useless-removal exercise. | C08 |
 | 41 | [ ] | Interactive terminal replacement and binarization for CNF. | C08 |
 | 42 | [ ] | Original building-block XML tags/references with round-trip fixtures. | T04 |
 | 43 | [ ] | Open URL with explicit network errors and browser CORS limitations. | F01 |
@@ -159,3 +159,5 @@ Task 37: 139 tests pass. Added separate guided bottom-up CFG-to-PDA exercise wit
 Task 38: 141 tests pass. Added nullable-variable set checks, discovery-round hints, transformed-production checking and assistance, reset and guarded export. Preserves a nullable start production to retain the empty word. Tests cover nullable chains, repeated occurrences, missing/extra productions and language results. Browser verified missing-set feedback, completed productions and export.
 
 Task 39: 143 tests pass. Added per-variable unit-closure checking, dependency graph, selected/all assistance, replacement-production validation and guarded export. Handles cycles, epsilon rules and right-side-only variables. Empty-language export preserves the original start with a nonterminating non-unit placeholder. Browser verified incorrect/correct dependency sets, replacement rules and export.
+
+Task 40: 145 tests pass. Added generating-variable and post-pruning reachability checks, discovery/dependency hints, remaining-production validation and assistance, reset and guarded export. Tests cover cycles, epsilon and empty-language start preservation. Browser verified missing-set feedback, pruning order and export. Empty-language documents explicitly use a non-generating placeholder because the editor requires a start rule.

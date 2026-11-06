@@ -1,3 +1,4 @@
+import {UselessExercise} from '../js/useless-exercise.js';
 import {UnitExercise} from '../js/unit-exercise.js';
 import {LambdaExercise} from '../js/lambda-exercise.js';
 import {CFGPDAExercise} from '../js/cfg-pda-exercise.js';
@@ -389,6 +390,14 @@ test('Unit exercise handles transitive cycles, epsilon and checked replacements'
 });
 test('Unit removal keeps an unproductive start from becoming an unrelated variable',()=>{
  const ex=new UnitExercise({type:'grammar',name:'Empty start',productions:G.parseGrammar('S -> B\nA -> a')});ex.fillAll();equal([...ex.dependencies.S],['S','B']);ex.fillProductions();const out=ex.export();equal(out.productions[0].left,'S');assert(out.productions.every(p=>!G.variable(p.right)));equal(tokenAccepts(fromLegacyGrammar(out),''),'rejected');equal(tokenAccepts(fromLegacyGrammar(out),'a'),'rejected');
+});
+
+
+test('Useful-variable exercise computes reachability after productive pruning',()=>{
+ const ex=new UselessExercise({type:'grammar',name:'Useful',productions:G.parseGrammar('S -> a | AB\nA -> b\nB -> B\nC -> c')});equal([...ex.generating].sort(),['A','C','S']);equal([...ex.reachable],['S']);ex.answers.reachable='S,A,B';equal(ex.check('reachable').extra,['A','B']);ex.fill('generating');ex.fill('reachable');ex.fillProductions();assert(ex.checkProductions().correct);equal(ex.expected,[{left:'S',right:'a'}]);ex.productionAnswer+='\nA -> b';assert(!ex.checkProductions().correct);ex.fillProductions();equal(tokenAccepts(fromLegacyGrammar(ex.export()),'a'),'accepted');equal(tokenAccepts(fromLegacyGrammar(ex.export()),'b'),'rejected');
+});
+test('Useful-variable exercise handles epsilon, cycles and an empty start language',()=>{
+ const nullable=new UselessExercise({type:'grammar',name:'Nullable',productions:G.parseGrammar('S -> A\nA -> λ | S\nB -> b')});nullable.fill('generating');nullable.fill('reachable');nullable.fillProductions();equal(tokenAccepts(fromLegacyGrammar(nullable.export()),''),'accepted');assert(!nullable.expected.some(p=>p.left==='B'));const empty=new UselessExercise({type:'grammar',name:'Empty',productions:G.parseGrammar('S -> S\nA -> a')});empty.fill('generating');empty.fill('reachable');empty.fillProductions();equal(empty.productionAnswer,'');equal(empty.export().productions[0].left,'S');equal(tokenAccepts(fromLegacyGrammar(empty.export()),'a'),'rejected');empty.reset();assert(!empty.ready());
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
