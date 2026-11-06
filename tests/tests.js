@@ -365,5 +365,13 @@ test('Guided LL PDA protects its bottom marker from grammar variable Z',()=>{
  const ex=new CFGPDAExercise({type:'grammar',name:'Z grammar',productions:G.parseGrammar('S -> a\nZ -> bZ | λ')});ex.finish();const m=ex.export();equal(simulate(m,'a').status,'accepted');equal(simulate(m,'ab').status,'rejected');assert(ex.bottom!=='Z');let invalid=false;try{new CFGPDAExercise({productions:G.parseGrammar('AB -> a')});}catch{invalid=true;}assert(invalid);
 });
 
+
+test('Guided LR PDA checks reversed reductions and shifts in separate construction mode',()=>{
+ const grammar={type:'grammar',name:'Bottom up',productions:G.parseGrammar('S -> aA\nA -> b')},ex=new CFGPDAExercise(grammar,'lr');equal(ex.jobs[2].expected.pop,'Aa');equal(ex.jobs[2].expected.push,'S');ex.fill('2');ex.answers['2'].pop='aA';assert(!ex.check('2').correct);ex.finish();const m=ex.export();equal(simulate(m,'ab').status,'accepted');for(const word of ['', 'a','ba','abb'])equal(simulate(m,word).status,'rejected');assert(m.transitions.some(t=>t.read==='a'&&t.pop===''&&t.push==='a'));equal(m.transitions[1].pop,'S'+ex.bottom);const ll=new CFGPDAExercise(grammar);equal(ll.checked.size,0);equal(ll.jobs[2].expected.pop,'S');
+});
+test('Guided LR PDA handles empty productions and protects the bottom marker',()=>{
+ const ex=new CFGPDAExercise({type:'grammar',name:'Empty',productions:G.parseGrammar('S -> Z\nZ -> λ')},'lr');ex.finish();equal(ex.jobs[3].expected.pop,'');equal(ex.jobs[3].expected.push,'Z');equal(simulate(ex.export(),'').status,'accepted');ex.reset();equal(ex.graph().transitions.length,0);
+});
+
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 
