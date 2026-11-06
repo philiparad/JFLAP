@@ -1,3 +1,4 @@
+import {GrammarFAExercise} from '../js/grammar-fa-exercise.js';
 import {FAGrammarExercise} from '../js/fa-grammar-exercise.js';
 import {RegexConstruction,parseRegexTree} from '../js/regex-construction.js';
 import {RegexElimination} from '../js/regex-elimination.js';
@@ -345,6 +346,14 @@ test('Guided FA grammar checks every production and preserves epsilon and upperc
 });
 test('Guided FA grammar preserves empty languages, many variables and normalized words',()=>{
  const m=A.machine();for(let i=0;i<30;i++)A.state(m);m.states[29].final=true;const empty=new FAGrammarExercise(m);empty.finish();equal(tokenAccepts(empty.export(),''),'rejected');A.edge(m,0,29,'ab');const ex=new FAGrammarExercise(m);ex.finish();equal(tokenAccepts(ex.export(),'ab'),'accepted');equal(tokenAccepts(ex.export(),'a'),'rejected');const noRules=A.machine();A.state(noRules);equal(tokenAccepts(new FAGrammarExercise(noRules).export(),''),'rejected');
+});
+
+
+test('Guided grammar to FA checks paths and preserves right-linear languages',()=>{
+ const g={type:'grammar',name:'Right linear',productions:G.parseGrammar('S -> abA | λ\nA -> cA | b')},ex=new GrammarFAExercise(g);let blocked=false;try{ex.export();}catch{blocked=true;}assert(blocked);ex.answers['0']={from:'0',read:'ab',to:String(ex.final)};equal(ex.check('0').wrong,['to']);ex.finish();const out=ex.export();assert(out.transitions.every(t=>[...t.read].length<=1));assert(A.equivalent(out,G.grammarToFA(g.productions)).equal);equal(simulate(out,'abccb').status,'accepted');equal(simulate(out,'abcc').status,'rejected');ex.answers['0'].read='x';assert(!ex.check('0').correct);assert(ex.graph().transitions.length<out.transitions.length);ex.reset();equal(ex.graph().transitions.length,0);
+});
+test('Guided grammar FA supports named variables, uppercase literals and unit cycles',()=>{
+ const g=tokenGrammar([{left:[V('Start')],right:[V('Next')]},{left:[V('Next')],right:[V('Start')]},{left:[V('Next')],right:[T('A'),T('['),T('a'),T(']')]}]);const ex=new GrammarFAExercise(g);ex.finish();equal(simulate(ex.export(),'A[a]').status,'accepted');equal(simulate(ex.export(),'Aa').status,'rejected');let invalid=false;try{new GrammarFAExercise({type:'grammar',productions:G.parseGrammar('S -> aSb | λ')});}catch{invalid=true;}assert(invalid);
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;

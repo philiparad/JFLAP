@@ -40,7 +40,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 32 | [x] | Interactive FA→regex elimination order and intermediate graphs. | C05 |
 | 33 | [x] | Interactive regex decomposition and NFA construction. | C06 |
 | 34 | [x] | Guided FA→grammar production construction and checking. | C07 |
-| 35 | [ ] | Guided right-linear grammar→FA construction and checking. | C07 |
+| 35 | [x] | Guided right-linear grammar→FA construction and checking. | C07 |
 | 36 | [ ] | Guided CFG→PDA LL construction and checking. | C07 |
 | 37 | [ ] | Guided CFG→PDA LR construction and checking. | C07 |
 | 38 | [ ] | Nullable-set and lambda-removal exercise. | C08 |
@@ -149,3 +149,5 @@ Task 32: 129 tests pass. Added selectable FA-to-regex elimination order, general
 Task 33: 131 tests pass. Added selectable regex-edge decomposition for union, concatenation, star, epsilon and empty language, decomposition tree, intermediate graph, undo/reset, assistance and guarded NFA export. Tests compare both expansion orders to the automatic converter. Browser verified decomposition, undo and opening the completed NFA.
 
 Task 34: 133 tests pass. Added guided transition/final-state production entry with field checking, selected/step/all assistance and checked grammar export. Named variables support uppercase terminals and more than 26 states. An explicit supplied start rule preserves empty-language cases. Tests cover normalization and grammar acceptance; browser verified incorrect/correct answers, completion and opening the exported grammar.
+
+Task 35: 135 tests pass. Added guided right-linear grammar-to-FA path entry, selected/step/all assistance, checked intermediate graph and export. Supports legacy and named-variable grammars, epsilon/unit rules and multi-symbol words split into literal symbol edges. Tests verify language equivalence, named uppercase terminals and rejected nonregular input. Browser verified correction feedback, complete paths and exported FA.
