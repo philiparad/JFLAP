@@ -1,3 +1,4 @@
+import {FAGrammarExercise} from '../js/fa-grammar-exercise.js';
 import {RegexConstruction,parseRegexTree} from '../js/regex-construction.js';
 import {RegexElimination} from '../js/regex-elimination.js';
 import {MinimizationExercise} from '../js/minimization-exercise.js';
@@ -336,6 +337,14 @@ test('Interactive regex decomposition preserves language in either expansion ord
 });
 test('Regex construction blocks premature export, restores undo and validates syntax',()=>{
  const ex=new RegexConstruction('a+b');let blocked=false;try{ex.export();}catch{blocked=true;}assert(blocked);const before=JSON.stringify(ex.model);ex.step();equal(ex.pending().length,2);assert(ex.undo());equal(JSON.stringify(ex.model),before);ex.finish();assert(!ex.pending().length);ex.reset();equal(ex.steps,[]);equal(ex.pending().length,1);for(const text of ['(a','a)','*a']){let invalid=false;try{parseRegexTree(text);}catch{invalid=true;}assert(invalid,text);}
+});
+
+
+test('Guided FA grammar checks every production and preserves epsilon and uppercase terminals',()=>{
+ const m=A.machine();A.state(m);A.state(m).final=true;A.edge(m,0,0,'');A.edge(m,0,1,'A');const ex=new FAGrammarExercise(m);let blocked=false;try{ex.export();}catch{blocked=true;}assert(blocked);ex.answers.edge0={left:'Q0',terminal:'a',target:'Q0'};equal(ex.check('edge0').wrong,['terminal']);ex.finish();const grammar=ex.export();equal(tokenAccepts(grammar,'A'),'accepted');equal(tokenAccepts(grammar,''),'rejected');equal(tokenAccepts(grammar,'AA'),'rejected');ex.answers.edge0.target='Q9';blocked=false;try{ex.export();}catch{blocked=true;}assert(blocked);ex.reset();equal(ex.checked.size,0);
+});
+test('Guided FA grammar preserves empty languages, many variables and normalized words',()=>{
+ const m=A.machine();for(let i=0;i<30;i++)A.state(m);m.states[29].final=true;const empty=new FAGrammarExercise(m);empty.finish();equal(tokenAccepts(empty.export(),''),'rejected');A.edge(m,0,29,'ab');const ex=new FAGrammarExercise(m);ex.finish();equal(tokenAccepts(ex.export(),'ab'),'accepted');equal(tokenAccepts(ex.export(),'a'),'rejected');const noRules=A.machine();A.state(noRules);equal(tokenAccepts(new FAGrammarExercise(noRules).export(),''),'rejected');
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
