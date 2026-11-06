@@ -1,3 +1,4 @@
+import {LambdaExercise} from '../js/lambda-exercise.js';
 import {CFGPDAExercise} from '../js/cfg-pda-exercise.js';
 import {GrammarFAExercise} from '../js/grammar-fa-exercise.js';
 import {FAGrammarExercise} from '../js/fa-grammar-exercise.js';
@@ -371,6 +372,14 @@ test('Guided LR PDA checks reversed reductions and shifts in separate constructi
 });
 test('Guided LR PDA handles empty productions and protects the bottom marker',()=>{
  const ex=new CFGPDAExercise({type:'grammar',name:'Empty',productions:G.parseGrammar('S -> Z\nZ -> λ')},'lr');ex.finish();equal(ex.jobs[3].expected.pop,'');equal(ex.jobs[3].expected.push,'Z');equal(simulate(ex.export(),'').status,'accepted');ex.reset();equal(ex.graph().transitions.length,0);
+});
+
+
+test('Lambda exercise checks chained nullable sets and repeated omission alternatives',()=>{
+ const ex=new LambdaExercise({type:'grammar',name:'Nullable',productions:G.parseGrammar('S -> AAB\nA -> λ | a\nB -> C\nC -> λ | b')});ex.setAnswer='A';assert(!ex.checkSet().correct);ex.fillSet();equal([...ex.nullable].sort(),['A','B','C','S']);ex.fillProductions();assert(ex.checkProductions().correct);assert(ex.expected.some(p=>p.left==='S'&&p.right==='AB'));assert(ex.expected.some(p=>p.left==='S'&&!p.right));assert(ex.expected.filter(p=>p.left==='S'&&p.right==='AB').length===1);ex.productionAnswer+='\nS -> x';assert(!ex.checkProductions().correct);ex.fillProductions();const result=ex.export();for(const word of ['', 'a','aa','b','ab','aab'])equal(tokenAccepts(fromLegacyGrammar(result),word),'accepted');equal(tokenAccepts(fromLegacyGrammar(result),'ba'),'rejected');ex.reset();assert(!ex.setChecked);
+});
+test('Lambda exercise handles empty nullable sets and rejects premature export',()=>{
+ const ex=new LambdaExercise({type:'grammar',name:'No lambda',productions:G.parseGrammar('S -> a')});let blocked=false;try{ex.export();}catch{blocked=true;}assert(blocked);ex.setAnswer='∅';assert(ex.checkSet().correct);ex.productionAnswer='S -> a';assert(ex.checkProductions().correct);equal(ex.export().productions,[{left:'S',right:'a'}]);ex.setAnswer='S';assert(!ex.checkSet().correct);
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
