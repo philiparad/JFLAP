@@ -1,3 +1,4 @@
+import {UnitExercise} from '../js/unit-exercise.js';
 import {LambdaExercise} from '../js/lambda-exercise.js';
 import {CFGPDAExercise} from '../js/cfg-pda-exercise.js';
 import {GrammarFAExercise} from '../js/grammar-fa-exercise.js';
@@ -380,6 +381,14 @@ test('Lambda exercise checks chained nullable sets and repeated omission alterna
 });
 test('Lambda exercise handles empty nullable sets and rejects premature export',()=>{
  const ex=new LambdaExercise({type:'grammar',name:'No lambda',productions:G.parseGrammar('S -> a')});let blocked=false;try{ex.export();}catch{blocked=true;}assert(blocked);ex.setAnswer='∅';assert(ex.checkSet().correct);ex.productionAnswer='S -> a';assert(ex.checkProductions().correct);equal(ex.export().productions,[{left:'S',right:'a'}]);ex.setAnswer='S';assert(!ex.checkSet().correct);
+});
+
+
+test('Unit exercise handles transitive cycles, epsilon and checked replacements',()=>{
+ const ex=new UnitExercise({type:'grammar',name:'Units',productions:G.parseGrammar('S -> A\nA -> B | a\nB -> S | λ')});ex.answers.S='A,B';equal(ex.check('S').missing,['S']);ex.fillAll();assert(ex.ready());ex.fillProductions();assert(ex.checkProductions().correct);ex.productionAnswer+='\nS -> A';assert(!ex.checkProductions().correct);ex.fillProductions();const out=ex.export();assert(out.productions.every(p=>!G.variable(p.right)));equal(tokenAccepts(fromLegacyGrammar(out),''),'accepted');equal(tokenAccepts(fromLegacyGrammar(out),'a'),'accepted');equal(tokenAccepts(fromLegacyGrammar(out),'aa'),'rejected');ex.reset();assert(!ex.ready());
+});
+test('Unit removal keeps an unproductive start from becoming an unrelated variable',()=>{
+ const ex=new UnitExercise({type:'grammar',name:'Empty start',productions:G.parseGrammar('S -> B\nA -> a')});ex.fillAll();equal([...ex.dependencies.S],['S','B']);ex.fillProductions();const out=ex.export();equal(out.productions[0].left,'S');assert(out.productions.every(p=>!G.variable(p.right)));equal(tokenAccepts(fromLegacyGrammar(out),''),'rejected');equal(tokenAccepts(fromLegacyGrammar(out),'a'),'rejected');
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;

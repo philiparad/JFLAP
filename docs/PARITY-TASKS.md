@@ -44,7 +44,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 36 | [x] | Guided CFG→PDA LL construction and checking. | C07 |
 | 37 | [x] | Guided CFG→PDA LR construction and checking. | C07 |
 | 38 | [x] | Nullable-set and lambda-removal exercise. | C08 |
-| 39 | [ ] | Unit-dependency and unit-removal exercise. | C08 |
+| 39 | [x] | Unit-dependency and unit-removal exercise. | C08 |
 | 40 | [ ] | Useful-variable/dependency and useless-removal exercise. | C08 |
 | 41 | [ ] | Interactive terminal replacement and binarization for CNF. | C08 |
 | 42 | [ ] | Original building-block XML tags/references with round-trip fixtures. | T04 |
@@ -157,3 +157,5 @@ Task 36: 137 tests pass. Added guided top-down CFG-to-PDA transition entry, fiel
 Task 37: 139 tests pass. Added separate guided bottom-up CFG-to-PDA exercise with shift and reversed-production reduction checks, epsilon reductions, protected stack marker, completion and export. LL and LR answers stay separate. Tests cover acceptance/rejection, reduction order and empty productions; browser verified labels and result export. This is nondeterministic bottom-up construction, not deterministic LR table parsing.
 
 Task 38: 141 tests pass. Added nullable-variable set checks, discovery-round hints, transformed-production checking and assistance, reset and guarded export. Preserves a nullable start production to retain the empty word. Tests cover nullable chains, repeated occurrences, missing/extra productions and language results. Browser verified missing-set feedback, completed productions and export.
+
+Task 39: 143 tests pass. Added per-variable unit-closure checking, dependency graph, selected/all assistance, replacement-production validation and guarded export. Handles cycles, epsilon rules and right-side-only variables. Empty-language export preserves the original start with a nonterminating non-unit placeholder. Browser verified incorrect/correct dependency sets, replacement rules and export.
