@@ -1,3 +1,4 @@
+import {CFGPDAExercise} from '../js/cfg-pda-exercise.js';
 import {GrammarFAExercise} from '../js/grammar-fa-exercise.js';
 import {FAGrammarExercise} from '../js/fa-grammar-exercise.js';
 import {RegexConstruction,parseRegexTree} from '../js/regex-construction.js';
@@ -354,6 +355,14 @@ test('Guided grammar to FA checks paths and preserves right-linear languages',()
 });
 test('Guided grammar FA supports named variables, uppercase literals and unit cycles',()=>{
  const g=tokenGrammar([{left:[V('Start')],right:[V('Next')]},{left:[V('Next')],right:[V('Start')]},{left:[V('Next')],right:[T('A'),T('['),T('a'),T(']')]}]);const ex=new GrammarFAExercise(g);ex.finish();equal(simulate(ex.export(),'A[a]').status,'accepted');equal(simulate(ex.export(),'Aa').status,'rejected');let invalid=false;try{new GrammarFAExercise({type:'grammar',productions:G.parseGrammar('S -> aSb | λ')});}catch{invalid=true;}assert(invalid);
+});
+
+
+test('Guided LL PDA validates stack fields and accepts the source grammar language',()=>{
+ const ex=new CFGPDAExercise({type:'grammar',name:'LL',productions:G.parseGrammar('S -> aA | λ\nA -> b | λ')});let blocked=false;try{ex.export();}catch{blocked=true;}assert(blocked);ex.fill('2');ex.answers['2'].push='Aa';assert(!ex.check('2').correct);ex.finish();const m=ex.export();for(const word of ['', 'a','ab'])equal(simulate(m,word).status,'accepted');for(const word of ['b','aa','aba'])equal(simulate(m,word).status,'rejected');assert(ex.graph().transitions.every(t=>typeof t.pop==='string'));ex.reset();equal(ex.graph().transitions.length,0);
+});
+test('Guided LL PDA protects its bottom marker from grammar variable Z',()=>{
+ const ex=new CFGPDAExercise({type:'grammar',name:'Z grammar',productions:G.parseGrammar('S -> a\nZ -> bZ | λ')});ex.finish();const m=ex.export();equal(simulate(m,'a').status,'accepted');equal(simulate(m,'ab').status,'rejected');assert(ex.bottom!=='Z');let invalid=false;try{new CFGPDAExercise({productions:G.parseGrammar('AB -> a')});}catch{invalid=true;}assert(invalid);
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
