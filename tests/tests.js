@@ -1,3 +1,4 @@
+import {CNFExercise} from '../js/cnf-exercise.js';
 import {UselessExercise} from '../js/useless-exercise.js';
 import {UnitExercise} from '../js/unit-exercise.js';
 import {LambdaExercise} from '../js/lambda-exercise.js';
@@ -398,6 +399,14 @@ test('Useful-variable exercise computes reachability after productive pruning',(
 });
 test('Useful-variable exercise handles epsilon, cycles and an empty start language',()=>{
  const nullable=new UselessExercise({type:'grammar',name:'Nullable',productions:G.parseGrammar('S -> A\nA -> λ | S\nB -> b')});nullable.fill('generating');nullable.fill('reachable');nullable.fillProductions();equal(tokenAccepts(fromLegacyGrammar(nullable.export()),''),'accepted');assert(!nullable.expected.some(p=>p.left==='B'));const empty=new UselessExercise({type:'grammar',name:'Empty',productions:G.parseGrammar('S -> S\nA -> a')});empty.fill('generating');empty.fill('reachable');empty.fillProductions();equal(empty.productionAnswer,'');equal(empty.export().productions[0].left,'S');equal(tokenAccepts(fromLegacyGrammar(empty.export()),'a'),'rejected');empty.reset();assert(!empty.ready());
+});
+
+
+test('CNF exercise replaces terminals, splits rules and restores undo without changing language',()=>{
+ const g={type:'grammar',name:'CNF',productions:G.parseGrammar('S -> abc | aBb\nB -> b | λ')},ex=new CNFExercise(g);let blocked=false;try{ex.export();}catch{blocked=true;}assert(blocked);const before=JSON.stringify(ex.productions);let collision=false;try{ex.replaceTerminal('a','S');}catch{collision=true;}assert(collision);ex.replaceTerminal('a','X');assert(ex.productions.some(p=>p.left==='X'&&p.right==='a'));assert(ex.undo());equal(JSON.stringify(ex.productions),before);ex.finish();assert(ex.ready());const out=ex.export();for(const word of ['abc','ab','abb'])equal(tokenAccepts(fromLegacyGrammar(out),word),'accepted');for(const word of ['', 'a','ac','abbb'])equal(tokenAccepts(fromLegacyGrammar(out),word),'rejected');ex.reset();assert(!ex.ready());
+});
+test('CNF exercise isolates nullable start and represents an empty language in binary form',()=>{
+ const ex=new CNFExercise({type:'grammar',name:'Nullable start',productions:G.parseGrammar('S -> aS | λ')});assert(ex.start!=='S');ex.finish();assert(ex.ready());const out=ex.export();equal(tokenAccepts(fromLegacyGrammar(out),''),'accepted');equal(tokenAccepts(fromLegacyGrammar(out),'aaa'),'accepted');const dead=new CNFExercise({type:'grammar',name:'Empty',productions:G.parseGrammar('S -> S')});assert(dead.emptyLanguage);assert(dead.ready());assert(dead.export().productions.every(p=>p.right.length===2));
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;

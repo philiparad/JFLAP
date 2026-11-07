@@ -46,7 +46,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 38 | [x] | Nullable-set and lambda-removal exercise. | C08 |
 | 39 | [x] | Unit-dependency and unit-removal exercise. | C08 |
 | 40 | [x] | Useful-variable/dependency and useless-removal exercise. | C08 |
-| 41 | [ ] | Interactive terminal replacement and binarization for CNF. | C08 |
+| 41 | [x] | Interactive terminal replacement and binarization for CNF. | C08 |
 | 42 | [ ] | Original building-block XML tags/references with round-trip fixtures. | T04 |
 | 43 | [ ] | Open URL with explicit network errors and browser CORS limitations. | F01 |
 | 44 | [ ] | Save/Save As file handles where supported; explicit download fallback. | F05 |
@@ -161,3 +161,5 @@ Task 38: 141 tests pass. Added nullable-variable set checks, discovery-round hin
 Task 39: 143 tests pass. Added per-variable unit-closure checking, dependency graph, selected/all assistance, replacement-production validation and guarded export. Handles cycles, epsilon rules and right-side-only variables. Empty-language export preserves the original start with a nonterminating non-unit placeholder. Browser verified incorrect/correct dependency sets, replacement rules and export.
 
 Task 40: 145 tests pass. Added generating-variable and post-pruning reachability checks, discovery/dependency hints, remaining-production validation and assistance, reset and guarded export. Tests cover cycles, epsilon and empty-language start preservation. Browser verified missing-set feedback, pruning order and export. Empty-language documents explicitly use a non-generating placeholder because the editor requires a start rule.
+
+Task 41: 147 tests pass. Added interactive CNF terminal replacement and selected production binarization with checked fresh names, undo/reset, step/all assistance and export. Automatic start isolation, lambda/unit/useless preparation is visible. Tests verify language preservation, nullable-start isolation and empty-language binary representation; browser verified name collision feedback, undo, completion and export.
