@@ -409,5 +409,32 @@ test('CNF exercise isolates nullable start and represents an empty language in b
  const ex=new CNFExercise({type:'grammar',name:'Nullable start',productions:G.parseGrammar('S -> aS | λ')});assert(ex.start!=='S');ex.finish();assert(ex.ready());const out=ex.export();equal(tokenAccepts(fromLegacyGrammar(out),''),'accepted');equal(tokenAccepts(fromLegacyGrammar(out),'aaa'),'accepted');const dead=new CNFExercise({type:'grammar',name:'Empty',productions:G.parseGrammar('S -> S')});assert(dead.emptyLanguage);assert(dead.ready());assert(dead.export().productions.every(p=>p.right.length===2));
 });
 
+const originalBlocks=await (await fetch('./fixtures/original-blocks.jff')).text();
+test('Original JFLAP block tags and shared references import, execute and round trip',()=>{
+ const m=deserialize(originalBlocks),a=m.states.find(s=>s.id===0),b=m.states.find(s=>s.id===1);
+ equal(a.x,0);equal(a.name,'Rewrite & first');equal(a.blockTag,'Rewrite');equal(b.blockTag,'Rewrite');equal(a.block.states.length,2);assert(!m.states.find(s=>s.id===2).block);
+ assert(a.block!==b.block);equal(m.transitions[0].write,['~']);equal(m.transitions[0].move,['S']);assert(m.transitions[0].blockTransition);
+ for(const machine of [m,deserialize(serialize(m))]){const r=simulate(machine,'a');equal(r.status,'accepted');equal(r.config.tapes[0]['0'],'b');equal(r.config.heads,[0]);equal(simulate(machine,'x').status,'rejected');}
+ const xml=serialize(m),doc=new DOMParser().parseFromString(xml,'application/xml');equal(doc.getElementsByTagName('Rewrite').length,1);assert(xml.includes('block="true"'));equal(deserialize(xml).states[0].blockTag,'Rewrite');
+});
+test('Edited instances of a shared block export independent definitions',()=>{
+ const m=deserialize(originalBlocks);m.states[1].block.transitions[0].write=['c'];const out=deserialize(serialize(m));
+ equal(out.states[0].block.transitions[0].write,['b']);equal(out.states[1].block.transitions[0].write,['c']);assert(out.states[0].blockTag!==out.states[1].blockTag);
+ m.transitions[0].write=['d'];m.transitions[0].move=['R'];const edited=deserialize(serialize(m));assert(!edited.transitions[0].blockTransition);equal(edited.transitions[0].write,['d']);equal(edited.transitions[0].move,['R']);
+});
+test('Nested inline files migrate to named block XML with labels and notes',()=>{
+ const leaf=A.machine('turing');leaf.tapes=2;A.state(leaf).label='leaf & label';A.state(leaf).final=true;A.edge(leaf,0,1,['a','b'],{write:['x','y'],move:['S','S']});leaf.notes=[{text:'nested <note>',x:0,y:1}];
+ const middle=A.machine('turing');middle.tapes=2;A.state(middle).block=leaf;A.state(middle).final=true;A.edge(middle,0,1,['x','y'],{write:['~','~'],move:['S','S'],blockTransition:true});
+ const m=A.machine('turing');m.tapes=2;A.state(m).block=middle;A.state(m).final=true;A.edge(m,0,1,['x','y'],{write:['~','~'],move:['S','S'],blockTransition:true});
+ const xml=serialize(m),out=deserialize(xml);equal(out.type,'turingbb');equal(out.states[0].block.states[0].block.notes,leaf.notes);equal(out.states[0].block.states[0].block.states[0].label,'leaf & label');equal(simulate(out,['a','b']).status,'accepted');
+ const legacy='<structure><type>turing</type><automaton><state id="0"><initial/><automaton><state id="7"><initial/></state></automaton></state></automaton></structure>';
+ equal(deserialize(serialize(deserialize(legacy))).states[0].block.states[0].id,7);
+});
+test('Missing, duplicate, cyclic and invalid-tape block files fail explicitly',()=>{
+ const invalid=[originalBlocks.replace('<tag>Rewrite</tag>','<tag>Missing</tag>'),originalBlocks.replace('</structure>','<Rewrite/></structure>'),originalBlocks.replace('<tag>EmptyStart</tag>','<tag>Rewrite</tag>'),originalBlocks.replace('<type>turingbb</type>','<type>turingbb</type><tapes>1.5</tapes>'),originalBlocks.replace('<read>b</read>','<read tape="2">b</read>'),originalBlocks.replace('<read>b</read>','<read>b</read><read>b</read>')];
+ for(const xml of invalid){let rejected=false;try{deserialize(xml);}catch{rejected=true;}assert(rejected);}
+ const m=A.machine('turing');A.state(m).block=m;let rejected=false;try{serialize(m);}catch{rejected=true;}assert(rejected);
+});
+
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 

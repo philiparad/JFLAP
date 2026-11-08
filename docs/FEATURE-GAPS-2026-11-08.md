@@ -2,7 +2,7 @@
 
 Comparison: 8 November 2026. Repository baseline: `bd1440ede6b14b9e3eb253d3c2d33972e11737f8` (GitHub main when cloned).
 
-**30 missing or partial feature task units were identified at this baseline. Exactly one, Task 67, is completed in this feature commit; 29 remain.** Two dormant-code investigations are listed separately. This list supersedes the old 27 October audit for current pending work.
+**30 missing or partial feature task units were identified at this baseline. Tasks 67 and 42 are now completed in separate feature commits; 28 remain.** Two dormant-code investigations are listed separately. This list supersedes the old 27 October audit for current pending work.
 
 ## Scope and evidence
 
@@ -20,7 +20,7 @@ Each row is an actionable local task with an acceptance criterion. IDs preserve 
 
 | Task | Status | Feature and acceptance criterion | Original evidence | Workbench boundary |
 |---|---|---|---|---|
-| 42 | [ ] | **Original Turing building-block XML.** Implement original nested tags and block references; import a Java-produced fixture, execute it, export and reopen it without losing references. | `file/xml/TMBBTransducer.class; TMTransducer.class` (T04) | `js/files.js` |
+| 42 | [x] | **Original Turing building-block XML.** Implement original nested tags and block references; import a Java-produced fixture, execute it, export and reopen it without losing references. | `file/xml/TMBBTransducer.class; TMTransducer.class` (T04) | `js/files.js` |
 | 44 | [ ] | **Save / Save As file association.** Retain a chosen writable handle and save back to it; Save As changes association; unsupported browsers get an explicit download fallback. | `DOCS/filemenu.html` (F05) | `js/app.js` |
 | 48 | [ ] | **Persistent operation tabs and separate document views.** Keep multiple operations and their histories alive; dismiss one independently; isolate document windows/views and edits. | `DOCS/filemenu.html` (F06) | `js/app.js` |
 | 49 | [ ] | **Human-first / computer-first pumping games.** Implement both turn sequences, legal moves, opponent roles and terminal outcomes for regular and context-free games. | `pumping/; gui/pumping/` (P01) | `js/pumping.js; app.js` |
@@ -71,3 +71,7 @@ Transition dialogs now support Shift+Enter to validate and save the current tran
 Validation: the existing browser suite reports **147 passed, 0 failed**. Additional real Chromium keyboard checks pass for FA, self-loops, PDA, Mealy, Moore, one-tape and three-tape TM; new-edge dragging; repeated continuation; ordinary Enter; Escape; invalid TM input; undo/redo; and handler cleanup. No browser errors were observed. Reproduce with `python tests/transition-keyboard.py` in an environment with Python Playwright and Chromium installed. These are test-only prerequisites; the application still has no build/runtime dependency on them.
 
 Only this feature was implemented. Remaining tasks are intentionally pending. The implementation, tests and audit are included together in the Task 67 commit. No additional feature task was started.
+
+## Subsequent implementation: Task 42
+
+Task 42 is now complete in its own commit. Original named block XML imports, nested editing, simulation and single-tape Java-codec round trips are covered. 151 browser regression checks and focused file/keyboard interaction checks pass. See [Turing block XML](TURING-BLOCK-XML.md) for the precise compatibility boundary, including the original multi-tape loader limitation. No other pending task was implemented in this continuation.

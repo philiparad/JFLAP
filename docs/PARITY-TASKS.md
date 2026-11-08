@@ -49,7 +49,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 39 | [x] | Unit-dependency and unit-removal exercise. | C08 |
 | 40 | [x] | Useful-variable/dependency and useless-removal exercise. | C08 |
 | 41 | [x] | Interactive terminal replacement and binarization for CNF. | C08 |
-| 42 | [ ] | Original building-block XML tags/references with round-trip fixtures. | T04 |
+| 42 | [x] | Original building-block XML tags/references with round-trip fixtures. | T04 |
 | 43 | — | Excluded: original Open URL action is a no-op. See refreshed audit. | F01 |
 | 44 | [ ] | Save/Save As file handles where supported; explicit download fallback. | F05 |
 | 45 | — | Dormant decoder investigation only; not registered. Export is a stub. See refreshed audit. | F02 |
@@ -176,3 +176,5 @@ Task 40: 145 tests pass. Added generating-variable and post-pruning reachability
 Task 41: 147 tests pass. Added interactive CNF terminal replacement and selected production binarization with checked fresh names, undo/reset, step/all assistance and export. Automatic start isolation, lambda/unit/useless preparation is visible. Tests verify language preservation, nullable-start isolation and empty-language binary representation; browser verified name collision feedback, undo, completion and export.
 
 Task 67 (8 November 2026): Shift+Enter continuation in transition dialogs, ordinary Enter apply, cancellation and validation isolation. Existing 147 browser regressions and focused Chromium keyboard tests passed. Exactly one feature implemented; delivered with its tests and refreshed audit in the Task 67 commit. See FEATURE-GAPS-2026-11-08.md.
+
+Task 42: original named Turing block references, empty definitions, read-only block transitions and compatible single-tape export. Legacy inline files still import. 151 browser tests and keyboard interaction checks passed; a Java-generated fixture passed browser import/nested editing/export and original Java codec reopening. Multi-tape block web round trips are supported; the original loader limitation is documented in TURING-BLOCK-XML.md.
