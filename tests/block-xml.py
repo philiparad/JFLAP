@@ -47,7 +47,8 @@ try:
         page.get_by_role('button',name='↰ Parent block',exact=True).click()
         expect(page.locator('[data-state]')).to_have_count(3)
         with page.expect_download() as download:
-            page.locator('#save').click()
+            page.get_by_role('button',name='File',exact=True).hover()
+            page.get_by_role('button',name='Download copy',exact=True).click()
         exported=temp/'web-blocks.jff'
         download.value.save_as(exported)
         subprocess.run(command+['check',str(exported)],check=True,timeout=30)

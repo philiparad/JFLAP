@@ -135,3 +135,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 41: 147 tests pass. Added interactive CNF terminal replacement and selected production binarization with checked fresh names, undo/reset, step/all assistance and export. Automatic start isolation, lambda/unit/useless preparation is visible. Tests verify language preservation, nullable-start isolation and empty-language binary representation; browser verified name collision feedback, undo, completion and export.
 
 - Task 42: named building-block XML references and original transition flags now import/export. Verified single-tape Java codec round trip and nested editor workflow; 151 tests pass. See [format scope and original loader limitations](TURING-BLOCK-XML.md).
+
+- Task 44: supported browsers retain session-local file associations for Open/Save/Save As. Other browsers explicitly download copies. Save and close waits for success; failures/cancellation retain documents. See [saving files](SAVING-FILES.md). 159 tests and focused browser checks pass.

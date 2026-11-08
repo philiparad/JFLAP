@@ -1,3 +1,4 @@
+import {testDocumentFiles} from './document-files.js';
 import {CNFExercise} from '../js/cnf-exercise.js';
 import {UselessExercise} from '../js/useless-exercise.js';
 import {UnitExercise} from '../js/unit-exercise.js';
@@ -435,6 +436,8 @@ test('Missing, duplicate, cyclic and invalid-tape block files fail explicitly',(
  for(const xml of invalid){let rejected=false;try{deserialize(xml);}catch{rejected=true;}assert(rejected);}
  const m=A.machine('turing');A.state(m).block=m;let rejected=false;try{serialize(m);}catch{rejected=true;}assert(rejected);
 });
+
+for(const result of await testDocumentFiles())test(result.name,()=>{if(result.error)throw result.error;});
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 

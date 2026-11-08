@@ -51,7 +51,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 41 | [x] | Interactive terminal replacement and binarization for CNF. | C08 |
 | 42 | [x] | Original building-block XML tags/references with round-trip fixtures. | T04 |
 | 43 | — | Excluded: original Open URL action is a no-op. See refreshed audit. | F01 |
-| 44 | [ ] | Save/Save As file handles where supported; explicit download fallback. | F05 |
+| 44 | [x] | Save/Save As file handles where supported; explicit download fallback. | F05 |
 | 45 | — | Dormant decoder investigation only; not registered. Export is a stub. See refreshed audit. | F02 |
 | 46 | — | Excluded: original Lenore decoder explicitly unimplemented. See refreshed audit. | F02 |
 | 47 | — | Dormant object-stream decoder investigation; not registered in Open. See refreshed audit. | F02 |
@@ -178,3 +178,5 @@ Task 41: 147 tests pass. Added interactive CNF terminal replacement and selected
 Task 67 (8 November 2026): Shift+Enter continuation in transition dialogs, ordinary Enter apply, cancellation and validation isolation. Existing 147 browser regressions and focused Chromium keyboard tests passed. Exactly one feature implemented; delivered with its tests and refreshed audit in the Task 67 commit. See FEATURE-GAPS-2026-11-08.md.
 
 Task 42: original named Turing block references, empty definitions, read-only block transitions and compatible single-tape export. Legacy inline files still import. 151 browser tests and keyboard interaction checks passed; a Java-generated fixture passed browser import/nested editing/export and original Java codec reopening. Multi-tape block web round trips are supported; the original loader limitation is documented in TURING-BLOCK-XML.md.
+
+Task 44: document file associations with Open, Save and Save As on supported browsers; explicit Download copy/fallback elsewhere. Cancellation, write failures and Save and close preserve unsaved documents. Handles survive undo but remain session-local and outside model serialization. 159 regression tests, real Chromium file-handle UI checks, keyboard checks and the original Java block codec round trip passed. See SAVING-FILES.md for browser scope and test boundaries.
