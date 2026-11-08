@@ -1,5 +1,7 @@
 # Prioritized feature-parity tasks
 
+**8 November update:** See [the refreshed audit](FEATURE-GAPS-2026-11-08.md) for the current 30-task feature-gap list, corrected false positives and dormant-code boundaries.
+
 This is the active implementation backlog. The earlier TASKS.md records the initial release, not full parity. Audit IDs refer to FEATURE-GAP-AUDIT.md. All items below are pending unless checked.
 
 Order: everyday simulation and teaching workflows first, missing algorithms and file compatibility next, specialist exercises and presentation refinements last. Prerequisites appear before dependent work. No parallel implementation: implement one row, run its checks, commit it to GitHub main successfully, then start the next row. A failed check or commit must be resolved first. Completion never means that Original mode merely contains the feature.
@@ -48,11 +50,11 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 40 | [x] | Useful-variable/dependency and useless-removal exercise. | C08 |
 | 41 | [x] | Interactive terminal replacement and binarization for CNF. | C08 |
 | 42 | [ ] | Original building-block XML tags/references with round-trip fixtures. | T04 |
-| 43 | [ ] | Open URL with explicit network errors and browser CORS limitations. | F01 |
+| 43 | — | Excluded: original Open URL action is a no-op. See refreshed audit. | F01 |
 | 44 | [ ] | Save/Save As file handles where supported; explicit download fallback. | F05 |
-| 45 | [ ] | Original JFLAP 3 codec fixtures and import/export. | F02 |
-| 46 | [ ] | Original Lenore codec fixtures and supported conversion. | F02 |
-| 47 | [ ] | Java serialized model compatibility via bounded data-only reader and fixtures. | F02 |
+| 45 | — | Dormant decoder investigation only; not registered. Export is a stub. See refreshed audit. | F02 |
+| 46 | — | Excluded: original Lenore decoder explicitly unimplemented. See refreshed audit. | F02 |
+| 47 | — | Dormant object-stream decoder investigation; not registered in Open. See refreshed audit. | F02 |
 | 48 | [ ] | Persistent operation tabs and separate document windows, isolated histories. | F06 |
 | 49 | [ ] | Pumping game state machine with human/computer-first roles. | P01 |
 | 50 | [ ] | Port regular-language opponent strategies and explanations, one fixture per exercise. | P02 |
@@ -72,7 +74,16 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 64 | [ ] | Empty-string display preference across editors, simulations and tables. | U01 |
 | 65 | [ ] | Selectable original interface palettes. | U02 |
 | 66 | [ ] | Context help routed to each active operation. | U03 |
-| 67 | [ ] | Shift+Enter transition continuation with keyboard checks. | U04 |
+| 67 | [x] | Shift+Enter transition continuation with keyboard checks. | U04 |
+
+| 68 | [ ] | State-label visibility and bulk clearing: Hide/show labels, retain hover text while hidden, and clear all state labels with undo. | NEW |
+| 69 | [ ] | Guided PDA to CFG construction: Build productions from selected PDA transitions; provide Hint, Show All and remaining-transition help, and gate export on completion. | C01 residual |
+| 70 | [ ] | Freely constructed graphical LR item automaton: Create and reposition item-set nodes, draw goto links to new/existing nodes, choose items and apply closure; validate semantics independently of supplied canonical state numbering. | G05 residual |
+| 71 | [ ] | Linked selection in guided conversions: Selecting productions highlights originating states/transitions and vice versa; source selections build corresponding results and identify unfinished objects. | C07 residual |
+| 72 | [ ] | Minimization: Complete Subtree: Recursively complete only the selected partition subtree, leave unrelated groups untouched, and preserve language equivalence. | C04 residual |
+| 73 | [ ] | Graphical minimization partition editing: Add/remove child groups and toggle source-state membership by clicking; Check Node validates the selected partition; retain undo. | C04 residual |
+| 74 | [ ] | Detachable editor toolbar: Provide a movable/detachable equivalent of the original toolbar while preserving tool selection, keyboard use and an accessible reattach path. | NEW desktop presentation |
+| 75 | [ ] | Combine non-FA automata: Expose combination for PDA, Mealy, Moore and compatible Turing machines; reject mismatched tape counts, preserve outputs and discard the appended initial marker. | NEW |
 
 ## Commit gate
 
@@ -163,3 +174,5 @@ Task 39: 143 tests pass. Added per-variable unit-closure checking, dependency gr
 Task 40: 145 tests pass. Added generating-variable and post-pruning reachability checks, discovery/dependency hints, remaining-production validation and assistance, reset and guarded export. Tests cover cycles, epsilon and empty-language start preservation. Browser verified missing-set feedback, pruning order and export. Empty-language documents explicitly use a non-generating placeholder because the editor requires a start rule.
 
 Task 41: 147 tests pass. Added interactive CNF terminal replacement and selected production binarization with checked fresh names, undo/reset, step/all assistance and export. Automatic start isolation, lambda/unit/useless preparation is visible. Tests verify language preservation, nullable-start isolation and empty-language binary representation; browser verified name collision feedback, undo, completion and export.
+
+Task 67 (8 November 2026): Shift+Enter continuation in transition dialogs, ordinary Enter apply, cancellation and validation isolation. Existing 147 browser regressions and focused Chromium keyboard tests passed. Exactly one feature implemented; delivered with its tests and refreshed audit in the Task 67 commit. See FEATURE-GAPS-2026-11-08.md.

@@ -1,5 +1,7 @@
 # Coverage and compatibility
 
+Current gaps and corrections: [8 November feature audit](FEATURE-GAPS-2026-11-08.md). Task 67 now provides Shift+Enter transition continuation. Open URL and Lenore were false positives in the earlier audit; dormant legacy codecs are distinguished from user-facing functionality.
+
 The initial-release table below is retained as a baseline. See [PARITY-TASKS.md](PARITY-TASKS.md) and the updates at the end for subsequently implemented features.
 
 There are two deliberately labeled modes. The **JavaScript workbench is a substantial reconstruction, not a complete independent port**. **Original mode executes the unmodified JFLAP 7.1 JAR** and provides its original feature implementations through a browser runtime. Keeping the original implementations available is different from proving every workflow works under that runtime.
