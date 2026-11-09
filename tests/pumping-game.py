@@ -16,7 +16,7 @@ Thread(target=server.serve_forever,daemon=True).start()
 try:
  with sync_playwright() as p:
   browser=p.chromium.launch();page=browser.new_page(viewport={'width':1440,'height':1000});page.set_default_timeout(10000)
-  page.add_init_script('Math.random=()=>0')
+  page.add_init_script('globalThis.randomFraction=0;Math.random=()=>globalThis.randomFraction')
   errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
   page.goto(f'http://127.0.0.1:{server.server_port}/')
   for cf in [False,True]:
@@ -29,9 +29,9 @@ try:
      page.locator('#game-value').fill(value);page.get_by_role('button',name='Submit move',exact=True).click()
     def computer():page.get_by_role('button',name='Computer move',exact=True).click()
     if mode=='human-first':
-     submit('0');expect(page.locator('#game-feedback')).to_contain_text('1 to 20' if cf else '2 to 18');submit('3');computer()
+     submit('0');expect(page.locator('#game-feedback')).to_contain_text('4 to 11' if cf else '2 to 18');submit('4' if cf else '3');computer()
      page.get_by_role('button',name='Submit move',exact=True).click();expect(page.locator('#game-feedback')).not_to_be_empty()
-     parts=['aa','a','','b','bb'] if cf else ['','aa','aa']
+     parts=['aaa','a','','b','bbb'] if cf else ['','aa','aa']
      for i,part in enumerate(parts):page.locator(f'#game-part-{i}').fill(part)
      page.get_by_role('button',name='Submit move',exact=True).click();computer()
     else:
@@ -65,6 +65,33 @@ try:
      computer();expect(page.locator('#game-moves')).to_contain_text('length: '+str(m));submit(word);computer();submit('0')
     expect(page.locator('#game-phase')).to_have_text('Attempt complete')
    print('PASS original strategy integrated in both roles: '+language)
+  cf_fixture=json.loads((root/'tests/fixtures/cf-pumping.json').read_text(encoding='utf-8'))['records']
+  for r in [r for r in cf_fixture if r['kind']=='range']:
+   language=r['id'];m=r['range'][0]
+   word=next(x['value'] for x in cf_fixture if x['id']==language and x['kind']=='word' and x['m']==m and x['random']==0)
+   for mode in ['human-first','computer-first']:
+    page.evaluate("language=>localStorage.setItem('jflap.documents',JSON.stringify([{type:'pumpingcf',language,name:'CF strategy'}]))",language);page.reload()
+    page.locator('#game-mode').select_option(mode);page.get_by_role('button',name='Start game',exact=True).click()
+    expect(page.locator('#game-strategy')).to_contain_text('Allowed pumping length')
+    if language=='W1CW2CW3CW4':expect(page.locator('#game-strategy')).to_contain_text('membership method tests equality')
+    if mode=='human-first':
+     submit(str(m-1));expect(page.locator('#game-feedback')).not_to_be_empty();submit(str(m));computer()
+     expect(page.locator('#game-moves')).to_contain_text(word)
+     for i,part in enumerate(['',word[0],'','',word[1:]]):page.locator(f'#game-part-{i}').fill(part)
+     page.get_by_role('button',name='Submit move',exact=True).click();computer()
+    else:
+     computer();expect(page.locator('#game-moves')).to_contain_text('length: '+str(m));submit(word);computer();submit('0')
+    expect(page.locator('#game-phase')).to_have_text('Attempt complete')
+   print('PASS original CF strategy integrated in both roles: '+language)
+  # An original rejected random proposal stays on its turn and can be retried.
+  page.evaluate("()=>localStorage.setItem('jflap.documents',JSON.stringify([{type:'pumpingcf',language:'AnBnCn',name:'Retry'}]))");page.reload()
+  page.evaluate('globalThis.randomFraction=.99')
+  page.locator('#game-mode').select_option('computer-first');page.get_by_role('button',name='Start game',exact=True).click();computer()
+  submit('a'*11+'b'*11+'c'*11);page.evaluate('globalThis.randomFraction=.49');computer()
+  expect(page.locator('#game-feedback')).to_contain_text('Choose Computer move to try again')
+  expect(page.locator('#game-phase')).to_contain_text('split')
+  page.evaluate('globalThis.randomFraction=0');computer();submit('0');expect(page.locator('#game-phase')).to_have_text('Attempt complete')
+  print('PASS rejected original CF proposal feedback and successful retry')
   assert not errors,errors
   browser.close()
 finally:

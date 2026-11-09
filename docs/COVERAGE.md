@@ -143,3 +143,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 49: both pumping game turn orders, legal-move enforcement and round outcomes, attempts/retries and restart. 163 regressions and four browser game flows pass. Opponent policy is bounded and explicitly distinct from original per-language strategies (Tasks 50/51). See [pumping games](PUMPING-GAMES.md).
 
 - Task 50: original per-exercise regular pumping policies and explanations replace bounded opponent search for all 13 exercises. 3,109 original-Java observations, 177 regressions and all regular browser role flows pass. Context-free policy remains Task 51. See [evidence and boundaries](REGULAR-PUMPING-EVIDENCE.md).
+
+- Task 51: all 13 original context-free pumping policies and explanations, explicit retry on rejected original random splits, and W1CW2 equality semantics documented. 13,371 Java observations, 192 regressions and both-role Chromium checks pass. See [evidence and boundaries](CF-PUMPING-EVIDENCE.md).
