@@ -57,7 +57,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 47 | — | Dormant object-stream decoder investigation; not registered in Open. See refreshed audit. | F02 |
 | 48 | [x] | Persistent operation tabs and separate document windows, isolated histories. | F06 |
 | 49 | [x] | Pumping game state machine with human/computer-first roles. | P01 |
-| 50 | [ ] | Port regular-language opponent strategies and explanations, one fixture per exercise. | P02 |
+| 50 | [x] | Port regular-language opponent strategies and explanations, one fixture per exercise. | P02 |
 | 51 | [ ] | Port context-free opponent strategies and explanations, one fixture per exercise. | P02 |
 | 52 | [ ] | Pumping XML persistence for complete ongoing game state. | P03 |
 | 53 | [ ] | L-system exact named palette and RGB/HSB triples. | L01,L02 |
@@ -186,3 +186,6 @@ Task 48 (9 November 2026): operation tabs retain inputs, results and progress ac
 
 
 Task 49 (9 November 2026): human-first and computer-first pumping rounds for regular and context-free exercises, enforced turns and legal moves, visible move/attempt history, retry and restart. 163 regression checks and four real Chromium game workflows pass. The generic opponent remains bounded; original per-language strategies and ranges remain Tasks 50/51, and game XML persistence remains Task 52. See [pumping games](PUMPING-GAMES.md). Only Task 49 was implemented in this continuation.
+
+
+Task 50 (9 November 2026): all 13 regular pumping opponents now use the original ranges, witness formulas, decomposition choices, exponent choices and per-exercise explanations. 3,109 controlled original-Java observations match; 177 regressions and both-role Chromium checks for every regular exercise pass. Original AB2n shortest-witness behavior is preserved and explained. Context-free strategy Task 51 remains pending. See [regular opponent evidence](REGULAR-PUMPING-EVIDENCE.md). Only Task 50 was implemented in this continuation.

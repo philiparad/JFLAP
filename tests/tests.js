@@ -1,3 +1,4 @@
+import {regularStrategies} from '../js/regular-pumping.js';
 import {PumpingGame} from '../js/pumping-game.js';
 import {testDocumentFiles} from './document-files.js';
 import {CNFExercise} from '../js/cnf-exercise.js';
@@ -442,13 +443,13 @@ const gameRejects=fn=>{let rejected=false;try{fn();}catch{rejected=true;}assert(
 test('Pumping games enforce actor and phase without mutating invalid moves',()=>{
  const g=new PumpingGame('AnEven');gameRejects(()=>g.chooseWord('aaaa'));gameRejects(()=>g.computerMove());
  for(const m of [0,-1,1.5,21,NaN])gameRejects(()=>g.chooseLength(m));equal(g.moves,[]);
- g.chooseLength(3);gameRejects(()=>g.chooseWord('aaaa'));equal(g.phase,'word');g.computerMove();equal(g.word,'aaaaaa');
+ g.chooseLength(3);gameRejects(()=>g.chooseWord('aaaa'));equal(g.phase,'word');g.computerMove();equal(g.word,'aaaa');
  for(const parts of [['','',g.word],['aaaa','a','a'],['','a','a']])gameRejects(()=>g.chooseSplit(parts));equal(g.phase,'split');
- g.chooseSplit(['','aa','aaaa']);g.computerMove();equal(g.phase,'complete');equal(g.result.winner,'human');
- gameRejects(()=>g.computerMove());gameRejects(()=>g.chooseExponent(0));g.retry();equal(g.phase,'split');g.chooseSplit(['','a','aaaaa']);g.computerMove();equal(g.result.winner,'computer');equal(g.attempts.length,2);
+ g.chooseSplit(['','aa','aa']);g.computerMove();equal(g.phase,'complete');equal(g.result.winner,'human');
+ gameRejects(()=>g.computerMove());gameRejects(()=>g.chooseExponent(0));g.retry();equal(g.phase,'split');g.chooseSplit(['','a','aaa']);g.computerMove();equal(g.result.winner,'computer');equal(g.attempts.length,2);
 });
 test('Computer-first regular game validates witness/exponent and retry',()=>{
- const g=new PumpingGame('AnBn','computer-first');g.computerMove();equal(g.m,3);
+ const g=new PumpingGame('AnBn','computer-first',()=>0);g.computerMove();equal(g.m,4);
  for(const w of ['', 'aab', 'a'.repeat(121)])gameRejects(()=>g.chooseWord(w));equal(g.phase,'word');
  g.chooseWord('aaabbb');g.computerMove();equal(g.phase,'exponent');
  for(const i of [1,-1,13,2.5,NaN])gameRejects(()=>g.chooseExponent(i));equal(g.phase,'exponent');
@@ -461,11 +462,36 @@ test('Context-free games enforce window/nonempty constraints and both round outc
  g.retry();g.chooseSplit(['','a','','','aabbb']);g.computerMove();equal(g.result.winner,'computer');
  const c=new PumpingGame('AnBnCn','computer-first');c.computerMove();c.chooseWord('aaabbbccc');c.computerMove();c.chooseExponent(0);equal(c.result.winner,'human');
 });
-test('Every pumping language completes both turn orders with legal bounded computer moves',()=>{
+test('Every pumping language completes both turn orders with legal computer moves',()=>{
  for(const language of languages){
-  const h=new PumpingGame(language.id);h.chooseLength(3);h.computerMove();
+  const h=new PumpingGame(language.id);h.chooseLength(Math.max(3,h.range[0]));h.computerMove();
   h.chooseSplit(h.cf?['',h.word[0],'','',h.word.slice(1)]:['',h.word[0],h.word.slice(1)]);h.computerMove();equal(h.phase,'complete');
   const c=new PumpingGame(language.id,'computer-first');c.computerMove();c.chooseWord(language.sample(c.m));c.computerMove();c.chooseExponent(2);equal(c.phase,'complete');
+ }
+});
+
+const regularFixture=await (await fetch('fixtures/regular-pumping.json')).json();
+for(const language of languages.filter(l=>!l.cf))test('Original Java regular opponent fixture: '+language.id,()=>{
+ const strategy=regularStrategies[language.id],records=regularFixture.records.filter(r=>r.id===language.id);assert(records.length>0);
+ for(const r of records){
+  const random=()=>r.random;let actual;
+  if(r.kind==='range')actual=strategy.range;
+  if(r.kind==='length')actual=strategy.chooseM(random);
+  if(r.kind==='word'){actual=strategy.word(r.m,random);assert(language.test(actual),'Invalid original witness '+language.id);}
+  if(r.kind==='split'){actual=strategy.split(r.word,r.m,random);pump(language,r.word,actual,r.m,1);}
+  if(r.kind==='exponent'){actual=strategy.exponent(r.word,r.parts,r.m,random);equal(pump(language,r.word,r.parts,r.m,actual).belongs,r.belongs);}
+  equal(actual,r.kind==='range'?r.range:r.kind==='split'?r.parts:r.value);
+ }
+ assert(strategy.explanation.length>40);
+});
+test('Regular games use original ranges and policies at both range boundaries',()=>{
+ for(const language of languages.filter(l=>!l.cf))for(const fraction of [0,.49,.99]){
+  const strategy=regularStrategies[language.id],random=()=>fraction;
+  for(const m of strategy.range){
+   const h=new PumpingGame(language.id,'human-first',random);gameRejects(()=>h.chooseLength(strategy.range[0]-1));gameRejects(()=>h.chooseLength(strategy.range[1]+1));
+   h.chooseLength(m);h.computerMove();equal(h.word,strategy.word(m,random));h.chooseSplit(['',h.word[0],h.word.slice(1)]);h.computerMove();equal(h.i,strategy.exponent(h.word,h.parts,m,random));
+  }
+  const c=new PumpingGame(language.id,'computer-first',random);c.computerMove();equal(c.m,strategy.chooseM(random));c.chooseWord(strategy.word(c.m,random));c.computerMove();equal(c.parts,strategy.split(c.word,c.m,random));c.chooseExponent(0);equal(c.phase,'complete');
  }
 });
 

@@ -2,7 +2,7 @@
 
 Comparison: 8 November 2026. Repository baseline: `bd1440ede6b14b9e3eb253d3c2d33972e11737f8` (GitHub main when cloned).
 
-**30 missing or partial feature task units were identified at this baseline. Tasks 67, 42, 44, 48 and 49 are now completed in separate feature commits; 25 remain.** Two dormant-code investigations are listed separately. This list supersedes the old 27 October audit for current pending work.
+**30 missing or partial feature task units were identified at this baseline. Tasks 67, 42, 44, 48, 49 and 50 are now completed in separate feature commits; 24 remain.** Two dormant-code investigations are listed separately. This list supersedes the old 27 October audit for current pending work.
 
 ## Scope and evidence
 
@@ -24,7 +24,7 @@ Each row is an actionable local task with an acceptance criterion. IDs preserve 
 | 44 | [x] | **Save / Save As file association.** Retain a chosen writable handle and save back to it; Save As changes association; unsupported browsers get an explicit download fallback. | `DOCS/filemenu.html` (F05) | `js/app.js` |
 | 48 | [x] | **Persistent operation tabs and separate document views.** Keep multiple operations and their histories alive; dismiss one independently; isolate document windows/views and edits. | `DOCS/filemenu.html` (F06) | `js/app.js` |
 | 49 | [x] | **Human-first / computer-first pumping games.** Implement both turn sequences, legal moves, opponent roles and terminal outcomes for regular and context-free games. | `pumping/; gui/pumping/` (P01) | `js/pumping.js; app.js` |
-| 50 | [ ] | **Regular pumping opponent strategies.** Port each regular exercise’s strategy and explanations; exercise every opponent role with per-language fixtures, beyond finite-exponent heuristics. | `pumping/reg/` (P02) | `js/pumping.js` |
+| 50 | [x] | **Regular pumping opponent strategies.** Port each regular exercise’s strategy and explanations; exercise every opponent role with per-language fixtures, beyond finite-exponent heuristics. | `pumping/reg/` (P02) | `js/pumping.js` |
 | 51 | [ ] | **Context-free pumping opponent strategies.** Port each context-free exercise’s strategy and explanations; add per-language fixtures and resolve the documented W1CW2CW3CW4 description discrepancy. | `pumping/cf/` (P02) | `js/pumping.js` |
 | 52 | [ ] | **Pumping game XML persistence.** Round-trip all moves, roles and current phase through original-compatible XML; resume the saved game. | `file/xml/*Pumping*; pumping/` (P03) | `js/files.js; app.js` |
 | 53 | [ ] | **L-system named colors and RGB/HSB triples.** Match original named palette and numeric triples, including non-CSS names; test resulting RGB values and malformed input. | `DOCS/gui.lsystem.DisplayPane.html` (L01,L02) | `js/lsystem.js` |
@@ -85,3 +85,6 @@ Task 48 (9 November 2026): operation tabs retain inputs, results and progress ac
 
 
 Task 49 (9 November 2026): human-first and computer-first pumping rounds for regular and context-free exercises, enforced turns and legal moves, visible move/attempt history, retry and restart. 163 regression checks and four real Chromium game workflows pass. The generic opponent remains bounded; original per-language strategies and ranges remain Tasks 50/51, and game XML persistence remains Task 52. See [pumping games](PUMPING-GAMES.md). Only Task 49 was implemented in this continuation.
+
+
+Task 50 (9 November 2026): all 13 regular pumping opponents now use the original ranges, witness formulas, decomposition choices, exponent choices and per-exercise explanations. 3,109 controlled original-Java observations match; 177 regressions and both-role Chromium checks for every regular exercise pass. Original AB2n shortest-witness behavior is preserved and explained. Context-free strategy Task 51 remains pending. See [regular opponent evidence](REGULAR-PUMPING-EVIDENCE.md). Only Task 50 was implemented in this continuation.

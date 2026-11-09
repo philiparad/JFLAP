@@ -1,20 +1,21 @@
+import {regularStrategies} from './regular-pumping.js';
 import {languages,pump} from './pumping.js';
 
-// Turn sequencing is independent of the bounded opponent policy. Language-specific
-// original strategies are separate parity tasks; a round is never a language proof.
+// Regular opponents use the original per-exercise policies. Context-free policies
+// remain bounded until Task 51; a round is never a language proof.
 const exponents=[0,2,3,4,5,6,7,8,9,10,11,12];
 export class PumpingGame {
- constructor(language,mode='human-first') {
+ constructor(language,mode='human-first',random=Math.random) {
   this.language=languages.find(l=>l.id===language);
   if(!this.language||!['human-first','computer-first'].includes(mode))throw Error('Choose a language and turn order.');
-  this.mode=mode;this.cf=this.language.cf;this.phase='length';this.moves=[];this.result=null;this.attempts=[];
+  this.mode=mode;this.cf=this.language.cf;this.strategy=this.cf?null:regularStrategies[language];this.range=this.strategy?.range||[1,20];this.random=random;this.phase='length';this.moves=[];this.result=null;this.attempts=[];
  }
  get actor(){return (['length','split'].includes(this.phase)?this.mode==='human-first':this.mode!=='human-first')?'human':'computer';}
  require(phase,actor){if(this.phase!==phase||this.actor!==actor)throw Error('That move is not available on this turn.');}
  record(phase,value){this.moves.push({actor:this.actor,phase,value});}
  chooseLength(m,actor='human') {
   this.require('length',actor);
-  if(!Number.isInteger(m)||m<1||m>20)throw Error('Choose an integer pumping length from 1 to 20.');
+  if(!Number.isInteger(m)||m<this.range[0]||m>this.range[1])throw Error(`Choose an integer pumping length from ${this.range[0]} to ${this.range[1]}.`);
   this.record('length',m);this.m=m;this.phase='word';
  }
  chooseWord(word,actor='human') {
@@ -39,12 +40,14 @@ export class PumpingGame {
  retry(){if(this.phase!=='complete')throw Error('Finish the attempt first.');this.result=null;this.phase=this.mode==='human-first'?'split':'exponent';}
  computerMove() {
   if(this.phase==='complete'||this.actor!=='computer')throw Error('It is not the computer’s turn.');
-  if(this.phase==='length')this.chooseLength(3,'computer');
-  else if(this.phase==='word')this.chooseWord(this.language.sample(this.m),'computer');
+  if(this.phase==='length')this.chooseLength(this.strategy?this.strategy.chooseM(this.random):3,'computer');
+  else if(this.phase==='word')this.chooseWord(this.strategy?this.strategy.word(this.m,this.random):this.language.sample(this.m),'computer');
   else if(this.phase==='split')this.chooseSplit(this.computerSplit(),'computer');
+  else if(this.strategy)this.chooseExponent(this.strategy.exponent(this.word,this.parts,this.m,this.random),'computer');
   else this.chooseExponent(exponents.find(i=>!pump(this.language,this.word,this.parts,this.m,i,this.cf).belongs)??2,'computer');
  }
  computerSplit() {
+  if(this.strategy)return this.strategy.split(this.word,this.m,this.random);
   const w=this.word,m=this.m;let fallback=null,budget=5000;
   const survives=parts=>{fallback??=parts;return [0,2,3,4].every(i=>pump(this.language,w,parts,m,i,this.cf).belongs);};
   if(!this.cf){for(let a=0;a<Math.min(m,w.length);a++)for(let b=a+1;b<=Math.min(m,w.length);b++){const parts=[w.slice(0,a),w.slice(a,b),w.slice(b)];if(survives(parts))return parts;}}
