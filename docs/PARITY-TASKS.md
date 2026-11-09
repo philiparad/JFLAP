@@ -55,7 +55,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 45 | — | Dormant decoder investigation only; not registered. Export is a stub. See refreshed audit. | F02 |
 | 46 | — | Excluded: original Lenore decoder explicitly unimplemented. See refreshed audit. | F02 |
 | 47 | — | Dormant object-stream decoder investigation; not registered in Open. See refreshed audit. | F02 |
-| 48 | [ ] | Persistent operation tabs and separate document windows, isolated histories. | F06 |
+| 48 | [x] | Persistent operation tabs and separate document windows, isolated histories. | F06 |
 | 49 | [ ] | Pumping game state machine with human/computer-first roles. | P01 |
 | 50 | [ ] | Port regular-language opponent strategies and explanations, one fixture per exercise. | P02 |
 | 51 | [ ] | Port context-free opponent strategies and explanations, one fixture per exercise. | P02 |
@@ -180,3 +180,6 @@ Task 67 (8 November 2026): Shift+Enter continuation in transition dialogs, ordin
 Task 42: original named Turing block references, empty definitions, read-only block transitions and compatible single-tape export. Legacy inline files still import. 151 browser tests and keyboard interaction checks passed; a Java-generated fixture passed browser import/nested editing/export and original Java codec reopening. Multi-tape block web round trips are supported; the original loader limitation is documented in TURING-BLOCK-XML.md.
 
 Task 44: document file associations with Open, Save and Save As on supported browsers; explicit Download copy/fallback elsewhere. Cancellation, write failures and Save and close preserve unsaved documents. Handles survive undo but remain session-local and outside model serialization. 159 regression tests, real Chromium file-handle UI checks, keyboard checks and the original Java block codec round trip passed. See SAVING-FILES.md for browser scope and test boundaries.
+
+
+Task 48 (9 November 2026): operation tabs retain inputs, results and progress across tab/document switches; individual tabs can be dismissed. Documents retain independent undo/redo histories. Separate windows edit independent copies with private reload storage. Background grammar searches pause until resumed. Source changes invalidate obsolete results. See [workspace behavior and validation](WORKSPACES.md). Only Task 48 was implemented in this continuation.

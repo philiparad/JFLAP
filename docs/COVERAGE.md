@@ -137,3 +137,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 42: named building-block XML references and original transition flags now import/export. Verified single-tape Java codec round trip and nested editor workflow; 151 tests pass. See [format scope and original loader limitations](TURING-BLOCK-XML.md).
 
 - Task 44: supported browsers retain session-local file associations for Open/Save/Save As. Other browsers explicitly download copies. Save and close waits for success; failures/cancellation retain documents. See [saving files](SAVING-FILES.md). 159 tests and focused browser checks pass.
+
+- Task 48: persistent dismissible operation panes, isolated document histories and independent window copies. 159 regressions plus workspace, keyboard, saving and original Java block-codec browser checks pass. See [workspaces](WORKSPACES.md).

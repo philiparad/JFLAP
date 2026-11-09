@@ -13,3 +13,6 @@
 td.parse-active, tr.parse-active > td { background: #fff0b1; box-shadow: inset 0 0 0 2px #936500; }
 g.parse-active > rect, g.parse-active > path { fill: #ffd86b; stroke: #6d4800; stroke-width: 3; }
 .regex-expression{overflow-wrap:anywhere;max-width:35rem}
+
+/* Open operation tabs retain their panes until explicitly dismissed. */
+#tabs{flex-wrap:wrap;align-items:center;gap:10px}.operation-tab{display:inline-flex;align-items:center}.operation-tab button[aria-label]{padding:7px;color:#7b8a80}#operation-picker{margin:6px 0;font-size:12px;max-width:240px}

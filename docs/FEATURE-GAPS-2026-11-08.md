@@ -2,7 +2,7 @@
 
 Comparison: 8 November 2026. Repository baseline: `bd1440ede6b14b9e3eb253d3c2d33972e11737f8` (GitHub main when cloned).
 
-**30 missing or partial feature task units were identified at this baseline. Tasks 67, 42 and 44 are now completed in separate feature commits; 27 remain.** Two dormant-code investigations are listed separately. This list supersedes the old 27 October audit for current pending work.
+**30 missing or partial feature task units were identified at this baseline. Tasks 67, 42, 44 and 48 are now completed in separate feature commits; 26 remain.** Two dormant-code investigations are listed separately. This list supersedes the old 27 October audit for current pending work.
 
 ## Scope and evidence
 
@@ -22,7 +22,7 @@ Each row is an actionable local task with an acceptance criterion. IDs preserve 
 |---|---|---|---|---|
 | 42 | [x] | **Original Turing building-block XML.** Implement original nested tags and block references; import a Java-produced fixture, execute it, export and reopen it without losing references. | `file/xml/TMBBTransducer.class; TMTransducer.class` (T04) | `js/files.js` |
 | 44 | [x] | **Save / Save As file association.** Retain a chosen writable handle and save back to it; Save As changes association; unsupported browsers get an explicit download fallback. | `DOCS/filemenu.html` (F05) | `js/app.js` |
-| 48 | [ ] | **Persistent operation tabs and separate document views.** Keep multiple operations and their histories alive; dismiss one independently; isolate document windows/views and edits. | `DOCS/filemenu.html` (F06) | `js/app.js` |
+| 48 | [x] | **Persistent operation tabs and separate document views.** Keep multiple operations and their histories alive; dismiss one independently; isolate document windows/views and edits. | `DOCS/filemenu.html` (F06) | `js/app.js` |
 | 49 | [ ] | **Human-first / computer-first pumping games.** Implement both turn sequences, legal moves, opponent roles and terminal outcomes for regular and context-free games. | `pumping/; gui/pumping/` (P01) | `js/pumping.js; app.js` |
 | 50 | [ ] | **Regular pumping opponent strategies.** Port each regular exercise’s strategy and explanations; exercise every opponent role with per-language fixtures, beyond finite-exponent heuristics. | `pumping/reg/` (P02) | `js/pumping.js` |
 | 51 | [ ] | **Context-free pumping opponent strategies.** Port each context-free exercise’s strategy and explanations; add per-language fixtures and resolve the documented W1CW2CW3CW4 description discrepancy. | `pumping/cf/` (P02) | `js/pumping.js` |
@@ -79,3 +79,6 @@ Task 42 is now complete in its own commit. Original named block XML imports, nes
 ## Subsequent implementation: Task 44
 
 Task 44 is complete in its own commit: per-document Save/Save As associations where supported, explicit downloads elsewhere, and cancellation/failure-safe Save and close. 159 regressions and focused browser file-handle checks pass. [Saving files](SAVING-FILES.md) documents the session boundary and test coverage. No other pending task was implemented in this continuation.
+
+
+Task 48 (9 November 2026): operation tabs retain inputs, results and progress across tab/document switches; individual tabs can be dismissed. Documents retain independent undo/redo histories. Separate windows edit independent copies with private reload storage. Background grammar searches pause until resumed. Source changes invalidate obsolete results. See [workspace behavior and validation](WORKSPACES.md). Only Task 48 was implemented in this continuation.
