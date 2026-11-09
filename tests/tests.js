@@ -1,3 +1,4 @@
+import {PumpingGame} from '../js/pumping-game.js';
 import {testDocumentFiles} from './document-files.js';
 import {CNFExercise} from '../js/cnf-exercise.js';
 import {UselessExercise} from '../js/useless-exercise.js';
@@ -435,6 +436,37 @@ test('Missing, duplicate, cyclic and invalid-tape block files fail explicitly',(
  const invalid=[originalBlocks.replace('<tag>Rewrite</tag>','<tag>Missing</tag>'),originalBlocks.replace('</structure>','<Rewrite/></structure>'),originalBlocks.replace('<tag>EmptyStart</tag>','<tag>Rewrite</tag>'),originalBlocks.replace('<type>turingbb</type>','<type>turingbb</type><tapes>1.5</tapes>'),originalBlocks.replace('<read>b</read>','<read tape="2">b</read>'),originalBlocks.replace('<read>b</read>','<read>b</read><read>b</read>')];
  for(const xml of invalid){let rejected=false;try{deserialize(xml);}catch{rejected=true;}assert(rejected);}
  const m=A.machine('turing');A.state(m).block=m;let rejected=false;try{serialize(m);}catch{rejected=true;}assert(rejected);
+});
+
+const gameRejects=fn=>{let rejected=false;try{fn();}catch{rejected=true;}assert(rejected);};
+test('Pumping games enforce actor and phase without mutating invalid moves',()=>{
+ const g=new PumpingGame('AnEven');gameRejects(()=>g.chooseWord('aaaa'));gameRejects(()=>g.computerMove());
+ for(const m of [0,-1,1.5,21,NaN])gameRejects(()=>g.chooseLength(m));equal(g.moves,[]);
+ g.chooseLength(3);gameRejects(()=>g.chooseWord('aaaa'));equal(g.phase,'word');g.computerMove();equal(g.word,'aaaaaa');
+ for(const parts of [['','',g.word],['aaaa','a','a'],['','a','a']])gameRejects(()=>g.chooseSplit(parts));equal(g.phase,'split');
+ g.chooseSplit(['','aa','aaaa']);g.computerMove();equal(g.phase,'complete');equal(g.result.winner,'human');
+ gameRejects(()=>g.computerMove());gameRejects(()=>g.chooseExponent(0));g.retry();equal(g.phase,'split');g.chooseSplit(['','a','aaaaa']);g.computerMove();equal(g.result.winner,'computer');equal(g.attempts.length,2);
+});
+test('Computer-first regular game validates witness/exponent and retry',()=>{
+ const g=new PumpingGame('AnBn','computer-first');g.computerMove();equal(g.m,3);
+ for(const w of ['', 'aab', 'a'.repeat(121)])gameRejects(()=>g.chooseWord(w));equal(g.phase,'word');
+ g.chooseWord('aaabbb');g.computerMove();equal(g.phase,'exponent');
+ for(const i of [1,-1,13,2.5,NaN])gameRejects(()=>g.chooseExponent(i));equal(g.phase,'exponent');
+ g.chooseExponent(0);equal(g.result.winner,'human');g.retry();g.chooseExponent(2);equal(g.attempts.length,2);
+});
+test('Context-free games enforce window/nonempty constraints and both round outcomes',()=>{
+ const g=new PumpingGame('AnBnCF');g.chooseLength(3);g.computerMove();
+ gameRejects(()=>g.chooseSplit(['','aaa','','bbb','']));gameRejects(()=>g.chooseSplit(['aaa','','','','bbb']));
+ g.chooseSplit(['aa','a','','b','bb']);g.computerMove();equal(g.result.winner,'human');
+ g.retry();g.chooseSplit(['','a','','','aabbb']);g.computerMove();equal(g.result.winner,'computer');
+ const c=new PumpingGame('AnBnCn','computer-first');c.computerMove();c.chooseWord('aaabbbccc');c.computerMove();c.chooseExponent(0);equal(c.result.winner,'human');
+});
+test('Every pumping language completes both turn orders with legal bounded computer moves',()=>{
+ for(const language of languages){
+  const h=new PumpingGame(language.id);h.chooseLength(3);h.computerMove();
+  h.chooseSplit(h.cf?['',h.word[0],'','',h.word.slice(1)]:['',h.word[0],h.word.slice(1)]);h.computerMove();equal(h.phase,'complete');
+  const c=new PumpingGame(language.id,'computer-first');c.computerMove();c.chooseWord(language.sample(c.m));c.computerMove();c.chooseExponent(2);equal(c.phase,'complete');
+ }
 });
 
 for(const result of await testDocumentFiles())test(result.name,()=>{if(result.error)throw result.error;});

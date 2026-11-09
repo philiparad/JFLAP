@@ -139,3 +139,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 44: supported browsers retain session-local file associations for Open/Save/Save As. Other browsers explicitly download copies. Save and close waits for success; failures/cancellation retain documents. See [saving files](SAVING-FILES.md). 159 tests and focused browser checks pass.
 
 - Task 48: persistent dismissible operation panes, isolated document histories and independent window copies. 159 regressions plus workspace, keyboard, saving and original Java block-codec browser checks pass. See [workspaces](WORKSPACES.md).
+
+- Task 49: both pumping game turn orders, legal-move enforcement and round outcomes, attempts/retries and restart. 163 regressions and four browser game flows pass. Opponent policy is bounded and explicitly distinct from original per-language strategies (Tasks 50/51). See [pumping games](PUMPING-GAMES.md).

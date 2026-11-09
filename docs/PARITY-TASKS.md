@@ -56,7 +56,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 46 | — | Excluded: original Lenore decoder explicitly unimplemented. See refreshed audit. | F02 |
 | 47 | — | Dormant object-stream decoder investigation; not registered in Open. See refreshed audit. | F02 |
 | 48 | [x] | Persistent operation tabs and separate document windows, isolated histories. | F06 |
-| 49 | [ ] | Pumping game state machine with human/computer-first roles. | P01 |
+| 49 | [x] | Pumping game state machine with human/computer-first roles. | P01 |
 | 50 | [ ] | Port regular-language opponent strategies and explanations, one fixture per exercise. | P02 |
 | 51 | [ ] | Port context-free opponent strategies and explanations, one fixture per exercise. | P02 |
 | 52 | [ ] | Pumping XML persistence for complete ongoing game state. | P03 |
@@ -183,3 +183,6 @@ Task 44: document file associations with Open, Save and Save As on supported bro
 
 
 Task 48 (9 November 2026): operation tabs retain inputs, results and progress across tab/document switches; individual tabs can be dismissed. Documents retain independent undo/redo histories. Separate windows edit independent copies with private reload storage. Background grammar searches pause until resumed. Source changes invalidate obsolete results. See [workspace behavior and validation](WORKSPACES.md). Only Task 48 was implemented in this continuation.
+
+
+Task 49 (9 November 2026): human-first and computer-first pumping rounds for regular and context-free exercises, enforced turns and legal moves, visible move/attempt history, retry and restart. 163 regression checks and four real Chromium game workflows pass. The generic opponent remains bounded; original per-language strategies and ranges remain Tasks 50/51, and game XML persistence remains Task 52. See [pumping games](PUMPING-GAMES.md). Only Task 49 was implemented in this continuation.
