@@ -522,6 +522,40 @@ test('CF games use original policies at range endpoints and report membership ho
  }
 });
 
+test('Pumping snapshots preserve every phase, retries and history without random replay',()=>{
+ for(const id of ['AnEven','AnBnCF'])for(const mode of ['human-first','computer-first']){
+  let game=new PumpingGame(id,mode,()=>0);
+  const restore=()=>{const snapshot=game.snapshot(),copy=PumpingGame.fromSnapshot(JSON.parse(JSON.stringify(snapshot)),()=>{throw Error('Restoration must not draw randomness');});equal(copy.snapshot(),snapshot);equal(copy.attempts,game.attempts);equal(copy.result,game.result);game=PumpingGame.fromSnapshot(snapshot,()=>0);};
+  restore();game.chooseLength(game.range[0],game.actor);restore();game.chooseWord(game.strategy.word(game.m,()=>0),game.actor);restore();
+  game.chooseSplit(game.strategy.split(game.word,game.m,()=>0),game.actor);restore();game.chooseExponent(2,game.actor);restore();game.retry();restore();
+  if(game.phase==='split')game.chooseSplit(game.parts,game.actor);game.chooseExponent(0,game.actor);restore();equal(game.attempts.length,2);
+  game.legacyAttempts=['Won <original>','Failed & retry'];restore();
+ }
+});
+test('Pumping snapshot validation rejects false phases, actors and invalid moves',()=>{
+ const good=new PumpingGame('AnEven').snapshot();
+ for(const patch of [{version:2},{phase:'complete'},{mode:'unknown'},{language:'unknown'},{moves:[{actor:'computer',phase:'length',value:3}]},{moves:[{actor:'human',phase:'length',value:0}]},{legacyAttempts:[{}]}])gameRejects(()=>PumpingGame.fromSnapshot({...good,...patch}));
+ const game=new PumpingGame('AnEven');game.chooseLength(3);const snapshot=game.snapshot();snapshot.moves[0].value=9;equal(game.m,3);equal(game.moves[0].value,3);
+});
+
+test('All pumping exercises round-trip XML and JSON with exact game history',()=>{
+ for(const language of languages)for(const mode of ['human-first','computer-first']){
+  const game=new PumpingGame(language.id,mode,()=>0),model={type:language.cf?'pumpingcf':'pumpingreg',language:language.id,name:'Saved <game> & "title"'};
+  const check=()=>{model.game=game.snapshot();const copy=deserialize(serialize(model));for(const key of Object.keys(model))equal(copy[key],model[key]);equal(deserialize(JSON.stringify(model)),model);equal(PumpingGame.fromSnapshot(copy.game).phase,game.phase);};
+  check();game.chooseLength(game.range[0],game.actor);check();game.chooseWord(game.strategy.word(game.m,()=>0),game.actor);check();game.chooseSplit(game.strategy.split(game.word,game.m,()=>0),game.actor);check();game.chooseExponent(2,game.actor);check();game.retry();check();
+ }
+});
+test('Pumping XML preserves unstarted models, imported cases and legacy attempts',()=>{
+ for(const type of ['pumpingreg','pumpingcf']){const m=blank(type);equal(deserialize(serialize(m)),m);}
+ const game=new PumpingGame('AnBnCF');game.chooseLength(4);game.chooseWord('aaaabbbb','computer');game.chooseSplit(['aaa','a','','b','bbb']);game.chooseExponent(2,'computer');game.legacyAttempts=['Won & <old>'];game.legacyAttemptOffset=1;
+ const model={type:'pumpingcf',language:'AnBnCF',name:'Case history',game:game.snapshot(),pumpingCases:[{lengths:[3,1,0,1],i:2}]},xml=serialize(model);for(const key of Object.keys(model))equal(deserialize(xml)[key],model[key]);assert((xml.match(/<attempt>/g)||[]).length===1);
+ equal(deserialize(JSON.stringify({type:'pumpingcf',language:'AnBn',name:'Legacy'})).language,'AnBnCF');
+});
+test('Pumping file validation rejects malformed and conflicting saved state',()=>{
+ const game=new PumpingGame('AnEven');game.chooseLength(3);const model={type:'pumpingreg',language:'AnEven',name:'Validation',game:game.snapshot()},xml=serialize(model);
+ for(const bad of [xml.replace('<m>3</m>','<m>4</m>'),xml.replace('<m>3</m>','<m>3.5</m>'),xml.replace('<m>3</m>','<m>3</m><m>3</m>'),xml.replace('<first_player>Human</first_player>','<first_player>Unknown</first_player>'),xml.replace('<web-game>','<web-game>{'),JSON.stringify({...model,type:'pumpingcf'}),JSON.stringify({...model,game:{...model.game,phase:'complete'}}),JSON.stringify({...model,pumpingCases:[{lengths:[0,1,0,0],i:2}]})])gameRejects(()=>deserialize(bad));
+});
+
 for(const result of await testDocumentFiles())test(result.name,()=>{if(result.error)throw result.error;});
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;

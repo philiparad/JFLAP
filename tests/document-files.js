@@ -1,3 +1,5 @@
+import {PumpingGame} from '../js/pumping-game.js';
+import {deserialize} from '../js/files.js';
 import {DocumentFiles} from '../js/document-files.js';
 import {example} from '../js/examples.js';
 
@@ -49,6 +51,11 @@ export async function testDocumentFiles(){
  await run('Open cancellation and invalid models do not create writable document associations',async()=>{
   const files=new DocumentFiles({showOpenFilePicker:async()=>{throw new DOMException('Cancelled','AbortError');}});assert((await files.open()).length===0);
   let rejected=false;try{await files.read(new File(['<broken>'],'bad.jff'),handle('bad.jff'));}catch{rejected=true;}assert(rejected);
+ });
+ await run('New pumping games save linked XML with resumable progress',async()=>{
+  const h=handle('game.jff'),files=new DocumentFiles({showSaveFilePicker:async()=>h}),game=new PumpingGame('AnEven'),model={type:'pumpingreg',language:'AnEven',name:'Game'};
+  game.chooseLength(3);model.game=game.snapshot();await files.save(model);assert(files.format(model)==='xml'&&h.writes[0].includes('<web-game>'));assert(deserialize(h.writes[0]).game.phase==='word');
+  game.chooseWord('aaaa','computer');model.game=game.snapshot();await files.save(model);assert(h.writes.length===2&&deserialize(h.writes[1]).game.phase==='split');
  });
  return results;
 }

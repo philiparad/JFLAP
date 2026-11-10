@@ -1,4 +1,4 @@
-# Pumping games (Tasks 49–51)
+# Pumping games (Tasks 49–52)
 
 Choose a regular or context-free pumping structure, a language and a turn order, then Start game. Submit your moves; Computer move advances the opponent one turn. Illegal moves keep the current turn and show corrective feedback.
 
@@ -9,7 +9,7 @@ Choose a regular or context-free pumping structure, a language and a turn order,
 
 Regular decompositions require w = xyz, |xy| <= m and |y| > 0. Context-free decompositions require w = uvxyz, |vxy| <= m and |vy| > 0. Empty fields represent the empty string. The witness must belong to the selected language and have length at least m. Exponents are 0 or integers 2 through 12, matching the original game control.
 
-The screen shows each move, the pumped word, winner and attempt history. Try another split/exponent keeps prior attempts. Restart clears the game and lets you choose a new language/order. Free exploration retains the previous unrestricted workbench. Games survive document switches during the page session; they are not serialized or restored after reload (Task 52).
+The screen shows each move, the pumped word, winner and attempt history. Try another split/exponent keeps prior attempts. Restart clears the game and lets you choose a new language/order. Free exploration retains the previous unrestricted workbench. Games survive document switches and page reloads. Save or Download copy writes resumable XML; opened JSON games retain JSON format. See [pumping XML](PUMPING-XML.md) for original compatibility and history details.
 
 ## Opponent scope
 
@@ -32,8 +32,8 @@ The original chooses lengths within language-specific ranges and calls language-
 
 ## Validation
 
-The browser regression suite has 192 passing checks, including illegal phases/actors, invalid lengths/words/splits/exponents, both winners, retry, and both turn orders across every language entry. `python tests/pumping-game.py` runs four Chromium UI workflows (regular/CF, human/computer first), checking feedback, results, retries, document switching, free exploration and restart. Python Playwright and Chromium are test-only dependencies. Existing keyboard regression checks also pass.
+The browser regression suite has 198 passing checks, including illegal phases/actors, invalid lengths/words/splits/exponents, both winners, retry, and both turn orders across every language entry. `python tests/pumping-game.py` runs four Chromium UI workflows (regular/CF, human/computer first), checking feedback, results, retries, document switching, free exploration and restart. Python Playwright and Chromium are test-only dependencies. Existing keyboard regression checks also pass.
 
 Task 50 adds 3,109 controlled observations from the original Java methods. Each regular exercise has a fixture comparison, and integrated games cover both length-range endpoints and random branches. The Chromium script also exercises both roles for all 13 regular exercises. Regenerate the fixture with `python tests/regular-pumping-fixture.py --java-home <JDK-path> --jar <original-JFLAP7.1.jar>`.
 
-Task 51 adds 13,371 controlled observations from the original context-free methods, including membership and rejected split proposals. Both-role Chromium checks cover all 26 regular/context-free exercises. Regenerate CF observations with `python tests/cf-pumping-fixture.py --java-home <JDK-path> --jar <original-JFLAP7.1.jar>`. XML game persistence remains Task 52.
+Task 51 adds 13,371 controlled observations from the original context-free methods, including membership and rejected split proposals. Both-role Chromium checks cover all 26 regular/context-free exercises. Regenerate CF observations with `python tests/cf-pumping-fixture.py --java-home <JDK-path> --jar <original-JFLAP7.1.jar>`. Task 52 adds XML, JSON and reload persistence for moves, turns and attempts.

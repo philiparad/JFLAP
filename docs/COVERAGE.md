@@ -32,7 +32,7 @@ There are two deliberately labeled modes. The **JavaScript workbench is a substa
 | Pumping exercises | 26 language predicates, manual pumping, bounded split search | Original human/computer-first strategies and case explanations |
 | XML files | Ordinary FA, PDA, Mealy, Moore, TM, grammar, RE, L-system | Original full codecs including legacy formats |
 | Nested-block XML | Web round trip supported; legacy block tags/references are not fully matched | Original XML handling |
-| Pumping save format | JSON only | Original pumping XML |
+| Pumping save format | Original XML plus exact-turn browser extension; JSON also supported | Original pumping XML |
 | Image/print | SVG/PNG, browser print | Original image codecs; browser runtime may constrain desktop printing |
 | Help | New guide plus bundled original help | Original contextual help |
 
@@ -145,3 +145,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 50: original per-exercise regular pumping policies and explanations replace bounded opponent search for all 13 exercises. 3,109 original-Java observations, 177 regressions and all regular browser role flows pass. Context-free policy remains Task 51. See [evidence and boundaries](REGULAR-PUMPING-EVIDENCE.md).
 
 - Task 51: all 13 original context-free pumping policies and explanations, explicit retry on rejected original random splits, and W1CW2 equality semantics documented. 13,371 Java observations, 192 regressions and both-role Chromium checks pass. See [evidence and boundaries](CF-PUMPING-EVIDENCE.md).
+
+- Task 52: original pumping XML import/export, exact-turn extension, JSON/reload resumption, original attempts and CF case preservation. 198 regressions, browser persistence flows and 16 native Java round trips pass. See [format scope](PUMPING-XML.md).

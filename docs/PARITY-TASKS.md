@@ -59,7 +59,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 49 | [x] | Pumping game state machine with human/computer-first roles. | P01 |
 | 50 | [x] | Port regular-language opponent strategies and explanations, one fixture per exercise. | P02 |
 | 51 | [x] | Port context-free opponent strategies and explanations, one fixture per exercise. | P02 |
-| 52 | [ ] | Pumping XML persistence for complete ongoing game state. | P03 |
+| 52 | [x] | Pumping XML persistence for complete ongoing game state. | P03 |
 | 53 | [ ] | L-system exact named palette and RGB/HSB triples. | L01,L02 |
 | 54 | [ ] | L-system hue shifts preserving saturation/brightness. | L03 |
 | 55 | [ ] | L-system parameter table and picker. | L04 |
@@ -192,3 +192,6 @@ Task 50 (9 November 2026): all 13 regular pumping opponents now use the original
 
 
 Task 51 (9 November 2026): all 13 context-free pumping opponents now use original per-exercise ranges, witness formulas, split and exponent policies and explanations. 13,371 original-Java observations and 192 regressions pass; Chromium covers both roles for every exercise and rejected-split retry. W1CW2CW3CW4 follows executable equality semantics, with the contradictory description documented. XML persistence Task 52 remains pending. See [CF opponent evidence](CF-PUMPING-EVIDENCE.md). Only Task 51 was implemented in this continuation.
+
+
+Task 52 (10 November 2026): pumping games save as original-compatible XML, with a validated browser extension for exact turns, moves and retries. JSON and browser reloads also restore progress. Original attempt summaries and CF case records survive round trips; restart clears game progress. 198 regression checks, every-turn browser persistence flows and 16 original-Java XML compatibility states pass. See [pumping XML](PUMPING-XML.md). Only Task 52 was implemented in this continuation.

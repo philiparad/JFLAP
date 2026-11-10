@@ -1,8 +1,10 @@
+import {serializePumping,deserializePumping,validatePumpingModel} from './pumping-files.js';
 import {validateTokenGrammar} from './token-grammar.js';
 import {machine,empty} from './automata.js';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 const tag=(n,s,a='')=>`<${n}${a}>${esc(s)}</${n}>`;
 export function serialize(m){
+ if(m.type?.startsWith('pumping'))return serializePumping(m);
  if(m.format==='tokens-v1')throw Error('Named-variable grammars use JSON. JFLAP XML assumes single-character variables.');
  const tm=m.type.startsWith('turing'),blockFormat=tm&&(m.type==='turingbb'||m.states.some(s=>s.block||s.blockTag));
  const definitions=new Map(),names=new Map(),queue=[],visiting=new Set();let sequence=0;
@@ -42,10 +44,11 @@ export function serialize(m){
   for(let i=0;i<queue.length;i++){const {name,inner}=queue[i];definitions.set(name,inner?fields(inner):'');}
   return '<automaton>'+body+[...definitions].map(([name,content])=>`<${name}>${content}</${name}>`).join('')+'</automaton>';
  }
- let body;if(m.type==='grammar')body=m.productions.map(p=>'<production>'+tag('left',p.left)+tag('right',p.right)+'</production>').join('');else if(m.type==='re')body=tag('expression',m.expression);else if(m.type==='lsystem')body=tag('axiom',m.axiom)+m.productions.map(p=>'<production>'+tag('left',p.left)+tag('right',p.right)+'</production>').join('')+Object.entries(m.parameters).map(([n,v])=>'<parameter>'+tag('name',n)+tag('value',v)+'</parameter>').join('');else if(m.type.startsWith('pumping'))throw Error('Save pumping exercises as JSON.');else body=(tm&&(!blockFormat||(m.tapes||1)>1)?tag('tapes',m.tapes||1):'')+automaton(m);
+ let body;if(m.type==='grammar')body=m.productions.map(p=>'<production>'+tag('left',p.left)+tag('right',p.right)+'</production>').join('');else if(m.type==='re')body=tag('expression',m.expression);else if(m.type==='lsystem')body=tag('axiom',m.axiom)+m.productions.map(p=>'<production>'+tag('left',p.left)+tag('right',p.right)+'</production>').join('')+Object.entries(m.parameters).map(([n,v])=>'<parameter>'+tag('name',n)+tag('value',v)+'</parameter>').join('');else body=(tm&&(!blockFormat||(m.tapes||1)>1)?tag('tapes',m.tapes||1):'')+automaton(m);
  return '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n<!-- Created with JFLAP Web -->\n<structure>'+tag('type',blockFormat?'turingbb':m.type)+body+'</structure>';
 }
-export function deserialize(text,name='Imported'){if(text.trim().startsWith('{')){const m=JSON.parse(text);if(!m.type)throw Error('Missing model type.');if(m.format==='tokens-v1')validateTokenGrammar(m);return m;}const doc=new DOMParser().parseFromString(text,'application/xml');if(doc.querySelector('parsererror'))throw Error('Invalid XML document.');const root=doc.documentElement,child=(e,n)=>[...e.children].find(c=>c.tagName===n),value=(e,n)=>child(e,n)?.textContent||'',type=value(root,'type');if(!type)throw Error('Missing JFLAP structure type.');const productions=e=>[...e.children].filter(c=>c.tagName==='production').map(c=>({left:value(c,'left'),right:value(c,'right')}));
+export function deserialize(text,name='Imported'){if(text.trim().startsWith('{')){const m=JSON.parse(text);if(!m.type)throw Error('Missing model type.');if(m.format==='tokens-v1')validateTokenGrammar(m);if(m.type.startsWith('pumping'))validatePumpingModel(m);return m;}const doc=new DOMParser().parseFromString(text,'application/xml');if(doc.querySelector('parsererror'))throw Error('Invalid XML document.');const root=doc.documentElement,child=(e,n)=>[...e.children].find(c=>c.tagName===n),value=(e,n)=>child(e,n)?.textContent||'',type=value(root,'type');if(!type)throw Error('Missing JFLAP structure type.');const productions=e=>[...e.children].filter(c=>c.tagName==='production').map(c=>({left:value(c,'left'),right:value(c,'right')}));
+ if(['regular pumping lemma','context-free pumping lemma'].includes(type))return deserializePumping(root,name);
  if(type==='grammar')return{type,name,productions:productions(root)};if(type==='re')return{type,name,expression:value(root,'expression')};if(type==='lsystem')return{type,name,axiom:value(root,'axiom'),productions:productions(root),parameters:Object.fromEntries([...root.children].filter(c=>c.tagName==='parameter').map(c=>[value(c,'name'),value(c,'value')]))};
  if(!['fa','pda','mealy','moore','turing','turingbb'].includes(type))throw Error('Unsupported JFLAP document type: '+type);
  const tapes=Number(value(root,'tapes')||1),tm=type.startsWith('turing'),stack=new Set();let stateCount=0;

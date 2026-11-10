@@ -1,6 +1,6 @@
 import {serialize,deserialize,download} from './files.js';
 
-const requiresJSON=m=>m.type.startsWith('pumping')||m.format==='tokens-v1';
+const requiresJSON=m=>m.format==='tokens-v1';
 const fileTypes=format=>[{description:format==='json'?'JFLAP JSON model':'JFLAP XML model',accept:format==='json'?{'application/json':['.json']}:{'application/xml':['.jff','.xml']}}];
 const encode=(m,format)=>format==='json'?JSON.stringify(m,null,2):serialize(m);
 

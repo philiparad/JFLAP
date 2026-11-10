@@ -46,4 +46,20 @@ export class PumpingGame {
   else this.chooseExponent(this.strategy.exponent(this.word,this.parts,this.m,this.random),'computer');
  }
  computerSplit() {return this.strategy.split(this.word,this.m,this.random);}
+ snapshot(){return {version:1,language:this.language.id,mode:this.mode,phase:this.phase,moves:structuredClone(this.moves),legacyAttempts:[...(this.legacyAttempts||[])],legacyAttemptOffset:this.legacyAttemptOffset||0};}
+ static fromSnapshot(saved,random=Math.random){
+  if(!saved||saved.version!==1||!Array.isArray(saved.moves)||saved.moves.length>20000||!['length','word','split','exponent','complete'].includes(saved.phase))throw Error('Invalid pumping game snapshot.');
+  const game=new PumpingGame(saved.language,saved.mode,random);
+  const methods={length:'chooseLength',word:'chooseWord',split:'chooseSplit',exponent:'chooseExponent'};
+  for(const move of saved.moves){
+   if(!move||!Object.hasOwn(methods,move.phase)||!['human','computer'].includes(move.actor))throw Error('Invalid saved pumping move.');
+   if(game.phase==='complete')game.retry();
+   game[methods[move.phase]](move.value,move.actor);
+  }
+  if(game.phase==='complete'&&saved.phase!=='complete')game.retry();
+  if(game.phase!==saved.phase)throw Error('Saved pumping phase does not match its moves.');
+  if(saved.legacyAttempts!==undefined&&(!Array.isArray(saved.legacyAttempts)||saved.legacyAttempts.length>10000||saved.legacyAttempts.some(s=>typeof s!=='string'||s.length>10000)))throw Error('Invalid saved pumping attempts.');
+  const offset=saved.legacyAttemptOffset??0;if(!Number.isInteger(offset)||offset<0||offset>game.attempts.length)throw Error('Invalid saved pumping attempt offset.');
+  game.legacyAttempts=[...(saved.legacyAttempts||[])];game.legacyAttemptOffset=offset;return game;
+ }
 }
