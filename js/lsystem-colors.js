@@ -15,7 +15,8 @@ function hsb(h,s,b){
  if(s===0){const gray=Math.trunc(f(f(b*255)+.5));return [gray,gray,gray];}
  const sector=f(f(h-Math.floor(h))*6),fraction=f(sector-Math.floor(sector));
  const p=f(b*f(1-s)),q=f(b*f(1-f(s*fraction))),t=f(b*f(1-f(s*f(1-fraction))));
- const rgb=[[b,t,p],[q,b,p],[p,b,t],[p,q,b],[t,p,b],[b,p,q]][Math.trunc(sector)];
+ // Float rounding can reach sector 6 at the seam; wrap to red, not Java's black fallthrough.
+ const rgb=[[b,t,p],[q,b,p],[p,b,t],[p,q,b],[t,p,b],[b,p,q]][Math.trunc(sector)%6];
  return rgb.map(c=>Math.trunc(f(f(c*255)+.5)));
 }
 export function parseLSystemColor(value){
@@ -28,3 +29,23 @@ export function parseLSystemColor(value){
  return values.every(v=>v<=1)?hsb(...values):values.map(Math.trunc);
 }
 export const lsystemColorCSS=value=>'rgb('+parseLSystemColor(value).join(', ')+')';
+export const rgbCSS=rgb=>'rgb('+rgb.join(', ')+')';
+// Java Color.RGBtoHSB uses float32 intermediates and derives each shift from
+// the current quantized RGB color, rather than accumulating a separate hue.
+export function shiftLSystemHue(rgb,degrees){
+ if(!Number.isFinite(degrees)||!Number.isFinite(f(degrees)))throw Error('Hue change must be a finite angle.');
+ const [r,g,b]=rgb,max=Math.max(...rgb),min=Math.min(...rgb),delta=max-min;
+ if(delta===0)return [...rgb];
+ const brightness=f(max/255),saturation=f(delta/max);
+ const rc=f((max-r)/delta),gc=f((max-g)/delta),bc=f((max-b)/delta);
+ let hue=r===max?f(bc-gc):g===max?f(f(2+rc)-bc):f(f(4+gc)-rc);
+ hue=f(hue/6);if(hue<0)hue=f(hue+1);
+ return hsb(f(hue+f(f(degrees)/360)),saturation,brightness);
+}
+export function hueIncrement(degrees){
+ if(!Number.isFinite(degrees))throw Error('Hue change must be a finite angle.');
+ let remainder=degrees%360;
+ if(Math.abs(remainder)>180)remainder-=Math.sign(remainder)*360;
+ else if(Math.abs(remainder)===180&&Math.abs(Math.trunc(degrees/360)%2)===1)remainder=-remainder;
+ return remainder;
+}

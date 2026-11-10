@@ -1,4 +1,4 @@
-import {parseLSystemColor,lsystemPalette} from '../js/lsystem-colors.js';
+import {parseLSystemColor,lsystemPalette,shiftLSystemHue,hueIncrement} from '../js/lsystem-colors.js';
 import {cfStrategies} from '../js/cf-pumping.js';
 import {regularStrategies} from '../js/regular-pumping.js';
 import {PumpingGame} from '../js/pumping-game.js';
@@ -578,6 +578,31 @@ test('Malformed L-system colors report errors instead of silently becoming brows
 });
 test('L-system original color parameters survive XML round trips and example rendering',()=>{
  const model={type:'lsystem',name:'Color test',axiom:'g',productions:[],parameters:{color:'dukeBlue',polygonColor:'0.5,0.75,0.8'}},copy=deserialize(serialize(model));equal(copy.parameters,model.parameters);equal(turtle(['g'],copy.parameters)[0].color,'rgb(0, 0, 156)');assert(turtle(expand(example('lsystem').axiom,example('lsystem').productions,1),example('lsystem').parameters).length>0);
+});
+
+const hueFixture=await (await fetch('fixtures/lsystem-hues.json')).json();
+test('L-system hue shifts match original sequences with a corrected wrap boundary',()=>{
+ for(const record of hueFixture.records){
+  const expectedSteps=record.color==='dukeBlue'&&record.angle===100000&&record.useDefault?[[0,156,104],[104,156,0],[156,0,0],[104,0,156],[0,104,156]]:record.steps;
+  let rgb=parseLSystemColor(record.color);const angle=record.useDefault?hueIncrement(record.angle):record.angle;
+  for(const expected of expectedSteps){rgb=shiftLSystemHue(rgb,angle);equal(rgb,expected);}
+  const command=record.useDefault?'#':'#('+record.angle+')',shapes=turtle(Array(5).fill([command,'g']).flat(),{color:record.color,hueChange:record.angle});
+  equal(shapes.map(s=>s.color),expectedSteps.map(rgb=>'rgb('+rgb.join(', ')+')'));
+ }
+});
+test('Hue shifts preserve achromatic colors and independently restore branch colors and increments',()=>{
+ for(const color of ['black','white','gray','0,0,0.5'])for(const command of ['#','@','##','@@']){
+  const shapes=turtle([command,'g','{','g','+','g','}'],{color,polygonColor:color});equal(shapes.map(s=>s.color),Array(2).fill('rgb('+parseLSystemColor(color).join(', ')+')'));
+ }
+ const shapes=turtle(['#','g','[','hueChange=60','#','g',']','@','g','color(blue)','@','g'],{color:'red',hueChange:120});
+ equal(shapes.map(s=>s.color),['rgb(0, 255, 0)','rgb(0, 255, 255)','rgb(255, 0, 0)','rgb(0, 255, 0)']);
+ const polygon=turtle(['hueChange(120)','##','{','g','+','g','}','@@(120)','{','g','+','g','}'],{polygonColor:'red'});equal(polygon.map(s=>s.color),['rgb(0, 255, 0)','rgb(255, 0, 0)']);
+});
+test('Hue expressions wrap and malformed angles fail explicitly',()=>{
+ equal(turtle(['#(angle*3)','g'],{color:'red',angle:120})[0].color,'rgb(255, 0, 0)');
+ equal(turtle(['@(-120)','g'],{color:'red'})[0].color,'rgb(0, 255, 0)');
+ for(const angle of [Infinity,NaN])gameRejects(()=>shiftLSystemHue([128,64,96],angle));
+ gameRejects(()=>turtle(['#(1/0)','g'],{color:'red'}));
 });
 
 for(const result of await testDocumentFiles())test(result.name,()=>{if(result.error)throw result.error;});
