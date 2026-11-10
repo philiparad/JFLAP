@@ -1,3 +1,4 @@
+import {parseLSystemColor,lsystemPalette} from '../js/lsystem-colors.js';
 import {cfStrategies} from '../js/cf-pumping.js';
 import {regularStrategies} from '../js/regular-pumping.js';
 import {PumpingGame} from '../js/pumping-game.js';
@@ -554,6 +555,29 @@ test('Pumping XML preserves unstarted models, imported cases and legacy attempts
 test('Pumping file validation rejects malformed and conflicting saved state',()=>{
  const game=new PumpingGame('AnEven');game.chooseLength(3);const model={type:'pumpingreg',language:'AnEven',name:'Validation',game:game.snapshot()},xml=serialize(model);
  for(const bad of [xml.replace('<m>3</m>','<m>4</m>'),xml.replace('<m>3</m>','<m>3.5</m>'),xml.replace('<m>3</m>','<m>3</m><m>3</m>'),xml.replace('<first_player>Human</first_player>','<first_player>Unknown</first_player>'),xml.replace('<web-game>','<web-game>{'),JSON.stringify({...model,type:'pumpingcf'}),JSON.stringify({...model,game:{...model.game,phase:'complete'}}),JSON.stringify({...model,pumpingCases:[{lengths:[0,1,0,0],i:2}]})])gameRejects(()=>deserialize(bad));
+});
+
+const colorFixture=await (await fetch('fixtures/lsystem-colors.json')).json();
+test('L-system original palette and numeric colors match Java observations',()=>{
+ equal(Object.keys(lsystemPalette).sort(),colorFixture.palette);
+ for(const record of colorFixture.records){
+  if(record.rgb&&!record.input.includes('NaN'))equal(parseLSystemColor(record.input),record.rgb);
+  else gameRejects(()=>parseLSystemColor(record.input));
+ }
+});
+test('L-system drawing and polygons resolve color commands, assignments and branch restoration',()=>{
+ const shapes=turtle(['g','[','color=0.5,1,1','g',']','g','polygonColor(brown)','{','g','+','g','+','g','}'],{color:'dukeBlue'});
+ equal(shapes.map(s=>s.color),['rgb(0, 0, 156)','rgb(0, 255, 255)','rgb(0, 0, 156)','rgb(129, 0, 0)']);assert(shapes[3].polygon);
+ equal(turtle(['color(255,127.9,0)','g'],{color:'purple'})[0].color,'rgb(255, 127, 0)');
+ equal(turtle(['g'],{color:'0,0,0.5'})[0].color,'rgb(128, 128, 128)');
+});
+test('Malformed L-system colors report errors instead of silently becoming browser black',()=>{
+ for(const value of ['DukeBlue','forestgreen','1,2','256,0,0','-1,0,0','0,1,no','NaN,0,0','Infinity,0,0']){
+  gameRejects(()=>turtle(['g'],{color:value}));gameRejects(()=>turtle(['color('+value+')','g']));gameRejects(()=>turtle(['polygonColor='+value,'{','g','}']));
+ }
+});
+test('L-system original color parameters survive XML round trips and example rendering',()=>{
+ const model={type:'lsystem',name:'Color test',axiom:'g',productions:[],parameters:{color:'dukeBlue',polygonColor:'0.5,0.75,0.8'}},copy=deserialize(serialize(model));equal(copy.parameters,model.parameters);equal(turtle(['g'],copy.parameters)[0].color,'rgb(0, 0, 156)');assert(turtle(expand(example('lsystem').axiom,example('lsystem').productions,1),example('lsystem').parameters).length>0);
 });
 
 for(const result of await testDocumentFiles())test(result.name,()=>{if(result.error)throw result.error;});

@@ -60,7 +60,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 50 | [x] | Port regular-language opponent strategies and explanations, one fixture per exercise. | P02 |
 | 51 | [x] | Port context-free opponent strategies and explanations, one fixture per exercise. | P02 |
 | 52 | [x] | Pumping XML persistence for complete ongoing game state. | P03 |
-| 53 | [ ] | L-system exact named palette and RGB/HSB triples. | L01,L02 |
+| 53 | [x] | L-system exact named palette and RGB/HSB triples. | L01,L02 |
 | 54 | [ ] | L-system hue shifts preserving saturation/brightness. | L03 |
 | 55 | [ ] | L-system parameter table and picker. | L04 |
 | 56 | [ ] | Incremental rendering progress and scrollable actual-size drawing. | L05 |
@@ -195,3 +195,6 @@ Task 51 (9 November 2026): all 13 context-free pumping opponents now use origina
 
 
 Task 52 (10 November 2026): pumping games save as original-compatible XML, with a validated browser extension for exact turns, moves and retries. JSON and browser reloads also restore progress. Original attempt summaries and CF case records survive round trips; restart clears game progress. 198 regression checks, every-turn browser persistence flows and 16 original-Java XML compatibility states pass. See [pumping XML](PUMPING-XML.md). Only Task 52 was implemented in this continuation.
+
+
+Task 53 (10 November 2026): original L-system named palette and RGB/HSB triples now resolve to explicit RGB for line and polygon drawing, assignments and color commands. 247 original-Java color observations are tested, with intentional rejection of nonfinite NaN inputs documented; 202 regressions and real Chromium render/export/error checks pass. Hue-shift Task 54 remains pending. See [L-system colors](LSYSTEM-COLORS.md). Only Task 53 was implemented in this continuation.
