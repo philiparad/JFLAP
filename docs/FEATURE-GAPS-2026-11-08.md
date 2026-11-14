@@ -2,7 +2,7 @@
 
 Comparison: 8 November 2026. Repository baseline: `bd1440ede6b14b9e3eb253d3c2d33972e11737f8` (GitHub main when cloned).
 
-**30 missing or partial feature task units were identified at this baseline. Tasks 67, 42, 44, 48, 49, 50, 51, 52, 53, 54 and 55 are now completed in separate feature commits; 19 remain.** Two dormant-code investigations are listed separately. This list supersedes the old 27 October audit for current pending work.
+**30 missing or partial feature task units were identified at this baseline. Tasks 67, 42, 44, 48, 49, 50, 51, 52, 53, 54, 55 and 56 are now completed in separate feature commits; 18 remain.** Two dormant-code investigations are listed separately. This list supersedes the old 27 October audit for current pending work.
 
 ## Scope and evidence
 
@@ -30,7 +30,7 @@ Each row is an actionable local task with an acceptance criterion. IDs preserve 
 | 53 | [x] | **L-system named colors and RGB/HSB triples.** Match original named palette and numeric triples, including non-CSS names; test resulting RGB values and malformed input. | `DOCS/gui.lsystem.DisplayPane.html` (L01,L02) | `js/lsystem.js` |
 | 54 | [x] | **L-system hue shifts.** Preserve saturation/brightness during hue changes and leave achromatic colors unchanged; test wrapping and branch state. | `DOCS/gui.lsystem.DisplayPane.html` (L03) | `js/lsystem.js` |
 | 55 | [x] | **L-system parameter table and picker.** Offer original parameter names and editable table values; retain values through rendering and saving. | `DOCS/gui.lsystem.LSystemInputPane.html` (L04) | `js/app.js` |
-| 56 | [ ] | **Incremental L-system rendering and actual-size view.** Display live progress without blocking input; provide scrollable extent-based drawing as well as fitted viewing. | `DOCS/gui.lsystem.DisplayPane.html` (L05) | `js/app.js; lsystem.js` |
+| 56 | [x] | **Incremental L-system rendering and actual-size view.** Display live progress without blocking input; provide scrollable extent-based drawing as well as fitted viewing. | `DOCS/gui.lsystem.DisplayPane.html` (L05) | `js/app.js; lsystem.js` |
 | 57 | [ ] | **Graph rotation, reflections and fit.** Implement original reflection axes, rotation and Fill Screen With Graph; retain valid geometry and undo each transformation. | `gui.menu.MenuBarCreator` (V05) | `js/app.js` |
 | 58 | [ ] | **Degree-tree and hierarchy-tree layouts.** Implement both tree layouts with defined disconnected-graph behavior; preserve states and transitions. | `gui.menu.MenuBarCreator` (V02) | `js/automata.js` |
 | 59 | [ ] | **Two-circle and random-algorithm layouts.** Add two-circle placement and random selection among layout algorithms, distinct from random coordinates. | `gui.menu.MenuBarCreator` (V03,V04) | `js/automata.js; app.js` |

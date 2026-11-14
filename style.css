@@ -18,3 +18,5 @@ g.parse-active > rect, g.parse-active > path { fill: #ffd86b; stroke: #6d4800; s
 #tabs{flex-wrap:wrap;align-items:center;gap:10px}.operation-tab{display:inline-flex;align-items:center}.operation-tab button[aria-label]{padding:7px;color:#7b8a80}#operation-picker{margin:6px 0;font-size:12px;max-width:240px}
 
 .ls-parameter-table{width:100%;margin:12px 0}.ls-parameter-table input{width:100%;min-width:0}.ls-parameter-table td:last-child{width:80px}
+
+#ls-viewport{height:450px;overflow:auto;border:1px solid var(--line,#ccd3dc);margin-top:12px;background:white}#ls-svg{display:block;max-width:none;flex-shrink:0}#ls-progress{width:180px}

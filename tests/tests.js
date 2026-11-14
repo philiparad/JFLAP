@@ -1,3 +1,4 @@
+import {renderSteps,expandSteps} from '../js/lsystem.js';
 import {parameterRows,parameterValues,pickParameter,drawingParameters} from '../js/lsystem-parameters.js';
 import {parseLSystemColor,lsystemPalette,shiftLSystemHue,hueIncrement} from '../js/lsystem-colors.js';
 import {cfStrategies} from '../js/cf-pumping.js';
@@ -613,6 +614,18 @@ test('Parameter rows preserve custom names, case, expressions and last duplicate
 });
 test('Parameter picker focuses first existing row without overwriting and inserts new blank values',()=>{
  const rows=[['distance','10'],['distance','20']];equal(pickParameter(rows,'distance'),0);equal(rows.length,2);equal(pickParameter(rows,'color'),2);equal(rows[2],['color','']);equal(drawingParameters.length,8);let bad=false;try{parameterRows('distance 10');}catch(e){bad=true;}assert(bad);
+});
+
+test('Incremental rendering preserves branches, polygons and colors across batch boundaries',()=>{
+ const axiom=Array(260).fill('g').join(' ')+' [ color=dukeBlue + g ] { g + g + g } #(120) g',params={angle:90,color:'128,64,96'};
+ const job=renderSteps(axiom,[],0,params);let result,yields=0;do{result=job.next();if(!result.done){yields++;assert(result.value.processed<=result.value.total);}}while(!result.done);
+ assert(yields>=2);equal(result.value.shapes,turtle(expand(axiom,[],0),params));equal(result.value.shapes.length,263);
+});
+test('Incremental rewriting preserves random choice order and generation progress',()=>{
+ const rules=[{left:'g',right:'g + g'},{left:'g',right:'g - g'}];const choice=()=>{let n=0;return()=>((n++%2)*0.75);};const expected=expand('g',rules,7,choice()),job=renderSteps('g',rules,7,{},[20,30,0],choice());let result,phases=new Set();do{result=job.next();if(!result.done)phases.add(result.value.phase);}while(!result.done);equal(result.value.word,expected);equal(result.value.shapes,turtle(expected,{},[20,30,0]));assert(phases.has('expanding')&&phases.has('drawing'));
+});
+test('Incremental rendering handles empty drawings and reports expansion limits',()=>{
+ const emptyJob=renderSteps('',[],0);equal(emptyJob.next(),{value:{word:[],shapes:[]},done:true});const huge=expandSteps(Array(200001).fill('g').join(' '),[],0);let rejected=false;try{huge.next();}catch(e){rejected=/200,000/.test(e.message);}assert(rejected);
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
