@@ -151,3 +151,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 53: exact 38-name L-system palette, float32 RGB/HSB triples, drawing/polygon color commands and assignments. 247 Java observations tested (nonfinite NaN rejected explicitly), 202 regressions and Chromium SVG/export/error checks pass. See [color format and boundaries](LSYSTEM-COLORS.md). Hue shifting remains Task 54.
 
 - Task 54: hue shifts preserve current saturation/brightness and achromatic colors, with independent line/polygon colors and branch restoration. 205 regressions and Chromium SVG checks pass. 432 Java sequences cover repeated/wrapped shifts; the original seam-to-black rounding bug is corrected. See [details](LSYSTEM-COLORS.md).
+
+- Task 55: 14 November 2026: added editable L-system parameter rows, recognized-name picker with first-match focus, custom names, removal, synchronized text editing and default hints. Last duplicate wins; invalid text is explicit. 207 regressions pass; browser checks cover rendering, validation, saved XML and reload. See LSYSTEM-PARAMETERS.md. Only Task 55 was implemented in this continuation.

@@ -62,7 +62,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 52 | [x] | Pumping XML persistence for complete ongoing game state. | P03 |
 | 53 | [x] | L-system exact named palette and RGB/HSB triples. | L01,L02 |
 | 54 | [x] | L-system hue shifts preserving saturation/brightness. | L03 |
-| 55 | [ ] | L-system parameter table and picker. | L04 |
+| 55 | [x] | L-system parameter table and picker. | L04 |
 | 56 | [ ] | Incremental rendering progress and scrollable actual-size drawing. | L05 |
 | 57 | [ ] | Graph rotation, all reflection axes and fit-to-view. | V05 |
 | 58 | [ ] | Degree-tree and hierarchy-tree layouts including disconnected graphs. | V02 |
@@ -201,3 +201,5 @@ Task 53 (10 November 2026): original L-system named palette and RGB/HSB triples 
 
 
 Task 54 (10 November 2026): L-system hue shifts now derive from the current RGB color and retain saturation/brightness; gray colors remain unchanged. Line/polygon direction, parameter/explicit increments, wrapping, assignments and branch restoration are covered. 205 regressions pass with 432 original-Java sequences (one documented Java wrap bug intentionally corrected), plus Chromium rendering/export checks. See [L-system colors](LSYSTEM-COLORS.md). Only Task 54 was implemented in this continuation.
+
+Task 55: 14 November 2026: added editable L-system parameter rows, recognized-name picker with first-match focus, custom names, removal, synchronized text editing and default hints. Last duplicate wins; invalid text is explicit. 207 regressions pass; browser checks cover rendering, validation, saved XML and reload. See LSYSTEM-PARAMETERS.md. Only Task 55 was implemented in this continuation.

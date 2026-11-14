@@ -1,3 +1,4 @@
+import {parameterRows,parameterValues,pickParameter,drawingParameters} from '../js/lsystem-parameters.js';
 import {parseLSystemColor,lsystemPalette,shiftLSystemHue,hueIncrement} from '../js/lsystem-colors.js';
 import {cfStrategies} from '../js/cf-pumping.js';
 import {regularStrategies} from '../js/regular-pumping.js';
@@ -606,6 +607,13 @@ test('Hue expressions wrap and malformed angles fail explicitly',()=>{
 });
 
 for(const result of await testDocumentFiles())test(result.name,()=>{if(result.error)throw result.error;});
+
+test('Parameter rows preserve custom names, case, expressions and last duplicate wins',()=>{
+ const rows=parameterRows('distance = 10\nfoo = 3 + 4\ndistance = 20\nColor = red\ncolor = 128,64,96');const p=parameterValues(rows);equal(p.distance,'20');equal(p.foo,'3 + 4');equal(p.Color,'red');equal(p.color,'128,64,96');equal(parameterValues([['','ignored'],['x','']]),{x:''});const m={type:'lsystem',name:'Parameters',axiom:'g(foo)',productions:[],parameters:p};equal(deserialize(serialize(m)).parameters,p);
+});
+test('Parameter picker focuses first existing row without overwriting and inserts new blank values',()=>{
+ const rows=[['distance','10'],['distance','20']];equal(pickParameter(rows,'distance'),0);equal(rows.length,2);equal(pickParameter(rows,'color'),2);equal(rows[2],['color','']);equal(drawingParameters.length,8);let bad=false;try{parameterRows('distance 10');}catch(e){bad=true;}assert(bad);
+});
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 
