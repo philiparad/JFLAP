@@ -64,7 +64,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 54 | [x] | L-system hue shifts preserving saturation/brightness. | L03 |
 | 55 | [x] | L-system parameter table and picker. | L04 |
 | 56 | [x] | Incremental rendering progress and scrollable actual-size drawing. | L05 |
-| 57 | [ ] | Graph rotation, all reflection axes and fit-to-view. | V05 |
+| 57 | [x] | Graph rotation, all reflection axes and fit-to-view. | V05 |
 | 58 | [ ] | Degree-tree and hierarchy-tree layouts including disconnected graphs. | V02 |
 | 59 | [ ] | Two-circle layout and random layout-algorithm selection. | V03,V04 |
 | 60 | [ ] | GEM layout with convergence bounds. | V01 |
@@ -205,3 +205,5 @@ Task 54 (10 November 2026): L-system hue shifts now derive from the current RGB 
 Task 55: 14 November 2026: added editable L-system parameter rows, recognized-name picker with first-match focus, custom names, removal, synchronized text editing and default hints. Last duplicate wins; invalid text is explicit. 207 regressions pass; browser checks cover rendering, validation, saved XML and reload. See LSYSTEM-PARAMETERS.md. Only Task 55 was implemented in this continuation.
 
 Task 56: 14 November 2026: incremental expansion and drawing with progress, pause/resume/cancel, automatic pause on tab departure, actual-size scrolling and fit view. Completed-only SVG export preserves dimensions. 210 regressions pass; browser verified 59,049 shapes, controls, scrolling and a parsed 729-shape SVG export. See LSYSTEM-RENDERING.md. Only Task 56 was implemented in this continuation.
+
+Task 57: 15 November 2026: four reflection axes, signed rotation and graph fitting with toolbar access, undo/redo and finite-coordinate checks. Curved edges reflect correctly; nested block contents remain independent. 213 regressions pass; browser verified reflection/rotation undo and fitted graph display. See GRAPH-TRANSFORMS.md. Only Task 57 was implemented in this continuation.

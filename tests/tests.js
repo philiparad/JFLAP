@@ -1,3 +1,4 @@
+import {transformGraph} from '../js/graph-transforms.js';
 import {renderSteps,expandSteps} from '../js/lsystem.js';
 import {parameterRows,parameterValues,pickParameter,drawingParameters} from '../js/lsystem-parameters.js';
 import {parseLSystemColor,lsystemPalette,shiftLSystemHue,hueIncrement} from '../js/lsystem-colors.js';
@@ -626,6 +627,18 @@ test('Incremental rewriting preserves random choice order and generation progres
 });
 test('Incremental rendering handles empty drawings and reports expansion limits',()=>{
  const emptyJob=renderSteps('',[],0);equal(emptyJob.next(),{value:{word:[],shapes:[]},done:true});const huge=expandSteps(Array(200001).fill('g').join(' '),[],0);let rejected=false;try{huge.next();}catch(e){rejected=/200,000/.test(e.message);}assert(rejected);
+});
+
+test('Graph reflections and rotations preserve machine language and restore coordinates',()=>{
+ const m=example('fa');m.notes=[{x:20,y:30,text:'note'}];m.transitions[0].bend=70;const close=(a,b)=>Math.abs(a-b)<1e-8;
+ for(const axis of ['horizontal','vertical','diagonal-down','diagonal-up']){const reflected=transformGraph(m,axis),back=transformGraph(reflected,axis);for(let i=0;i<m.states.length;i++){assert(close(m.states[i].x,back.states[i].x));assert(close(m.states[i].y,back.states[i].y));}equal(back.notes,m.notes);for(const word of words('01',4))equal(simulate(reflected,word).status,simulate(m,word).status);}
+ const rotated=transformGraph(m,'rotate',37),back=transformGraph(rotated,'rotate',-37);assert(close(back.states[0].x,m.states[0].x));assert(close(back.states[0].y,m.states[0].y));equal(m.transitions[0].bend,70);
+});
+test('Graph fit handles empty, singleton, distant and degenerate layouts atomically',()=>{
+ const m=A.machine('fa');equal(transformGraph(m,'fit'),m);A.state(m,-100000,500000);const fitted=transformGraph(m,'fit');equal([fitted.states[0].x,fitted.states[0].y],[450,280]);A.state(m,-100000,-500000);const fit=transformGraph(m,'fit');assert(fit.states.every(s=>s.x===450&&s.y>=130&&s.y<=430));let rejected=false;try{transformGraph(m,'rotate',Infinity);}catch(e){rejected=true;}assert(rejected);equal(m.states[0].y,500000);
+});
+test('Reflection reverses curved edges without entering nested building blocks',()=>{
+ const m=A.machine('turingbb');A.state(m,100,100);A.state(m,300,200);A.edge(m,0,1,'a',{bend:60});m.states[0].block=example('turing');const r=transformGraph(m,'vertical');equal(r.transitions[0].bend,-60);equal(r.states[0].block,m.states[0].block);equal(r.states.map(s=>s.x),[300,100]);
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
