@@ -2,7 +2,7 @@
 
 Comparison: 8 November 2026. Repository baseline: `bd1440ede6b14b9e3eb253d3c2d33972e11737f8` (GitHub main when cloned).
 
-**30 missing or partial feature task units were identified at this baseline. Tasks 67, 42, 44, 48, 49, 50, 51, 52, 53, 54, 55, 56 and 57 are now completed in separate feature commits; 17 remain.** Two dormant-code investigations are listed separately. This list supersedes the old 27 October audit for current pending work.
+**30 missing or partial feature task units were identified at this baseline. Tasks 67, 42, 44, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57 and 58 are now completed in separate feature commits; 16 remain.** Two dormant-code investigations are listed separately. This list supersedes the old 27 October audit for current pending work.
 
 ## Scope and evidence
 
@@ -32,7 +32,7 @@ Each row is an actionable local task with an acceptance criterion. IDs preserve 
 | 55 | [x] | **L-system parameter table and picker.** Offer original parameter names and editable table values; retain values through rendering and saving. | `DOCS/gui.lsystem.LSystemInputPane.html` (L04) | `js/app.js` |
 | 56 | [x] | **Incremental L-system rendering and actual-size view.** Display live progress without blocking input; provide scrollable extent-based drawing as well as fitted viewing. | `DOCS/gui.lsystem.DisplayPane.html` (L05) | `js/app.js; lsystem.js` |
 | 57 | [x] | **Graph rotation, reflections and fit.** Implement original reflection axes, rotation and Fill Screen With Graph; retain valid geometry and undo each transformation. | `gui.menu.MenuBarCreator` (V05) | `js/app.js` |
-| 58 | [ ] | **Degree-tree and hierarchy-tree layouts.** Implement both tree layouts with defined disconnected-graph behavior; preserve states and transitions. | `gui.menu.MenuBarCreator` (V02) | `js/automata.js` |
+| 58 | [x] | **Degree-tree and hierarchy-tree layouts.** Implement both tree layouts with defined disconnected-graph behavior; preserve states and transitions. | `gui.menu.MenuBarCreator` (V02) | `js/automata.js` |
 | 59 | [ ] | **Two-circle and random-algorithm layouts.** Add two-circle placement and random selection among layout algorithms, distinct from random coordinates. | `gui.menu.MenuBarCreator` (V03,V04) | `js/automata.js; app.js` |
 | 60 | [ ] | **GEM layout.** Implement the original layout family with bounded convergence; test representative dense and disconnected graphs. | `gui.menu.MenuBarCreator` (V01) | `js/automata.js` |
 | 61 | [ ] | **Grammar production table controls.** Add editable production columns, adjustable widths and dedicated text-size controls without losing productions. | `ChangeLog.txt; DOCS/gui.grammar.GrammarInputPane.html` (G09) | `js/app.js` |

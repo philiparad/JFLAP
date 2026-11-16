@@ -1,3 +1,4 @@
+import {treeLayout} from '../js/tree-layout.js';
 import {transformGraph} from '../js/graph-transforms.js';
 import {renderSteps,expandSteps} from '../js/lsystem.js';
 import {parameterRows,parameterValues,pickParameter,drawingParameters} from '../js/lsystem-parameters.js';
@@ -639,6 +640,17 @@ test('Graph fit handles empty, singleton, distant and degenerate layouts atomica
 });
 test('Reflection reverses curved edges without entering nested building blocks',()=>{
  const m=A.machine('turingbb');A.state(m,100,100);A.state(m,300,200);A.edge(m,0,1,'a',{bend:60});m.states[0].block=example('turing');const r=transformGraph(m,'vertical');equal(r.transitions[0].bend,-60);equal(r.states[0].block,m.states[0].block);equal(r.states.map(s=>s.x),[300,100]);
+});
+
+test('Degree and hierarchy tree layouts choose connectivity and incoming-degree roots',()=>{
+ const m=A.machine('fa');for(let i=0;i<4;i++)A.state(m,i*20,10);A.edge(m,0,1,'a');A.edge(m,1,2,'b');A.edge(m,1,3,'c');const degree=treeLayout(m,'degree'),hierarchy=treeLayout(m,'hierarchy');equal(degree.states[1].y,140);assert(degree.states.filter(s=>s.id!==1).every(s=>s.y===280));equal(hierarchy.states.map(s=>s.y),[140,280,420,420]);equal(m.states.map(s=>s.y),[10,10,10,10]);
+});
+test('Tree forests place cycles, isolated states and disconnected components exactly once',()=>{
+ const m=A.machine('fa');for(let i=0;i<8;i++)A.state(m,0,0);for(const [a,b] of [[0,1],[1,2],[2,0],[3,4],[3,4],[4,4],[6,7]])A.edge(m,a,b,'a');m.states[2].final=true;m.notes=[{x:1,y:2,text:'Unmoved'}];
+ for(const kind of ['degree','hierarchy']){const out=treeLayout(m,kind);equal(out,treeLayout(m,kind));equal(out.transitions,m.transitions);equal(out.notes,m.notes);equal(new Set(out.states.map(s=>s.x+','+s.y)).size,8);assert(out.states.every(s=>Number.isFinite(s.x)&&Number.isFinite(s.y)));for(const w of words('a',8))equal(simulate(out,w).status,simulate(m,w).status);}
+});
+test('Tree layouts handle empty and deep graphs without recursion or nested-block edits',()=>{
+ const empty=A.machine('fa');equal(treeLayout(empty),empty);const m=A.machine('turingbb');for(let i=0;i<1500;i++)A.state(m,0,0);for(let i=1;i<1500;i++)A.edge(m,i-1,i,'');m.states[0].block=example('turing');const out=treeLayout(m,'hierarchy');equal(out.states.at(-1).y,140+1499*140);equal(out.states[0].block,m.states[0].block);
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
