@@ -1,3 +1,4 @@
+import {twoCircleLayout,chooseLayout,randomLayouts} from '../js/circle-layout.js';
 import {treeLayout} from '../js/tree-layout.js';
 import {transformGraph} from '../js/graph-transforms.js';
 import {renderSteps,expandSteps} from '../js/lsystem.js';
@@ -651,6 +652,16 @@ test('Tree forests place cycles, isolated states and disconnected components exa
 });
 test('Tree layouts handle empty and deep graphs without recursion or nested-block edits',()=>{
  const empty=A.machine('fa');equal(treeLayout(empty),empty);const m=A.machine('turingbb');for(let i=0;i<1500;i++)A.state(m,0,0);for(let i=1;i<1500;i++)A.edge(m,i-1,i,'');m.states[0].block=example('turing');const out=treeLayout(m,'hierarchy');equal(out.states.at(-1).y,140+1499*140);equal(out.states[0].block,m.states[0].block);
+});
+
+test('Two-circle layout places hubs inside and preserves all graph semantics',()=>{
+ const m=A.machine('fa');for(let i=0;i<7;i++)A.state(m,0,0);for(let i=1;i<6;i++)A.edge(m,0,i,'a');m.states[1].final=true;m.notes=[{text:'note',x:3,y:4}];const out=twoCircleLayout(m);equal([out.states[0].x,out.states[0].y],[450,280]);assert(out.states.slice(1).every(s=>Math.abs(Math.hypot(s.x-450,s.y-280)-130)<1e-8));equal(new Set(out.states.map(s=>s.x+','+s.y)).size,7);equal(out.transitions,m.transitions);equal(out.notes,m.notes);for(const w of words('a',4))equal(simulate(out,w).status,simulate(m,w).status);equal(m.states[0].x,0);
+});
+test('Two-circle fallback and promotion handle empty, singleton, cycles and shared neighbors',()=>{
+ const m=A.machine('fa');equal(twoCircleLayout(m),m);A.state(m,0,0);equal(twoCircleLayout(m).states[0].x,450);for(let i=1;i<6;i++)A.state(m,0,0);for(const [a,b] of [[0,1],[0,2],[0,3],[1,2],[1,4]])A.edge(m,a,b,'a');const out=twoCircleLayout(m),radius=id=>Math.hypot(out.states[id].x-450,out.states[id].y-280);assert(Math.abs(radius(0)-radius(2))<1e-8);assert(radius(3)>radius(2));equal(out,twoCircleLayout(m));
+});
+test('Random algorithm selection reaches every implemented candidate at its interval boundaries',()=>{
+ for(let i=0;i<randomLayouts.length;i++){equal(chooseLayout(()=>i/randomLayouts.length),randomLayouts[i]);equal(chooseLayout(()=>(i+0.999)/randomLayouts.length),randomLayouts[i]);}let rejected=false;try{chooseLayout(()=>1);}catch(e){rejected=true;}assert(rejected);
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;

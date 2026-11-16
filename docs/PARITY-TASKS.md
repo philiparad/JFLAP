@@ -66,7 +66,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 56 | [x] | Incremental rendering progress and scrollable actual-size drawing. | L05 |
 | 57 | [x] | Graph rotation, all reflection axes and fit-to-view. | V05 |
 | 58 | [x] | Degree-tree and hierarchy-tree layouts including disconnected graphs. | V02 |
-| 59 | [ ] | Two-circle layout and random layout-algorithm selection. | V03,V04 |
+| 59 | [x] | Two-circle layout and random layout-algorithm selection. | V03,V04 |
 | 60 | [ ] | GEM layout with convergence bounds. | V01 |
 | 61 | [ ] | Grammar table, text-size control and adjustable columns. | G09 |
 | 62 | [ ] | JPG/GIF/BMP image export with decoded-image checks. | F03 |
@@ -209,3 +209,5 @@ Task 56: 14 November 2026: incremental expansion and drawing with progress, paus
 Task 57: 15 November 2026: four reflection axes, signed rotation and graph fitting with toolbar access, undo/redo and finite-coordinate checks. Curved edges reflect correctly; nested block contents remain independent. 213 regressions pass; browser verified reflection/rotation undo and fitted graph display. See GRAPH-TRANSFORMS.md. Only Task 57 was implemented in this continuation.
 
 Task 58: 16 November 2026: degree-tree and hierarchy-tree layouts with original root-priority rules, iterative traversal, deterministic rows and disconnected/cyclic graph handling. Both View actions fit the result and support undo. 216 regressions pass; browser verified menu actions and undo. See TREE-LAYOUTS.md. Only Task 58 was implemented in this continuation.
+
+Task 59: 16 November 2026: two-circle grouping with hub promotion and single-ring fallback, plus random selection among six implemented original-family layouts. Menu actions fit results, report the selected algorithm and support undo. 219 regressions pass; browser verified selection and undo. GEM remains Task 60. See CIRCLE-LAYOUTS.md. Only Task 59 was implemented in this continuation.
