@@ -69,7 +69,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 59 | [x] | Two-circle layout and random layout-algorithm selection. | V03,V04 |
 | 60 | [x] | GEM layout with convergence bounds. | V01 |
 | 61 | [x] | Grammar table, text-size control and adjustable columns. | G09 |
-| 62 | [ ] | JPG/GIF/BMP image export with decoded-image checks. | F03 |
+| 62 | [x] | JPG/GIF/BMP image export with decoded-image checks. | F03 |
 | 63 | [ ] | Grammar/parse-diagram image export. | F04 |
 | 64 | [ ] | Empty-string display preference across editors, simulations and tables. | U01 |
 | 65 | [ ] | Selectable original interface palettes. | U02 |
@@ -215,3 +215,5 @@ Task 59: 16 November 2026: two-circle grouping with hub promotion and single-rin
 Task 60: Added GEM force layout, random-chooser integration, bounded computation and undo. 222 browser regressions pass; see GEM-LAYOUT.md.
 
 Task 61: Added editable grammar production columns, automatic blank rows, synchronized text editing, adjustable widths and persistent text size. 225 browser checks pass; see GRAMMAR-TABLE.md.
+
+Task 62: Added real JPG, GIF and BMP automaton exports with full graph bounds. 230 browser checks pass; actual downloads independently decoded. See IMAGE-EXPORT.md.

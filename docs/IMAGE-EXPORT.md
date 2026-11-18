@@ -1,0 +1,11 @@
+# Automaton image export
+
+File now offers Export JPG, Export GIF and Export BMP alongside SVG and PNG. Each command downloads an actual encoded file with the corresponding extension and MIME type. Export does not edit the machine or its undo history. The current graph styling, labels, transitions, notes and highlighting are retained.
+
+All automaton formats now measure rendered graph bounds with a margin before fitting to a 1000 × 650 output. Negative or distant coordinates are included rather than cropped by the old fixed view box. Empty graphs remain valid images. Image loading and encoding failures report through the existing error dialog; temporary image URLs are released.
+
+JPG uses the browser JPEG encoder at quality 0.92. BMP uses uncompressed 24-bit BGR rows, bottom-up, with four-byte row alignment. GIF is a single-frame GIF89a with a fixed 256-color RGB palette (3 red bits, 3 green bits, 2 blue bits); colors are approximated without dithering. Its LZW stream uses frequent clear codes and literal indices, prioritizing a small, dependency-free implementation over compact file size. Transparency is flattened onto white before raster encoding. Raster helpers reject invalid dimensions and images over 10 million pixels.
+
+The original export actions were identified in the REA-backed [feature audit](FEATURE-GAPS-2026-11-08.md): `SaveGraphJPGAction`, `SaveGraphGIFAction` and `SaveGraphBMPAction`. Format implementation follows the [GIF89a specification](https://giflib.sourceforge.net/gifstandard/GIF89a.html) and Microsoft's [bitmap header documentation](https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapinfoheader). No external library, server, React or Node runtime is used.
+
+Validation: 230 browser checks pass. New tests decode all three formats using the browser and verify file signatures, MIME types, dimensions, colors, orientation, odd-width BMP padding, GIF streams spanning multiple clear codes and data blocks, transparency, invalid dimensions and distant graph bounds. Actual menu downloads were independently decoded with Pillow as JPEG, GIF and BMP, each 1000 × 650, and the JPG graph was visually inspected. Grammar and parse-diagram export remains task 63.

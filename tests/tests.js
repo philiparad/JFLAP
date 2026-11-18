@@ -1,3 +1,4 @@
+import {testImageExports} from './image-export.js';
 import {mountGrammarTable} from '../js/grammar-table.js';
 import {gemLayout,GEM_LIMITS} from '../js/gem-layout.js';
 import {twoCircleLayout,chooseLayout,randomLayouts} from '../js/circle-layout.js';
@@ -689,5 +690,6 @@ test('Grammar table sizing keeps rules and draft edits unchanged',()=>{
  const saved=localStorage.getItem('jflap.grammar-table');try{const host=document.createElement('div'),text=document.createElement('textarea');text.value='S → aSb\nS → λ';let calls=0;mountGrammarTable(host,text,()=>calls++);const before=text.value;for(const label of ['Production text size','Left column width','Right column width']){const input=host.querySelector('[aria-label="'+label+'"]');input.value=input.max;input.dispatchEvent(new Event('input'));}host.querySelector('button').click();equal(text.value,before);equal(calls,0);equal(host.querySelector('table').style.fontSize,'32px');const next=document.createElement('div');mountGrammarTable(next,text,()=>{});equal(next.querySelector('table').style.fontSize,'32px');}finally{if(saved===null)localStorage.removeItem('jflap.grammar-table');else localStorage.setItem('jflap.grammar-table',saved);}
 });
 
+for(const result of await testImageExports())test(result.name,()=>{if(result.error)throw result.error;});
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 

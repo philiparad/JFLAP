@@ -165,3 +165,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 60: Added GEM force layout, random-chooser integration, bounded computation and undo. 222 browser regressions pass; see GEM-LAYOUT.md.
 
 - Task 61: Added editable grammar production columns, automatic blank rows, synchronized text editing, adjustable widths and persistent text size. 225 browser checks pass; see GRAMMAR-TABLE.md.
+
+- Task 62: Added real JPG, GIF and BMP automaton exports with full graph bounds. 230 browser checks pass; actual downloads independently decoded. See IMAGE-EXPORT.md.
