@@ -4,7 +4,7 @@ View offers Two-circle layout and Choose random layout algorithm. Both fit the r
 
 Two-circle grouping treats edges as undirected and parallel edges as one neighbor. States with more than two neighbors begin on the inner ring. Outer states linked to two inner members are promoted repeatedly until stable. If there is no initial inner group, all states form a single ring, matching the original fallback. A lone inner state sits at the center. Outer members are ordered by their first inner neighbor, then document order; isolated members are retained. Ring radii grow with membership to avoid coincident positions. Notes, transitions and nested block contents remain unchanged.
 
-Random selection currently covers circle, spiral, random-position, degree-tree, hierarchy-tree and two-circle. Each has an equal selection interval. GEM is deliberately deferred to Task 60 and should join this list when implemented. Grid is a browser-specific layout and is not included in the original-family random chooser.
+Random selection currently covers circle, spiral, random-position, degree-tree, hierarchy-tree, two-circle and GEM. Each has an equal selection interval. Grid is a browser-specific layout and is not included in the original-family random chooser.
 
 ## Evidence and checks
 

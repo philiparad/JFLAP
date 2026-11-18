@@ -161,3 +161,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 58: 16 November 2026: degree-tree and hierarchy-tree layouts with original root-priority rules, iterative traversal, deterministic rows and disconnected/cyclic graph handling. Both View actions fit the result and support undo. 216 regressions pass; browser verified menu actions and undo. See TREE-LAYOUTS.md. Only Task 58 was implemented in this continuation.
 
 - Task 59: 16 November 2026: two-circle grouping with hub promotion and single-ring fallback, plus random selection among six implemented original-family layouts. Menu actions fit results, report the selected algorithm and support undo. 219 regressions pass; browser verified selection and undo. GEM remains Task 60. See CIRCLE-LAYOUTS.md. Only Task 59 was implemented in this continuation.
+
+- Task 60: Added GEM force layout, random-chooser integration, bounded computation and undo. 222 browser regressions pass; see GEM-LAYOUT.md.

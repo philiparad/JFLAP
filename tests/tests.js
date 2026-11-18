@@ -1,3 +1,4 @@
+import {gemLayout,GEM_LIMITS} from '../js/gem-layout.js';
 import {twoCircleLayout,chooseLayout,randomLayouts} from '../js/circle-layout.js';
 import {treeLayout} from '../js/tree-layout.js';
 import {transformGraph} from '../js/graph-transforms.js';
@@ -662,6 +663,18 @@ test('Two-circle fallback and promotion handle empty, singleton, cycles and shar
 });
 test('Random algorithm selection reaches every implemented candidate at its interval boundaries',()=>{
  for(let i=0;i<randomLayouts.length;i++){equal(chooseLayout(()=>i/randomLayouts.length),randomLayouts[i]);equal(chooseLayout(()=>(i+0.999)/randomLayouts.length),randomLayouts[i]);}let rejected=false;try{chooseLayout(()=>1);}catch(e){rejected=true;}assert(rejected);
+});
+
+
+function gemRandom(){let seed=12345;return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);}
+test('GEM separates coincident disconnected and dense states without changing semantics',()=>{
+ for(const dense of [false,true]){const m=A.machine('fa');for(let i=0;i<20;i++)A.state(m,0,0);if(dense)for(let i=0;i<20;i++)for(let j=i+1;j<20;j++)A.edge(m,i,j,'a');m.states[1].final=true;m.notes=[{text:'Keep',x:1,y:2}];const before=JSON.stringify(m),out=gemLayout(m,gemRandom());equal(out,gemLayout(m,gemRandom()));assert(out.states.every(s=>Number.isFinite(s.x)&&Number.isFinite(s.y)));equal(new Set(out.states.map(s=>s.x+','+s.y)).size,20);equal(out.transitions,m.transitions);equal(out.notes,m.notes);equal(JSON.stringify(m),before);for(const w of words('a',3))equal(simulate(out,w).status,simulate(m,w).status);}
+});
+test('GEM work budget bounds large graphs and preserves nested blocks',()=>{
+ const m=A.machine('turingbb');for(let i=0;i<500;i++)A.state(m,i,0);m.states[0].block=example('turing');let calls=0;const rng=gemRandom(),out=gemLayout(m,()=>{calls++;return rng();});equal(calls,3*Math.floor(GEM_LIMITS.pairChecks/500));equal(out.states[0].block,m.states[0].block);assert(out.states.every(s=>Number.isFinite(s.x)&&Number.isFinite(s.y)));
+});
+test('GEM handles empty and extreme geometry and rejects invalid input atomically',()=>{
+ const m=A.machine('fa');equal(gemLayout(m),m);A.state(m,1e308,-1e308);A.state(m,-1e308,1e308);assert(gemLayout(m,gemRandom()).states.every(s=>Number.isFinite(s.x)&&Number.isFinite(s.y)));const before=JSON.stringify(m);let rejected=0;for(const run of [()=>gemLayout(m,()=>1),()=>gemLayout({...m,states:[{...m.states[0],x:NaN}]}),()=>gemLayout({...m,states:Array.from({length:2001},(_,id)=>({id,x:0,y:0}))}),()=>gemLayout({...m,transitions:[{from:0,to:99}]})]){try{run();}catch(e){rejected++;}}equal(rejected,4);equal(JSON.stringify(m),before);
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;

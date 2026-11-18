@@ -1,0 +1,11 @@
+# GEM layout
+
+View → GEM layout arranges machine states using the original GEM force family. The random algorithm chooser now includes all seven original layout families. Applying GEM creates one undo entry, preserves transitions, state properties, annotations and nested machines, and fits the drawing to view.
+
+Static inspection of `automata.graph.layout.GEMLayoutAlgorithm` and its `Record` class in the supplied JFLAP 7.1 JAR establishes: random vertex selection without replacement each sweep, degree mass `d*(1+d/2)`, barycenter gravity `0.0625`, random impulses in [-5,5), pair repulsion with squared ideal length 10000, edge attraction divided by mass, and normalized displacement of length 3. The implementation runs 120 moves per movable vertex. Although temperature, skew and previous-impulse fields exist, the inspected method does not update them; it is not an adaptive cooling implementation. These findings supplement the REA artifact identity in [the audit](FEATURE-GAPS-2026-11-08.md); they do not claim original runtime or pixel comparison.
+
+The browser implements these force rules with undirected unique neighbors. It normalizes initial coordinates to a 700-unit extent to avoid overflow from extreme imported coordinates, then lets the existing viewport fit the result. All states are movable. Random removal uses a swap instead of the original array shift, so identical random streams need not give identical desktop positions. There is no claim of mathematically guaranteed convergence.
+
+Work is limited to the smaller of 120 moves per state and floor(2,000,000 / state count) moves. Graphs above 2,000 states are rejected before any edit. Large graphs therefore receive fewer relaxation sweeps. Invalid coordinates, endpoints, duplicate identifiers or random values are rejected without modifying the source. This bounded computation is deliberate browser behavior.
+
+Validation: 222 browser regressions pass. Added checks cover dense graphs, disconnected coincident states, deterministic seeded results, language and annotation preservation, nested blocks, extreme coordinates, malformed inputs and the exact large-graph work budget. Menu application, Undo and Redo were exercised in the browser.

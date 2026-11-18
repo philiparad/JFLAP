@@ -1,4 +1,4 @@
-export const randomLayouts=['circle','spiral','random','degree','hierarchy','two-circle'];
+export const randomLayouts=['circle','spiral','random','degree','hierarchy','two-circle','gem'];
 export function chooseLayout(random=Math.random){const value=random();if(!Number.isFinite(value)||value<0||value>=1)throw Error('Random source must return a value from 0 up to 1.');return randomLayouts[Math.floor(value*randomLayouts.length)];}
 
 export function twoCircleLayout(source){
