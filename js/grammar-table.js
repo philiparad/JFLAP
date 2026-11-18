@@ -1,0 +1,21 @@
+import {parseGrammar} from './grammar.js';
+
+export function mountGrammarTable(host,text,apply){
+ let rows=parseGrammar(text.value).map(p=>[p.left,p.right]),settings={size:16,left:140,right:300};
+ try{const saved=JSON.parse(localStorage.getItem('jflap.grammar-table')||'{}');for(const key of Object.keys(settings)){const value=Number(saved[key]);if(Number.isFinite(value))settings[key]=Math.max(key==='size'?10:80,Math.min(key==='size'?32:800,value));}}catch{}
+ const controls=document.createElement('div');controls.className='row';
+ const scroll=document.createElement('div');scroll.className='scroll';
+ const table=document.createElement('table');table.setAttribute('aria-label','Grammar productions');table.style.tableLayout='fixed';
+ const head=table.createTHead().insertRow();for(const label of ['Left side','→','Right side','']){const th=document.createElement('th');th.textContent=label;head.append(th);}
+ const body=table.createTBody(),hint=document.createElement('p');hint.className='hint';hint.setAttribute('aria-live','polite');
+ const inputs={};
+ function resize(){head.cells[0].style.width=settings.left+'px';head.cells[1].style.width='40px';head.cells[2].style.width=settings.right+'px';head.cells[3].style.width='90px';table.style.width=settings.left+settings.right+130+'px';table.style.fontSize=settings.size+'px';text.style.fontSize=settings.size+'px';for(const input of body.querySelectorAll('input'))input.style.fontSize='inherit';for(const key of Object.keys(inputs))inputs[key].value=settings[key];try{localStorage.setItem('jflap.grammar-table',JSON.stringify(settings));}catch{}}
+ for(const [key,label] of [['size','Production text size'],['left','Left column width'],['right','Right column width']]){const wrap=document.createElement('label');wrap.textContent=label+' ';const input=document.createElement('input');input.type='range';input.min=key==='size'?10:80;input.max=key==='size'?32:800;input.value=settings[key];input.setAttribute('aria-label',label);input.oninput=()=>{settings[key]=Number(input.value);resize();};inputs[key]=input;wrap.append(input);controls.append(wrap);}
+ const fit=document.createElement('button');fit.textContent='Adjust columns';fit.onclick=()=>{for(const [key,col] of [['left',0],['right',1]])settings[key]=Math.max(80,Math.min(800,Math.max(4,...rows.map(r=>r[col].length))*settings.size*0.65+40));resize();};controls.append(fit);
+ function sync(){text.value=rows.filter(r=>r[0].trim()||r[1].trim()).map(r=>r[0]+' → '+r[1]).join('\n');text.setCustomValidity('');hint.textContent='Blank right sides mean λ. The first row defines the start variable. Changes apply when you leave a cell.';}
+ function append(row,index){const tr=body.insertRow();for(let col=0;col<2;col++){if(col===1)tr.insertCell().textContent='→';const input=document.createElement('input');input.value=row[col];input.spellcheck=false;input.style.width='100%';input.style.minWidth='0';input.style.boxSizing='border-box';input.style.fontSize='inherit';input.setAttribute('aria-label',`Production ${index+1} ${col?'right':'left'} side`);input.oninput=()=>{row[col]=input.value;sync();if(index===rows.length-1&&(row[0]||row[1])){rows.push(['','']);append(rows.at(-1),rows.length-1);}};input.onchange=()=>apply();tr.insertCell().append(input);}const remove=document.createElement('button');remove.textContent='Remove';remove.setAttribute('aria-label',`Remove production ${index+1}`);remove.onclick=()=>{rows.splice(index,1);sync();draw();apply();};tr.insertCell().append(remove);}
+ function draw(){body.replaceChildren();if(!rows.length||rows.at(-1).some(Boolean))rows.push(['','']);rows.forEach(append);resize();}
+ host.addProduction=()=>{if(text.validationMessage)return;body.rows[body.rows.length-1].querySelector('input').focus();};
+ text.addEventListener('input',()=>{try{rows=parseGrammar(text.value).map(p=>[p.left,p.right]);text.setCustomValidity('');hint.textContent='';draw();}catch(e){text.setCustomValidity(e.message);hint.textContent=e.message;body.querySelectorAll('input,button').forEach(el=>el.disabled=true);}});
+ scroll.append(table);host.append(controls,scroll,hint);draw();hint.textContent='Blank right sides mean λ. The first row defines the start variable. Changes apply when you leave a cell.';
+}

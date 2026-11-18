@@ -163,3 +163,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 59: 16 November 2026: two-circle grouping with hub promotion and single-ring fallback, plus random selection among six implemented original-family layouts. Menu actions fit results, report the selected algorithm and support undo. 219 regressions pass; browser verified selection and undo. GEM remains Task 60. See CIRCLE-LAYOUTS.md. Only Task 59 was implemented in this continuation.
 
 - Task 60: Added GEM force layout, random-chooser integration, bounded computation and undo. 222 browser regressions pass; see GEM-LAYOUT.md.
+
+- Task 61: Added editable grammar production columns, automatic blank rows, synchronized text editing, adjustable widths and persistent text size. 225 browser checks pass; see GRAMMAR-TABLE.md.

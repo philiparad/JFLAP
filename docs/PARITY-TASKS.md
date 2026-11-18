@@ -68,7 +68,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 58 | [x] | Degree-tree and hierarchy-tree layouts including disconnected graphs. | V02 |
 | 59 | [x] | Two-circle layout and random layout-algorithm selection. | V03,V04 |
 | 60 | [x] | GEM layout with convergence bounds. | V01 |
-| 61 | [ ] | Grammar table, text-size control and adjustable columns. | G09 |
+| 61 | [x] | Grammar table, text-size control and adjustable columns. | G09 |
 | 62 | [ ] | JPG/GIF/BMP image export with decoded-image checks. | F03 |
 | 63 | [ ] | Grammar/parse-diagram image export. | F04 |
 | 64 | [ ] | Empty-string display preference across editors, simulations and tables. | U01 |
@@ -213,3 +213,5 @@ Task 58: 16 November 2026: degree-tree and hierarchy-tree layouts with original 
 Task 59: 16 November 2026: two-circle grouping with hub promotion and single-ring fallback, plus random selection among six implemented original-family layouts. Menu actions fit results, report the selected algorithm and support undo. 219 regressions pass; browser verified selection and undo. GEM remains Task 60. See CIRCLE-LAYOUTS.md. Only Task 59 was implemented in this continuation.
 
 Task 60: Added GEM force layout, random-chooser integration, bounded computation and undo. 222 browser regressions pass; see GEM-LAYOUT.md.
+
+Task 61: Added editable grammar production columns, automatic blank rows, synchronized text editing, adjustable widths and persistent text size. 225 browser checks pass; see GRAMMAR-TABLE.md.

@@ -1,3 +1,4 @@
+import {mountGrammarTable} from '../js/grammar-table.js';
 import {gemLayout,GEM_LIMITS} from '../js/gem-layout.js';
 import {twoCircleLayout,chooseLayout,randomLayouts} from '../js/circle-layout.js';
 import {treeLayout} from '../js/tree-layout.js';
@@ -675,6 +676,17 @@ test('GEM work budget bounds large graphs and preserves nested blocks',()=>{
 });
 test('GEM handles empty and extreme geometry and rejects invalid input atomically',()=>{
  const m=A.machine('fa');equal(gemLayout(m),m);A.state(m,1e308,-1e308);A.state(m,-1e308,1e308);assert(gemLayout(m,gemRandom()).states.every(s=>Number.isFinite(s.x)&&Number.isFinite(s.y)));const before=JSON.stringify(m);let rejected=0;for(const run of [()=>gemLayout(m,()=>1),()=>gemLayout({...m,states:[{...m.states[0],x:NaN}]}),()=>gemLayout({...m,states:Array.from({length:2001},(_,id)=>({id,x:0,y:0}))}),()=>gemLayout({...m,transitions:[{from:0,to:99}]})]){try{run();}catch(e){rejected++;}}equal(rejected,4);equal(JSON.stringify(m),before);
+});
+
+
+test('Grammar table edits, grows rows and preserves empty productions and rule order',()=>{
+ const host=document.createElement('div'),text=document.createElement('textarea');text.value='S → aSb\nS → λ';let applied;mountGrammarTable(host,text,()=>{applied=G.parseGrammar(text.value);});const input=host.querySelector('[aria-label="Production 3 left side"]');input.value='A';input.dispatchEvent(new Event('input'));input.dispatchEvent(new Event('change'));equal(applied,[{left:'S',right:'aSb'},{left:'S',right:''},{left:'A',right:''}]);equal(host.querySelectorAll('tbody tr').length,4);host.querySelector('[aria-label="Remove production 1"]').click();equal(applied[0],{left:'S',right:''});
+});
+test('Grammar table text synchronization protects malformed drafts and recovers',()=>{
+ const host=document.createElement('div'),text=document.createElement('textarea');text.value='S → a';mountGrammarTable(host,text,()=>{});text.value='broken draft';text.dispatchEvent(new Event('input'));assert(host.querySelector('tbody input').disabled);equal(text.value,'broken draft');text.value='S -> a | λ\nAB -> ab';text.dispatchEvent(new Event('input'));assert(!host.querySelector('tbody input').disabled);equal(host.querySelector('[aria-label="Production 3 left side"]').value,'AB');equal(host.querySelector('[aria-label="Production 2 right side"]').value,'');
+});
+test('Grammar table sizing keeps rules and draft edits unchanged',()=>{
+ const saved=localStorage.getItem('jflap.grammar-table');try{const host=document.createElement('div'),text=document.createElement('textarea');text.value='S → aSb\nS → λ';let calls=0;mountGrammarTable(host,text,()=>calls++);const before=text.value;for(const label of ['Production text size','Left column width','Right column width']){const input=host.querySelector('[aria-label="'+label+'"]');input.value=input.max;input.dispatchEvent(new Event('input'));}host.querySelector('button').click();equal(text.value,before);equal(calls,0);equal(host.querySelector('table').style.fontSize,'32px');const next=document.createElement('div');mountGrammarTable(next,text,()=>{});equal(next.querySelector('table').style.fontSize,'32px');}finally{if(saved===null)localStorage.removeItem('jflap.grammar-table');else localStorage.setItem('jflap.grammar-table',saved);}
 });
 
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
