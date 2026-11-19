@@ -1,3 +1,4 @@
+import {stateTitle,setStateLabelVisibility} from '../js/state-labels.js';
 import {palettes,paletteCSS,applyPalette} from '../js/palettes.js';
 import {rasterImage,graphImageSVG,encodeBMP,encodeGIF} from '../js/image-export.js';
 import {grammarImageSVG,parseDiagramImageSVG} from '../js/grammar-image.js';
@@ -36,6 +37,12 @@ export async function testImageExports(){
   const css=await (await fetch('../style.css')).text();
   for(const p of palettes){const theme=css+'\n'+paletteCSS(p.id),markup='<g class="state"><circle cx="50" cy="50" r="20"/></g>',svg=graphImageSVG(markup,theme,{naturalSize:true}),d=await decode(await rasterImage(svg,'png'));const rgb=[1,3,5].map(i=>parseInt(p.state.slice(i,i+2),16));check(d.pixel(d.width/2,d.height/2).slice(0,3).join()===rgb.join(),p.id+' graph export lost color');
    const source=document.createElementNS('http://www.w3.org/2000/svg','svg');source.innerHTML='<g class="parse-active"><rect class="parse-variable" x="0" y="0" width="40" height="40"/></g>';const image=await decode(await rasterImage(parseDiagramImageSVG(source,theme),'png'));check(image.pixel(image.width/2,image.height/2).slice(0,3).join()===[1,3,5].map(i=>parseInt(p.highlight.slice(i,i+2),16)).join(),p.id+' parse export lost highlight');}
+ });
+
+ await run('Hidden labels keep escaped hover text and are excluded from exported image bounds',async()=>{
+  const saved=document.getElementById('state-label-visibility')?.textContent,markup='<g class="state">'+stateTitle({name:'q0',label:'Hidden <label>'})+'<circle cx="0" cy="0" r="20" fill="red"/><text class="label" x="500" y="20">Far label</text></g>';
+  try{setStateLabelVisibility(true);const visible=graphImageSVG(markup,document.getElementById('state-label-visibility').textContent,{naturalSize:true});setStateLabelVisibility(false);const hidden=graphImageSVG(markup,document.getElementById('state-label-visibility').textContent,{naturalSize:true}),doc=new DOMParser().parseFromString(hidden,'image/svg+xml');check(doc.querySelector('title').textContent==='q0: Hidden <label>','Hidden label lost hover text');check(doc.querySelector('.label').textContent==='Far label','Hiding deleted the label');const shown=await decode(await rasterImage(visible,'png')),concealed=await decode(await rasterImage(hidden,'png'));check(shown.width>600&&concealed.width===120,'Hidden label still affects export bounds');}
+  finally{if(saved===undefined)document.getElementById('state-label-visibility')?.remove();else document.getElementById('state-label-visibility').textContent=saved;}
  });
  return results;
 }

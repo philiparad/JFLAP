@@ -1,3 +1,4 @@
+import {stateTitle,clearStateLabels} from '../js/state-labels.js';
 import {testContextHelp} from './context-help.js';
 import {emptySymbol,setEmptySymbol,displayWord,displayNotation,displaySymbolSet} from '../js/empty-display.js';
 import {testImageExports} from './image-export.js';
@@ -701,6 +702,14 @@ test('Display preferences leave saved machines, grammar semantics and parser tre
 });
 test('Grammar table epsilon hints retain genuinely empty production fields',()=>{
  const host=document.createElement('div'),text=document.createElement('textarea');text.value='S → ε';mountGrammarTable(host,text,()=>{}, {emptySymbol:'ε'});assert(host.textContent.includes('mean ε.'));equal(host.querySelector('[aria-label="Production 1 right side"]').value,'');equal(G.parseGrammar(text.value),[{left:'S',right:''}]);
+});
+
+
+test('State hover titles escape label content and remain independent of display visibility',()=>{
+ const state={name:'q<0>',label:'<script>alert("x")</script> & λ'},before=JSON.stringify(state),svg=new DOMParser().parseFromString('<svg xmlns="http://www.w3.org/2000/svg">'+stateTitle(state)+'</svg>','image/svg+xml');assert(!svg.querySelector('parsererror')&&!svg.querySelector('script'));equal(svg.querySelector('title').textContent,state.name+': '+state.label);equal(JSON.stringify(state),before);equal(new DOMParser().parseFromString('<svg>'+stateTitle({name:'q1'})+'</svg>','image/svg+xml').querySelector('title').textContent,'q1');
+});
+test('Bulk label clearing preserves outputs, nested labels and machine behavior',()=>{
+ const m=example('moore');m.states[0].label='First';m.states[1].label='Second';const before=A.clone(m),result=simulate(m,'0101');equal(clearStateLabels(m),2);equal(clearStateLabels(m),0);for(let i=0;i<m.states.length;i++)equal({...m.states[i],label:before.states[i].label},before.states[i]);equal(m.transitions,before.transitions);equal(simulate(m,'0101'),result);const parent=example('turing');parent.states[0].label='Parent';parent.states[0].block=example('turing');parent.states[0].block.states[0].label='Nested';const block=JSON.stringify(parent.states[0].block);clearStateLabels(parent);equal(JSON.stringify(parent.states[0].block),block);
 });
 
 for(const result of await testContextHelp())test(result.name,()=>{if(result.error)throw result.error;});

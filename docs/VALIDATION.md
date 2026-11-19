@@ -55,3 +55,7 @@ GitHub Pages build #1 completed successfully (run 40257711123). The public workb
 ## Task 66 — 19 November 2026
 
 241 passed, 0 failed in Chrome. Help coverage enumerates all editor families and operation routes, every grammar parser and exercise mode, named-variable grammar behavior and the unknown-context fallback. Every help file and guide anchor resolves. UI checks cover the header and Help menu, F1 while focused in a parser input, SLR routing and switching FIRST/FOLLOW ↔ LR item construction. Closing help retains the active operation; no browser errors were observed.
+
+## Task 68 — 19 November 2026
+
+244 passed, 0 failed in Chrome. Tests verify escaped hover text, unchanged machine behavior/outputs and nested labels after clearing, and hidden-label image bounds with retained SVG titles. UI checks hide/show labels, retain hover titles, clear two labels in one operation, undo/redo that change, restore hidden visibility after reload and continue a simulation after changing label visibility.

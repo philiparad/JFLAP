@@ -76,7 +76,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 66 | [x] | Context help routed to each active operation. | U03 |
 | 67 | [x] | Shift+Enter transition continuation with keyboard checks. | U04 |
 
-| 68 | [ ] | State-label visibility and bulk clearing: Hide/show labels, retain hover text while hidden, and clear all state labels with undo. | NEW |
+| 68 | [x] | State-label visibility and bulk clearing: Hide/show labels, retain hover text while hidden, and clear all state labels with undo. | NEW |
 | 69 | [ ] | Guided PDA to CFG construction: Build productions from selected PDA transitions; provide Hint, Show All and remaining-transition help, and gate export on completion. | C01 residual |
 | 70 | [ ] | Freely constructed graphical LR item automaton: Create and reposition item-set nodes, draw goto links to new/existing nodes, choose items and apply closure; validate semantics independently of supplied canonical state numbering. | G05 residual |
 | 71 | [ ] | Linked selection in guided conversions: Selecting productions highlights originating states/transitions and vice versa; source selections build corresponding results and identify unfinished objects. | C07 residual |
@@ -225,3 +225,5 @@ Task 64 (19 November 2026): persistent lambda/epsilon display selection in Edit 
 Task 65 (19 November 2026): Edit → Preferences offers Original, Blue, Green, Orange, Purple and Pink, plus the existing Workbench choice. Original graph RGB values were checked against ColorChooserAction$1–$6. Selection persists, updates UI and diagrams without resetting simulations, and survives SVG/raster export. 238 browser checks pass, including all palette colors and exported highlights. See INTERFACE-PALETTES.md.
 
 Task 66 (19 November 2026): header Help, Help-menu action and F1 route to the current editor, operation, parsing algorithm or grammar exercise. Concise workbench guidance links to relevant bundled original help and feature-guide sections. All supported routes and link targets are checked; unknown contexts use the general guide. 241 browser checks pass; Chrome verified editor, SLR/F1 and FIRST/FOLLOW/LR-item switching without losing the operation. See CONTEXT-HELP.md.
+
+Task 68 (19 November 2026): View hides or shows auxiliary state labels across live/cached graphs while retaining escaped SVG hover titles. Visibility persists after reload and is carried into image exports. Editor-only Clear all state labels changes the active machine in one undo step; names, outputs, notes and nested block labels are preserved. 244 browser checks pass; Chrome verified hide/show, reload, bulk clear, undo/redo and uninterrupted simulation. See STATE-LABELS.md.
