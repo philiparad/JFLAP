@@ -1,3 +1,4 @@
+import {emptySymbol,setEmptySymbol,displayWord,displayNotation,displaySymbolSet} from '../js/empty-display.js';
 import {testImageExports} from './image-export.js';
 import {mountGrammarTable} from '../js/grammar-table.js';
 import {gemLayout,GEM_LIMITS} from '../js/gem-layout.js';
@@ -688,6 +689,17 @@ test('Grammar table text synchronization protects malformed drafts and recovers'
 });
 test('Grammar table sizing keeps rules and draft edits unchanged',()=>{
  const saved=localStorage.getItem('jflap.grammar-table');try{const host=document.createElement('div'),text=document.createElement('textarea');text.value='S → aSb\nS → λ';let calls=0;mountGrammarTable(host,text,()=>calls++);const before=text.value;for(const label of ['Production text size','Left column width','Right column width']){const input=host.querySelector('[aria-label="'+label+'"]');input.value=input.max;input.dispatchEvent(new Event('input'));}host.querySelector('button').click();equal(text.value,before);equal(calls,0);equal(host.querySelector('table').style.fontSize,'32px');const next=document.createElement('div');mountGrammarTable(next,text,()=>{});equal(next.querySelector('table').style.fontSize,'32px');}finally{if(saved===null)localStorage.removeItem('jflap.grammar-table');else localStorage.setItem('jflap.grammar-table',saved);}
+});
+
+
+test('Empty-word display switches notation while preserving literal named tokens',()=>{
+ const previous=emptySymbol();try{setEmptySymbol('ε');equal(displayWord(''),'ε');equal(displayWord('λ'),'ε');equal(displayNotation('S → λ'),'S → ε');equal(displayNotation('⟨λStart⟩ → "λ" λ'),'⟨λStart⟩ → "λ" ε');equal(displaySymbolSet(new Set(['','a'])),'["ε","a"]');setEmptySymbol('invalid');equal(emptySymbol(),'λ');}finally{setEmptySymbol(previous);}
+});
+test('Display preferences leave saved machines, grammar semantics and parser tree identities unchanged',()=>{
+ const previous=emptySymbol(),m=example('pda'),p=G.parseGrammar('S -> aSb | λ'),before=serialize(m),rules=JSON.stringify(p),trace=G.llParse(p,'ab'),tree=derivationTree(p,trace.rows);try{for(const symbol of ['ε','λ']){setEmptySymbol(symbol);equal(G.parseGrammar(displayNotation(G.grammarText(p))),p);equal(simulate(m,'aabb').status,'accepted');equal(G.llParse(p,'ab').status,'accepted');equal(derivationTree(p,trace.rows),tree);equal(serialize(m),before);equal(JSON.stringify(p),rules);}}finally{setEmptySymbol(previous);}
+});
+test('Grammar table epsilon hints retain genuinely empty production fields',()=>{
+ const host=document.createElement('div'),text=document.createElement('textarea');text.value='S → ε';mountGrammarTable(host,text,()=>{}, {emptySymbol:'ε'});assert(host.textContent.includes('mean ε.'));equal(host.querySelector('[aria-label="Production 1 right side"]').value,'');equal(G.parseGrammar(text.value),[{left:'S',right:''}]);
 });
 
 for(const result of await testImageExports())test(result.name,()=>{if(result.error)throw result.error;});

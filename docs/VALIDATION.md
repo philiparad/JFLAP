@@ -43,3 +43,7 @@ GitHub Pages build #1 completed successfully (run 40257711123). The public workb
 ## Task 63 — 19 November 2026
 
 233 passed, 0 failed in Chrome. Grammar image checks cover long/all productions, XML escaping, named tokens, empty sides, every raster format, full diagram bounds, highlighting, inversion coordinates and unchanged source data. Focused UI checks exported the example grammar as PNG and its inverted parse tree at the second step as SVG.
+
+## Task 64 — 19 November 2026
+
+236 passed, 0 failed in Chrome. Tests cover glyph selection, protected named-variable/quoted-terminal literals, unchanged XML and grammar semantics, equivalent simulation/parse results and table hints. UI checks verify preference reload persistence, epsilon in FIRST/FOLLOW, parse trees, multiple-run inputs/results and completed nullable-removal productions.
