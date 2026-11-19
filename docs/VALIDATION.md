@@ -39,3 +39,7 @@ Deployment verification is recorded after GitHub Pages is enabled; do not infer 
 ## Public deployment
 
 GitHub Pages build #1 completed successfully (run 40257711123). The public workbench loaded and the deployed tests reported 54 passed, 0 failed. A live check exposed mojibake in static index labels introduced by a local text-edit encoding mismatch; those labels were corrected in the final verification commit. Public original-mode startup and guide checks are recorded in the final handoff.
+
+## Task 63 — 19 November 2026
+
+233 passed, 0 failed in Chrome. Grammar image checks cover long/all productions, XML escaping, named tokens, empty sides, every raster format, full diagram bounds, highlighting, inversion coordinates and unchanged source data. Focused UI checks exported the example grammar as PNG and its inverted parse tree at the second step as SVG.

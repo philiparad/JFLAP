@@ -30,9 +30,9 @@ export async function rasterImage(svg,format){
  const blob=await new Promise(resolve=>canvas.toBlob(resolve,imageTypes[format],0.92));if(!blob||blob.type!==imageTypes[format])throw Error('This browser cannot encode '+format.toUpperCase()+'.');return blob;
  }finally{URL.revokeObjectURL(url);}
 }
-export function graphImageSVG(markup,css){
+export function graphImageSVG(markup,css,{naturalSize=false}={}){
  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('xmlns','http://www.w3.org/2000/svg');svg.setAttribute('width','1000');svg.setAttribute('height','650');
  const style=document.createElementNS(svg.namespaceURI,'style');style.textContent=css;svg.append(style);const group=document.createElementNS(svg.namespaceURI,'g');group.innerHTML=markup;svg.append(group);
  svg.style.cssText='position:fixed;left:-10000px;top:0;visibility:hidden';document.body.append(svg);
- try{const b=group.getBBox(),box=b.width||b.height?[b.x-40,b.y-40,Math.max(1,b.width)+80,Math.max(1,b.height)+80]:[0,0,1000,650];if(!box.every(Number.isFinite))throw Error('Graph bounds are invalid.');svg.setAttribute('viewBox',box.join(' '));const background=document.createElementNS(svg.namespaceURI,'rect');for(const [key,value] of Object.entries({x:box[0],y:box[1],width:box[2],height:box[3],fill:'white'}))background.setAttribute(key,value);svg.insertBefore(background,group);svg.removeAttribute('style');return new XMLSerializer().serializeToString(svg);}finally{svg.remove();}
+ try{const b=group.getBBox(),box=b.width||b.height?[b.x-40,b.y-40,Math.max(1,b.width)+80,Math.max(1,b.height)+80]:[0,0,1000,650];if(!box.every(Number.isFinite))throw Error('Graph bounds are invalid.');svg.setAttribute('viewBox',box.join(' '));if(naturalSize){svg.setAttribute('width',Math.ceil(box[2]));svg.setAttribute('height',Math.ceil(box[3]));}const background=document.createElementNS(svg.namespaceURI,'rect');for(const [key,value] of Object.entries({x:box[0],y:box[1],width:box[2],height:box[3],fill:'white'}))background.setAttribute(key,value);svg.insertBefore(background,group);svg.removeAttribute('style');return new XMLSerializer().serializeToString(svg);}finally{svg.remove();}
 }

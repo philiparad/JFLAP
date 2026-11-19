@@ -1,4 +1,5 @@
 import {rasterImage,graphImageSVG,encodeBMP,encodeGIF} from '../js/image-export.js';
+import {grammarImageSVG,parseDiagramImageSVG} from '../js/grammar-image.js';
 export async function testImageExports(){
  const results=[];
  const check=(condition,message)=>{if(!condition)throw Error(message);};
@@ -8,5 +9,18 @@ export async function testImageExports(){
  for(const [format,mime,signature] of [['jpg','image/jpeg',[255,216,255]],['gif','image/gif',[71,73,70,56,57,97]],['bmp','image/bmp',[66,77]]])await run(format.toUpperCase()+' decodes with correct signature, dimensions, colors and row orientation',async()=>{const blob=await rasterImage(svg,format),bytes=new Uint8Array(await blob.arrayBuffer());check(blob.type===mime,'Wrong MIME');check(signature.every((v,i)=>bytes[i]===v),'Wrong signature');const d=await decode(blob);check(d.width===257&&d.height===65,'Wrong dimensions');for(const [x,y,channel] of [[20,10,0],[200,10,2],[100,50,1]]){const p=d.pixel(x,y);check(p[channel]>220&&p[(channel+1)%3]<30&&p[(channel+2)%3]<30&&p[3]===255,'Incorrect decoded color or orientation');}});
  await run('GIF and BMP flatten transparency onto white and reject invalid dimensions',async()=>{for(const encode of [encodeGIF,encodeBMP]){const d=await decode(encode({width:1,height:1,data:new Uint8ClampedArray([0,0,0,0])}));check(d.pixel(0,0).join(',')==='255,255,255,255','Transparency was not white');let rejected=false;try{encode({width:0,height:1,data:[]});}catch{rejected=true;}check(rejected,'Invalid dimensions accepted');}});
  await run('Graph export measures distant content and includes it in decoded raster',async()=>{const text=graphImageSVG('<circle cx="-5000" cy="8000" r="50" fill="red"/>','');const doc=new DOMParser().parseFromString(text,'image/svg+xml'),bounds=doc.documentElement.getAttribute('viewBox').split(' ').map(Number);check(bounds[0]<-5050&&bounds[1]<7950,'Distant content was clipped');const d=await decode(await rasterImage(text,'bmp'));check(d.width===1000&&d.height===650,'Graph export dimensions');check(d.pixel(500,325)[0]>240&&d.pixel(500,325)[1]<10,'Graph content missing');});
+ await run('Grammar images retain long rules, all rows, empty sides and escaped named tokens',async()=>{
+  const m={name:'Grammar <test> & image',productions:[{left:[{kind:'variable',name:'Start<1>'}],right:[]},...Array.from({length:30},(_,i)=>({left:'S',right:'a'.repeat(160)+i}))]},before=JSON.stringify(m),svg=grammarImageSVG(m,{size:32}),doc=new DOMParser().parseFromString(svg,'image/svg+xml');
+  check(!doc.querySelector('parsererror'),'Malformed XML');check(doc.documentElement.textContent.includes('⟨Start<1>⟩')&&doc.documentElement.textContent.includes('λ'),'Lost named variable or empty side');check(doc.documentElement.textContent.includes('a'.repeat(160)+'29'),'Last rule clipped or lost');check(+doc.documentElement.getAttribute('width')>3000&&+doc.documentElement.getAttribute('height')>1800,'Grammar shrunk to a fixed viewport');check(JSON.stringify(m)===before,'Export changed the model');
+ });
+ await run('Parse diagram exports preserve full bounds, inversion and highlighted styling without mutation',async()=>{
+  const source=document.createElementNS('http://www.w3.org/2000/svg','svg');source.setAttribute('viewBox','0 0 100 100');source.innerHTML='<g class="parse-active"><rect x="-800" y="1200" width="80" height="34"/><text x="-800" y="1220">S</text></g><line x1="-760" y1="1200" x2="-760" y2="-100" stroke="black"/>';const before=source.outerHTML,svg=parseDiagramImageSVG(source,'g.parse-active>rect{fill:#ffd86b}'),doc=new DOMParser().parseFromString(svg,'image/svg+xml'),box=doc.documentElement.getAttribute('viewBox').split(' ').map(Number);
+  check(box[0]<-800&&box[1]<-100&&box[1]+box[3]>1234,'Diagram clipped');check(svg.includes('parse-active')&&svg.includes('#ffd86b'),'Highlight styling missing');check(doc.querySelector('line').getAttribute('y2')==='-100','Inverted coordinates changed');check(source.outerHTML===before,'Export mutated source diagram');const d=await decode(await rasterImage(svg,'png'));check(d.height>1300&&d.width>0,'Scrollable diagram cropped');
+ });
+ await run('Grammar images decode in every raster format and unavailable diagrams fail clearly',async()=>{
+  const svg=grammarImageSVG({name:'Grammar',productions:[{left:'S',right:'aSb'},{left:'S',right:''}]});
+  for(const format of ['png','jpg','gif','bmp']){const d=await decode(await rasterImage(svg,format));check(d.width>250&&d.height>100,'Empty grammar image');}
+  let rejected=false;try{parseDiagramImageSVG(null);}catch{rejected=true;}check(rejected,'Missing diagram silently exported');
+ });
  return results;
 }

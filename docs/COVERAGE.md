@@ -167,3 +167,5 @@ No exhaustive cross-version comparison, proof of all algorithm implementations, 
 - Task 61: Added editable grammar production columns, automatic blank rows, synchronized text editing, adjustable widths and persistent text size. 225 browser checks pass; see GRAMMAR-TABLE.md.
 
 - Task 62: Added real JPG, GIF and BMP automaton exports with full graph bounds. 230 browser checks pass; actual downloads independently decoded. See IMAGE-EXPORT.md.
+
+- Task 63 (19 November 2026): grammar productions and displayed normal/inverted parse trees or unrestricted derivation graphs export as SVG, PNG, JPG, GIF and BMP. Complete drawing bounds, selected-step highlighting, named-variable text and empty productions are preserved. 233 browser regressions pass; focused Chromium checks verified grammar PNG and inverted parse-tree SVG downloads. Raster exports retain the 10-million-pixel limit. See GRAMMAR-IMAGE-EXPORT.md.

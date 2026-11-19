@@ -70,7 +70,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 60 | [x] | GEM layout with convergence bounds. | V01 |
 | 61 | [x] | Grammar table, text-size control and adjustable columns. | G09 |
 | 62 | [x] | JPG/GIF/BMP image export with decoded-image checks. | F03 |
-| 63 | [ ] | Grammar/parse-diagram image export. | F04 |
+| 63 | [x] | Grammar/parse-diagram image export. | F04 |
 | 64 | [ ] | Empty-string display preference across editors, simulations and tables. | U01 |
 | 65 | [ ] | Selectable original interface palettes. | U02 |
 | 66 | [ ] | Context help routed to each active operation. | U03 |
@@ -217,3 +217,5 @@ Task 60: Added GEM force layout, random-chooser integration, bounded computation
 Task 61: Added editable grammar production columns, automatic blank rows, synchronized text editing, adjustable widths and persistent text size. 225 browser checks pass; see GRAMMAR-TABLE.md.
 
 Task 62: Added real JPG, GIF and BMP automaton exports with full graph bounds. 230 browser checks pass; actual downloads independently decoded. See IMAGE-EXPORT.md.
+
+Task 63 (19 November 2026): grammar productions and displayed normal/inverted parse trees or unrestricted derivation graphs export as SVG, PNG, JPG, GIF and BMP. Complete drawing bounds, selected-step highlighting, named-variable text and empty productions are preserved. 233 browser regressions pass; focused Chromium checks verified grammar PNG and inverted parse-tree SVG downloads. Raster exports retain the 10-million-pixel limit. See GRAMMAR-IMAGE-EXPORT.md.
