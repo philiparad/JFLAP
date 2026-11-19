@@ -30,7 +30,7 @@ import {FirstFollowExercise,LLTableExercise,LRTableExercise,parseSymbolSet} from
 import {derivationGraph,layoutDerivationGraph} from '../js/derivation-graph.js';
 import {derivationTree,lrParseTree,cykParseTree,layoutParseTree} from '../js/parse-tree.js';
 import {turingToGrammar,deriveTuringGrammar} from '../js/turing-grammar.js';
-import {pdaToGrammar,normalizePDA} from '../js/pda-grammar.js';
+import {pdaToGrammar,normalizePDA,PDAGrammarExercise} from '../js/pda-grammar.js';
 import {V,T,tokenGrammar,fromLegacyGrammar,compileTokenGrammar,TokenDerivationSearch,TokenManualDerivation} from '../js/token-grammar.js';
 import {ManualDerivation} from '../js/grammar-rewrite.js';
 import {tapeMoveChoices,matchesTapeRead,validateTapeRead} from '../js/turing.js';
@@ -712,6 +712,32 @@ test('Bulk label clearing preserves outputs, nested labels and machine behavior'
  const m=example('moore');m.states[0].label='First';m.states[1].label='Second';const before=A.clone(m),result=simulate(m,'0101');equal(clearStateLabels(m),2);equal(clearStateLabels(m),0);for(let i=0;i<m.states.length;i++)equal({...m.states[i],label:before.states[i].label},before.states[i]);equal(m.transitions,before.transitions);equal(simulate(m,'0101'),result);const parent=example('turing');parent.states[0].label='Parent';parent.states[0].block=example('turing');parent.states[0].block.states[0].label='Nested';const block=JSON.stringify(parent.states[0].block);clearStateLabels(parent);equal(JSON.stringify(parent.states[0].block),block);
 });
 
+test('Guided PDA conversion accounts for every generated rule including normalization', () => {
+ const source = A.machine('pda');
+ const a = A.state(source), b = A.state(source); b.final = true;
+ A.edge(source,a.id,b.id,'x',{pop:'',push:'ABC'});
+ A.edge(source,b.id,b.id,'y',{pop:'AB',push:''});
+ A.edge(source,b.id,b.id,'y',{pop:'AB',push:''});
+ const before = JSON.stringify(source);
+ for (const acceptance of ['final','empty']) {
+  const exercise = new PDAGrammarExercise(source,{acceptance});
+  assert(exercise.supplied.length > 0 && exercise.groups.every(group => group.length));
+  equal(exercise.supplied.length + exercise.groups.reduce((n,g)=>n+g.length,0),exercise.grammar.conversion.generated);
+  let blocked = false;
+  try { exercise.export(); } catch { blocked = true; }
+  assert(blocked);
+  exercise.build(2); exercise.build(2); equal(exercise.remaining,[0,1]);
+  equal(exercise.hint(),0); exercise.finish(); equal(exercise.remaining,[]);
+  const result = exercise.export(); equal(result.productions,pdaToGrammar(source,{acceptance}).productions);
+  for (const word of ['','x','xy','y']) equal(tokenAccepts(result,word),simulate(source,word,{acceptance}).status);
+  result.conversion.source.states[0].name = 'changed'; equal(JSON.stringify(source),before);
+ }
+});
+test('An accepting PDA with no transitions can export the supplied empty-word grammar', () => {
+ const source = A.machine('pda'); A.state(source).final = true;
+ const exercise = new PDAGrammarExercise(source);
+ equal(exercise.hint(),undefined); equal(tokenAccepts(exercise.export(),''),'accepted');
+});
 for(const result of await testContextHelp())test(result.name,()=>{if(result.error)throw result.error;});
 for(const result of await testImageExports())test(result.name,()=>{if(result.error)throw result.error;});
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;

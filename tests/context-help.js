@@ -5,6 +5,7 @@ export async function testContextHelp(){
  const check=(condition,message)=>{if(!condition)throw Error(message);};
  const run=async(name,fn)=>{try{await fn();results.push({name});}catch(error){results.push({name,error});}};
  for(const type of ['fa','pda','mealy','moore','turing','multitape','turingbb'])for(const operation of ['Editor','Simulate','Multiple Run','Inspect','Batch Test'])contexts.push({type,operation});
+ contexts.push({type:'pda',operation:'PDA → CFG'});
  for(const operation of ['NFA → DFA','Minimize','FA → regex','FA → grammar'])contexts.push({type:'fa',operation});
  for(const operation of ['Editor','Manual Derivation','Transform','Remove λ','Remove unit','Remove useless','Build CNF','Build FA','Build PDA (LL)','Build PDA (LR)'])contexts.push({type:'grammar',operation});
  for(const parser of ['derive','llParse','lrParse','cyk'])contexts.push({type:'grammar',operation:'Parse',parser});

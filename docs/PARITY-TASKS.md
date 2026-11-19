@@ -77,7 +77,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 67 | [x] | Shift+Enter transition continuation with keyboard checks. | U04 |
 
 | 68 | [x] | State-label visibility and bulk clearing: Hide/show labels, retain hover text while hidden, and clear all state labels with undo. | NEW |
-| 69 | [ ] | Guided PDA to CFG construction: Build productions from selected PDA transitions; provide Hint, Show All and remaining-transition help, and gate export on completion. | C01 residual |
+| 69 | [x] | Guided PDA to CFG construction: Build productions from selected PDA transitions; provide Hint, Show All and remaining-transition help, and gate export on completion. | C01 residual |
 | 70 | [ ] | Freely constructed graphical LR item automaton: Create and reposition item-set nodes, draw goto links to new/existing nodes, choose items and apply closure; validate semantics independently of supplied canonical state numbering. | G05 residual |
 | 71 | [ ] | Linked selection in guided conversions: Selecting productions highlights originating states/transitions and vice versa; source selections build corresponding results and identify unfinished objects. | C07 residual |
 | 72 | [ ] | Minimization: Complete Subtree: Recursively complete only the selected partition subtree, leave unrelated groups untouched, and preserve language equivalence. | C04 residual |
@@ -227,3 +227,5 @@ Task 65 (19 November 2026): Edit → Preferences offers Original, Blue, Green, O
 Task 66 (19 November 2026): header Help, Help-menu action and F1 route to the current editor, operation, parsing algorithm or grammar exercise. Concise workbench guidance links to relevant bundled original help and feature-guide sections. All supported routes and link targets are checked; unknown contexts use the general guide. 241 browser checks pass; Chrome verified editor, SLR/F1 and FIRST/FOLLOW/LR-item switching without losing the operation. See CONTEXT-HELP.md.
 
 Task 68 (19 November 2026): View hides or shows auxiliary state labels across live/cached graphs while retaining escaped SVG hover titles. Visibility persists after reload and is carried into image exports. Editor-only Clear all state labels changes the active machine in one undo step; names, outputs, notes and nested block labels are preserved. 244 browser checks pass; Chrome verified hide/show, reload, bulk clear, undo/redo and uninterrupted simulation. See STATE-LABELS.md.
+
+Task 69. The guided PDA → CFG tab builds productions per original transition, shows separate start and acceptance rules, highlights unfinished transitions and enables export on completion. Both acceptance modes reuse the automatic converter. 246 browser checks passed. Chrome verified selection, Hint, Show All, remaining edges and acceptance of aabb by the exported grammar and source PDA.
