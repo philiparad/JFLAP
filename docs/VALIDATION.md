@@ -51,3 +51,7 @@ GitHub Pages build #1 completed successfully (run 40257711123). The public workb
 ## Task 65 — 19 November 2026
 
 238 passed, 0 failed in Chrome. Original state, state-highlight, arrow and arrow-highlight colors are checked on mounted diagrams for all six original palettes. Every palette is rasterized from standalone SVG with graph and parse-highlight pixel checks. Browser checks confirmed seven choices, switching during a running simulation, cached operation restoration and persistence after reload.
+
+## Task 66 — 19 November 2026
+
+241 passed, 0 failed in Chrome. Help coverage enumerates all editor families and operation routes, every grammar parser and exercise mode, named-variable grammar behavior and the unknown-context fallback. Every help file and guide anchor resolves. UI checks cover the header and Help menu, F1 while focused in a parser input, SLR routing and switching FIRST/FOLLOW ↔ LR item construction. Closing help retains the active operation; no browser errors were observed.

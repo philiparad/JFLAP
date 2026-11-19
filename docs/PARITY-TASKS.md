@@ -73,7 +73,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 63 | [x] | Grammar/parse-diagram image export. | F04 |
 | 64 | [x] | Empty-string display preference across editors, simulations and tables. | U01 |
 | 65 | [x] | Selectable original interface palettes. | U02 |
-| 66 | [ ] | Context help routed to each active operation. | U03 |
+| 66 | [x] | Context help routed to each active operation. | U03 |
 | 67 | [x] | Shift+Enter transition continuation with keyboard checks. | U04 |
 
 | 68 | [ ] | State-label visibility and bulk clearing: Hide/show labels, retain hover text while hidden, and clear all state labels with undo. | NEW |
@@ -223,3 +223,5 @@ Task 63 (19 November 2026): grammar productions and displayed normal/inverted pa
 Task 64 (19 November 2026): persistent lambda/epsilon display selection in Edit → Preferences covers grammar/regex editors, transition labels, simulation and batch inputs/results, FIRST/FOLLOW and parsing tables, guided exercises and parse/derivation diagrams. Stored machines/grammars and language semantics are unchanged. 236 browser checks pass; focused Chrome checks verified persistence, epsilon parsing and completed transformed productions. See EMPTY-STRING-DISPLAY.md.
 
 Task 65 (19 November 2026): Edit → Preferences offers Original, Blue, Green, Orange, Purple and Pink, plus the existing Workbench choice. Original graph RGB values were checked against ColorChooserAction$1–$6. Selection persists, updates UI and diagrams without resetting simulations, and survives SVG/raster export. 238 browser checks pass, including all palette colors and exported highlights. See INTERFACE-PALETTES.md.
+
+Task 66 (19 November 2026): header Help, Help-menu action and F1 route to the current editor, operation, parsing algorithm or grammar exercise. Concise workbench guidance links to relevant bundled original help and feature-guide sections. All supported routes and link targets are checked; unknown contexts use the general guide. 241 browser checks pass; Chrome verified editor, SLR/F1 and FIRST/FOLLOW/LR-item switching without losing the operation. See CONTEXT-HELP.md.

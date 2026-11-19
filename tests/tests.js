@@ -1,3 +1,4 @@
+import {testContextHelp} from './context-help.js';
 import {emptySymbol,setEmptySymbol,displayWord,displayNotation,displaySymbolSet} from '../js/empty-display.js';
 import {testImageExports} from './image-export.js';
 import {mountGrammarTable} from '../js/grammar-table.js';
@@ -702,6 +703,7 @@ test('Grammar table epsilon hints retain genuinely empty production fields',()=>
  const host=document.createElement('div'),text=document.createElement('textarea');text.value='S → ε';mountGrammarTable(host,text,()=>{}, {emptySymbol:'ε'});assert(host.textContent.includes('mean ε.'));equal(host.querySelector('[aria-label="Production 1 right side"]').value,'');equal(G.parseGrammar(text.value),[{left:'S',right:''}]);
 });
 
+for(const result of await testContextHelp())test(result.name,()=>{if(result.error)throw result.error;});
 for(const result of await testImageExports())test(result.name,()=>{if(result.error)throw result.error;});
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
 
