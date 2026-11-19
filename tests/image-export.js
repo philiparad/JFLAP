@@ -1,3 +1,4 @@
+import {palettes,paletteCSS,applyPalette} from '../js/palettes.js';
 import {rasterImage,graphImageSVG,encodeBMP,encodeGIF} from '../js/image-export.js';
 import {grammarImageSVG,parseDiagramImageSVG} from '../js/grammar-image.js';
 export async function testImageExports(){
@@ -21,6 +22,20 @@ export async function testImageExports(){
   const svg=grammarImageSVG({name:'Grammar',productions:[{left:'S',right:'aSb'},{left:'S',right:''}]});
   for(const format of ['png','jpg','gif','bmp']){const d=await decode(await rasterImage(svg,format));check(d.width>250&&d.height>100,'Empty grammar image');}
   let rejected=false;try{parseDiagramImageSVG(null);}catch{rejected=true;}check(rejected,'Missing diagram silently exported');
+ });
+
+ await run('Original palette choices apply their recovered graph colors without changing diagram content',async()=>{
+  const css=await (await fetch('../style.css')).text(),style=document.createElement('style'),host=document.createElement('div'),saved=document.getElementById('interface-palette')?.textContent,previous=document.documentElement.dataset.palette;
+  style.textContent=css;document.head.append(style);host.innerHTML='<svg><g class="state"><circle r="20"/></g><g class="state highlight"><circle r="20"/></g><g class="transition"><path d="M0 0L50 50"/></g><g class="transition highlight"><path d="M0 0L50 50"/></g></svg>';document.body.append(host);const before=host.innerHTML;
+  const original=[['original','#ffff96','#64c8c8','#000000','#ff0000'],['blue','#e1ffff','#91dbe3','#747880','#566178'],['green','#baffb8','#7ce678','#dba0a1','#c26767'],['orange','#ffbe79','#cc7b2a','#6e6356','#615e54'],['purple','#e6e6fa','#988dfc','#00005e','#6495ed'],['pink','#ffd6db','#faadb2','#747880','#c7b9c0']];
+  const rgb=hex=>'rgb('+[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)).join(', ')+')';
+  try{for(const [id,state,highlight,arrow,active] of original){applyPalette(id);for(const [selector,property,color] of [['.state:not(.highlight) circle','fill',state],['.state.highlight circle','fill',highlight],['.transition:not(.highlight) path','stroke',arrow],['.transition.highlight path','stroke',active]])check(getComputedStyle(host.querySelector(selector))[property]===rgb(color),'Wrong '+id+' '+selector);check(host.innerHTML===before,'Palette changed diagram content');}check(applyPalette('unknown')==='workbench','Unknown preference has no fallback');}
+  finally{host.remove();style.remove();if(saved===undefined)document.getElementById('interface-palette')?.remove();else document.getElementById('interface-palette').textContent=saved;if(previous===undefined)delete document.documentElement.dataset.palette;else document.documentElement.dataset.palette=previous;}
+ });
+ await run('Every palette survives standalone SVG rasterization including parse highlighting',async()=>{
+  const css=await (await fetch('../style.css')).text();
+  for(const p of palettes){const theme=css+'\n'+paletteCSS(p.id),markup='<g class="state"><circle cx="50" cy="50" r="20"/></g>',svg=graphImageSVG(markup,theme,{naturalSize:true}),d=await decode(await rasterImage(svg,'png'));const rgb=[1,3,5].map(i=>parseInt(p.state.slice(i,i+2),16));check(d.pixel(d.width/2,d.height/2).slice(0,3).join()===rgb.join(),p.id+' graph export lost color');
+   const source=document.createElementNS('http://www.w3.org/2000/svg','svg');source.innerHTML='<g class="parse-active"><rect class="parse-variable" x="0" y="0" width="40" height="40"/></g>';const image=await decode(await rasterImage(parseDiagramImageSVG(source,theme),'png'));check(image.pixel(image.width/2,image.height/2).slice(0,3).join()===[1,3,5].map(i=>parseInt(p.highlight.slice(i,i+2),16)).join(),p.id+' parse export lost highlight');}
  });
  return results;
 }

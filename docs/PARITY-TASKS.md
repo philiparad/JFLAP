@@ -72,7 +72,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 62 | [x] | JPG/GIF/BMP image export with decoded-image checks. | F03 |
 | 63 | [x] | Grammar/parse-diagram image export. | F04 |
 | 64 | [x] | Empty-string display preference across editors, simulations and tables. | U01 |
-| 65 | [ ] | Selectable original interface palettes. | U02 |
+| 65 | [x] | Selectable original interface palettes. | U02 |
 | 66 | [ ] | Context help routed to each active operation. | U03 |
 | 67 | [x] | Shift+Enter transition continuation with keyboard checks. | U04 |
 
@@ -221,3 +221,5 @@ Task 62: Added real JPG, GIF and BMP automaton exports with full graph bounds. 2
 Task 63 (19 November 2026): grammar productions and displayed normal/inverted parse trees or unrestricted derivation graphs export as SVG, PNG, JPG, GIF and BMP. Complete drawing bounds, selected-step highlighting, named-variable text and empty productions are preserved. 233 browser regressions pass; focused Chromium checks verified grammar PNG and inverted parse-tree SVG downloads. Raster exports retain the 10-million-pixel limit. See GRAMMAR-IMAGE-EXPORT.md.
 
 Task 64 (19 November 2026): persistent lambda/epsilon display selection in Edit → Preferences covers grammar/regex editors, transition labels, simulation and batch inputs/results, FIRST/FOLLOW and parsing tables, guided exercises and parse/derivation diagrams. Stored machines/grammars and language semantics are unchanged. 236 browser checks pass; focused Chrome checks verified persistence, epsilon parsing and completed transformed productions. See EMPTY-STRING-DISPLAY.md.
+
+Task 65 (19 November 2026): Edit → Preferences offers Original, Blue, Green, Orange, Purple and Pink, plus the existing Workbench choice. Original graph RGB values were checked against ColorChooserAction$1–$6. Selection persists, updates UI and diagrams without resetting simulations, and survives SVG/raster export. 238 browser checks pass, including all palette colors and exported highlights. See INTERFACE-PALETTES.md.

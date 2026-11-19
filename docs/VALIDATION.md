@@ -47,3 +47,7 @@ GitHub Pages build #1 completed successfully (run 40257711123). The public workb
 ## Task 64 — 19 November 2026
 
 236 passed, 0 failed in Chrome. Tests cover glyph selection, protected named-variable/quoted-terminal literals, unchanged XML and grammar semantics, equivalent simulation/parse results and table hints. UI checks verify preference reload persistence, epsilon in FIRST/FOLLOW, parse trees, multiple-run inputs/results and completed nullable-removal productions.
+
+## Task 65 — 19 November 2026
+
+238 passed, 0 failed in Chrome. Original state, state-highlight, arrow and arrow-highlight colors are checked on mounted diagrams for all six original palettes. Every palette is rasterized from standalone SVG with graph and parse-highlight pixel checks. Browser checks confirmed seven choices, switching during a running simulation, cached operation restoration and persistence after reload.
