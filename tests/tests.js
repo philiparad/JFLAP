@@ -794,6 +794,21 @@ test('A subtree can finish when its first distinguishing word crosses an unrefin
  assert(ex.completeSubtree(nonfinal)===1);assert(ex.nodes[final].children.length===0);
  ex.completeSubtree(0);ex.completeResult();assert(A.equivalent(m,ex.export()).equal);
 });
+test('Graphical minimization checks child coverage, preserves order-independent membership and undoes a split',()=>{
+ const ex=new MinimizationExercise(example('fa')), id=ex.leaves[0], [left,right]=ex.nodes[id].ids;
+ ex.toggleMember(id,1,left);assert(!ex.checkNode(id,'1').correct);
+ ex.toggleMember(id,0,right);ex.addChild(id);assert(!ex.checkNode(id,'1').correct);
+ ex.removeChild(id,2);assert(!ex.checkNode(id,'0').correct);
+ assert(ex.checkNode(id,'1').correct);assert(ex.nodes[id].children.length===2);assert(ex.undo());
+ equal(ex.childGroups(id),[[right],[left]]);ex.toggleMember(id,0,left);equal(ex.childGroups(id),[[left,right].sort((a,b)=>a-b),[]]);
+ ex.toggleMember(id,0,left);equal(ex.childGroups(id),[[right],[]]);assert(ex.undo());assert(ex.childGroups(id)[0].includes(left));
+});
+test('Invalid graphical membership cannot affect another partition or consume an undo',()=>{
+ const ex=new MinimizationExercise(example('fa')), [leaf,sibling]=ex.leaves, other=ex.nodes[sibling].ids[0];
+ let blocked=false;try{ex.toggleMember(leaf,0,other);}catch{blocked=true;}assert(blocked&&ex.history.length===0);
+ ex.addChild(leaf);ex.removeChild(leaf,1);assert(ex.undo());assert(ex.childGroups(leaf).length===3);
+ ex.completeSubtree(leaf);assert(ex.undo());assert(ex.childGroups(leaf).length===3);equal(ex.nodes[sibling].children,[]);
+});
 for(const result of await testContextHelp())test(result.name,()=>{if(result.error)throw result.error;});
 for(const result of await testImageExports())test(result.name,()=>{if(result.error)throw result.error;});
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;

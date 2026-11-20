@@ -37,3 +37,9 @@ td.parse-active,tr.parse-active>td{background:var(--state-highlight,#fff0b1);box
 .conversion-selected { background: var(--state-highlight, #fff1b3); }
 .conversion-selected th button { outline: 2px solid currentColor; }
 .conversion-graph [role="button"]:focus-visible { outline: 2px solid currentColor; }
+
+.partition-tree, .partition-tree ul { list-style:none; padding-inline-start:1.2rem; }
+.partition-tree ul { border-inline-start:1px solid currentColor; }
+.partition-tree li { padding:.2rem; }
+.partition-tree [aria-pressed="true"], #min-children [data-groups] [aria-pressed="true"] { outline:2px solid currentColor; }
+.outside-partition { opacity:.42; }
