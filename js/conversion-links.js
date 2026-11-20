@@ -6,6 +6,16 @@ export function mountConversionLinks(panel, {exercise, session, graphMarkup, sou
     const remaining = document.createElement('button');
     remaining.textContent = 'Show unfinished';
     status.setAttribute('role','status');
+    if(sourceGraph && exercise.hasExpansion){
+        const label=document.createElement('label'), view=document.createElement('select');
+        label.className='field';
+        label.append('Source diagram',view);
+        view.add(new Option('Original automaton','original'));
+        view.add(new Option('Single-symbol expansion','normalized'));
+        view.value=session.sourceDiagram||'original';
+        view.onchange=()=>{session.sourceDiagram=view.value;draw();};
+        box.append(label);
+    }
     box.append(remaining, status, graphHost);
     const table = panel.querySelector('table');
     (table.closest('.scroll') || table).before(box);
@@ -46,7 +56,8 @@ export function mountConversionLinks(panel, {exercise, session, graphMarkup, sou
         row.addEventListener('focusin',e=>{ if(e.target.matches('input'))activate([job.key]); });
     }
     function draw() {
-        const {graph,links}=exercise.linkGraph();
+        const view=sourceGraph ? session.sourceDiagram||'original' : undefined;
+        const {graph,links}=exercise.linkGraph(view);
         const unfinished=exercise.jobs.filter(j=>!exercise.checked.has(j.key)).map(j=>j.key);
         if(showingRemaining)selection=new Set(unfinished);
         const states=new Set(), edges=new Set();
@@ -64,7 +75,7 @@ export function mountConversionLinks(panel, {exercise, session, graphMarkup, sou
             activate(keys,sourceGraph);
         };
         mountConversionGraph(graphHost, graphMarkup(graph,[...states],null,[...edges]), {
-            label:sourceGraph?'Source automaton':'Constructed automaton',
+            label:sourceGraph?(view==='normalized'?'Expanded source automaton':'Source automaton'):'Constructed automaton',
             onState:id=>pickGraph('states',id),onTransition:id=>pickGraph('edges',id)
         });
         const selected=exercise.jobs.filter(j=>selection.has(j.key)).map(j=>j.description);

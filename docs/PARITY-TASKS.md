@@ -1,8 +1,8 @@
 # Prioritized feature-parity tasks
 
-**8 November update:** See [the refreshed audit](FEATURE-GAPS-2026-11-08.md) for the current 30-task feature-gap list, corrected false positives and dormant-code boundaries.
+As of 20 November 2026, all 71 implementation tasks are complete. Rows 43 and 46 record exclusions, and rows 45 and 47 document dormant code. The [8 November audit](FEATURE-GAPS-2026-11-08.md) lists the 30 tasks reviewed in that round.
 
-This is the active implementation backlog. The earlier TASKS.md records the initial release, not full parity. Audit IDs refer to FEATURE-GAP-AUDIT.md. All items below are pending unless checked.
+This is the active implementation backlog. The earlier TASKS.md records the initial release, not full parity. Audit IDs refer to FEATURE-GAP-AUDIT.md. Each checked row records a completed implementation and its acceptance check.
 
 Order: everyday simulation and teaching workflows first, missing algorithms and file compatibility next, specialist exercises and presentation refinements last. Prerequisites appear before dependent work. No parallel implementation: implement one row, run its checks, commit it to GitHub main successfully, then start the next row. A failed check or commit must be resolved first. Completion never means that Original mode merely contains the feature.
 
@@ -233,6 +233,8 @@ Task 69. The guided PDA → CFG tab builds productions per original transition, 
 Task 70. The free LR diagram supports item selection, closure, movable nodes and goto links to new or existing nodes. Validation matches item contents independently of node numbering. Browser regressions passed, including reordered nodes, self-loops, duplicates and missing links.
 
 Task 71. Source objects build their corresponding results. Selecting a result or a table field highlights related states, edges and production rows across the guided FA and PDA conversions. Show unfinished identifies outstanding work. Browser checks covered both directions, and all 250 regressions passed.
+
+On 20 November 2026 the Task 71 follow-up added links from each expanded FA production to its original edge. Selecting an original edge builds all its productions. The single-symbol view supports individual steps. The source FA and exported grammar both accepted `😀a1` in the workbench. The browser suite passed all 263 checks.
 
 Task 72. Complete subtree refines only descendants of the selected tree node, including distinctions that depend on an unrefined sibling. It records a single undo operation. Browser checks covered stable branches, independent siblings, undo and quotient language equivalence. All 253 regressions passed.
 

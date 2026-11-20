@@ -6,10 +6,36 @@ export function state(m,x=180,y=180) {const id=Math.max(-1,...m.states.map(s=>s.
 export function edge(m,from,to,read='',extra={}) {const t={id:Math.max(-1,...m.transitions.map(t=>t.id??-1))+1,from,to,read:empty(read),...extra};m.transitions.push(t);return t;}
 export function validate(m) {if(m.states.filter(s=>s.initial).length!==1)throw Error('Set exactly one initial state.');const ids=new Set(m.states.map(s=>s.id));if(m.transitions.some(t=>!ids.has(t.from)||!ids.has(t.to)))throw Error('A transition refers to a missing state.');}
 export function labels(read) {
- const match=/^\[([^\]]+)\]$/.exec(read);if(!match)return [empty(read)];const out=[];const s=match[1];
- for(let i=0;i<s.length;i++){if(s[i+1]==='-'&&s[i+2]){const a=s.charCodeAt(i),b=s.charCodeAt(i+2);if(b<a||b-a>512)throw Error('Invalid character range.');for(let j=a;j<=b;j++)out.push(String.fromCharCode(j));i+=2;}else out.push(s[i]);}return [...new Set(out)];
+ const match=/^\[([^\]]+)\]$/.exec(read);
+ if(!match)return [empty(read)];
+ const symbols=[...match[1]], result=new Set();
+ for(let i=0;i<symbols.length;i++){
+  if(symbols[i+1]==='-' && i+2<symbols.length){
+   const first=symbols[i].codePointAt(0),last=symbols[i+2].codePointAt(0);
+   if(last<first||last-first>512)throw Error('Invalid character range.');
+   for(let code=first;code<=last;code++)result.add(String.fromCodePoint(code));
+   i+=2;
+  }else result.add(symbols[i]);
+ }
+ return [...result];
 }
-export function normalizeFA(input) {const m=clone(input);m.transitions=[];for(const t of input.transitions){for(const word of labels(t.read)){let from=t.from;[...word].forEach((c,i)=>{const to=i===word.length-1?t.to:state(m).id;edge(m,from,to,c);from=to;});if(!word)edge(m,t.from,t.to,'');}}return m;}
+export function normalizeFA(input,{onTransition}={}) {
+ const m=clone(input);
+ m.transitions=[];
+ for(const original of input.transitions){
+  for(const word of labels(original.read)){
+   const symbols=word ? [...word] : [''];
+   let from=original.from;
+   for(const [index,symbol] of symbols.entries()){
+    const to=index===symbols.length-1 ? original.to : state(m).id;
+    const normalized=edge(m,from,to,symbol);
+    onTransition?.(normalized,original);
+    from=to;
+   }
+  }
+ }
+ return m;
+}
 export function closure(m,ids) {const seen=new Set(ids),queue=[...ids];for(let i=0;i<queue.length;i++)for(const t of m.transitions)if(t.from===queue[i]&&!t.read&&!seen.has(t.to)){seen.add(t.to);queue.push(t.to);}return [...seen].sort((a,b)=>a-b);}
 export const alphabet = m => [...new Set(m.transitions.flatMap(t=>labels(t.read)).filter(Boolean))].sort();
 export function determinize(input,complete=false,extraAlphabet=[]) {

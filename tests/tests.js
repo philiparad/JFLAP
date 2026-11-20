@@ -22,6 +22,7 @@ import {UnitExercise} from '../js/unit-exercise.js';
 import {LambdaExercise} from '../js/lambda-exercise.js';
 import {CFGPDAExercise} from '../js/cfg-pda-exercise.js';
 import {GrammarFAExercise} from '../js/grammar-fa-exercise.js';
+import {mountConversionLinks} from '../js/conversion-links.js';
 import {FAGrammarExercise} from '../js/fa-grammar-exercise.js';
 import {RegexConstruction,parseRegexTree} from '../js/regex-construction.js';
 import {RegexElimination} from '../js/regex-elimination.js';
@@ -768,6 +769,56 @@ test('Linked FA and grammar objects follow normalized transitions and multi-edge
  equal(linked.links.get('1').edges,[0,1]);reverse.fill('0');linked=reverse.linkGraph();
  for(const job of reverse.jobs){const path=linked.links.get(job.key);assert(path.edges.length===2&&path.states.length===3);equal(path.edges.map(id=>linked.graph.transitions.find(t=>t.id===id).read).join(''),job.expected.read);}
 });
+test('Expanded FA productions retain their original edge across words, ranges and parallel edges',()=>{
+ const m=A.machine(),a=A.state(m),b=A.state(m);b.final=true;
+ A.edge(m,a.id,b.id,'ab',{id:17});A.edge(m,a.id,b.id,'[a-c]',{id:58});
+ A.edge(m,a.id,b.id,'ab',{id:63});const epsilon=A.edge(m,b.id,b.id,'');delete epsilon.id;
+ const before=JSON.stringify(m),ex=new FAGrammarExercise(m);
+ const original=ex.linkGraph('original'),expanded=ex.linkGraph('normalized');
+ const sourceFor=key=>original.links.get(key).edges[0];
+ equal(['edge0','edge1','edge2','edge3','edge4','edge5','edge6'].map(sourceFor),[17,17,58,58,58,63,63]);
+ const fallback=sourceFor('edge7');assert(Number.isInteger(fallback)&&![17,58,63].includes(fallback));
+ equal(original.links.get('edge1').states,[a.id,b.id]);equal(original.links.get('final1'),{states:[b.id],edges:[]});
+ assert(expanded.links.get('edge0').states[1]!==b.id);
+ equal(expanded.graph.transitions.map(t=>t.read),['a','b','a','b','c','a','b','']);
+ ex.finish();ex.reset();equal(ex.linkGraph('original').links.get('edge0').edges,[17]);equal(JSON.stringify(m),before);
+});
+
+test('Unicode words and character ranges preserve the language through FA normalization and guided grammar export',()=>{
+ const m=A.machine(),start=A.state(m),final=A.state(m);final.final=true;
+ A.edge(m,start.id,final.id,'😀a');A.edge(m,start.id,final.id,'[😁-😃]');
+ equal(A.labels('[😁-😃]'),['😁','😂','😃']);equal(A.labels('[😀😀x]'),['😀','x']);
+ const normalized=A.normalizeFA(m),dfa=A.determinize(m),exercise=new FAGrammarExercise(m);
+ exercise.finish();const grammar=exercise.export();
+ for(const [word,expected] of [['😀a','accepted'],['😂','accepted'],['😃','accepted'],['😀','rejected'],['a','rejected'],['','rejected'],['😀aa','rejected']]){
+  for(const machine of [m,normalized,dfa])equal(simulate(machine,word).status,expected);
+  equal(tokenAccepts(grammar,word),expected);
+ }
+});
+
+test('A source-edge click builds all its productions and an expanded-edge click builds one',()=>{
+ const m=A.machine(),a=A.state(m),b=A.state(m);b.final=true;
+ A.edge(m,a.id,b.id,'ab',{id:17});A.edge(m,a.id,b.id,'c',{id:42});
+ const ex=new FAGrammarExercise(m),host=document.createElement('div'),session={selected:'edge0'};
+ host.innerHTML='<table>'+ex.jobs.map(j=>'<tr><th>'+j.key+'</th><td><input data-job="'+j.key+'" data-field="left"></td><td>Unchecked</td></tr>').join('')+'</table>';
+ document.body.append(host);
+ let marked=[];
+ const markup=(graph,states,selection,edges)=>{
+  marked=edges;
+  return graph.transitions.map(t=>'<g data-transition="'+t.id+'"><text>'+t.read+'</text></g>').join('');
+ };
+ try{
+  mountConversionLinks(host,{exercise:ex,session,graphMarkup:markup,sourceGraph:true,inputSelector:'[data-job]',fieldAttribute:'data-field',onSelect:()=>{}});
+  const toggle=host.querySelector('select'),view=name=>{toggle.value=name;toggle.dispatchEvent(new Event('change'));};
+  const choose=id=>host.querySelector('[data-transition="'+id+'"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));
+  equal(toggle.value,'original');view('normalized');choose(0);equal([...ex.checked],['edge0']);
+  view('original');choose(17);equal([...ex.checked],['edge0','edge1']);assert(!ex.checked.has('edge2'));
+  host.querySelector('[data-job="edge1"]').closest('tr').querySelector('th button').click();equal(marked,[17]);
+  view('normalized');equal(marked,[1]);view('original');host.querySelector('section > button').click();
+  equal(marked,[42]);assert(host.querySelector('[role="status"]').textContent.includes('2 of 4 unfinished'));
+ }finally{host.remove();}
+});
+
 test('LL and LR conversion links retain original transition identity after out-of-order construction',()=>{
  for(const mode of ['ll','lr']){const ex=new CFGPDAExercise({name:'linked',productions:G.parseGrammar('S -> aS | λ')},mode);ex.fill('3');
  const {graph,links}=ex.linkGraph();equal(links.get('3').edges,[graph.transitions[0].id]);equal(links.get('2').edges,[]);equal(links.get('3').states,[1,1]);}
