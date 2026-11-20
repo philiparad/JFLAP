@@ -14,7 +14,7 @@ Help is resolved when requested, so it follows changes to the active document, o
 
 Unknown contexts fall back to a useful general introduction. Named-variable parsing routes to generated-grammar help instead of the single-character parser instructions. Batch CYK receives its own instructions.
 
-Reference links use shipped original help where a corresponding page exists; otherwise they use a relevant bundled feature-guide section. Original links are identified as desktop-control references. The short instructions describe the web workbench, including its SLR parser and current canonical item-state numbering.
+Reference links use shipped original help where a corresponding page exists; otherwise they use a relevant bundled feature-guide section. Original links are identified as desktop-control references. The short instructions describe the web workbench, including its SLR parser and free LR item diagram and optional numbered practice.
 
 ## Validation
 

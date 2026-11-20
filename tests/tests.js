@@ -25,6 +25,7 @@ import {RegexConstruction,parseRegexTree} from '../js/regex-construction.js';
 import {RegexElimination} from '../js/regex-elimination.js';
 import {MinimizationExercise} from '../js/minimization-exercise.js';
 import {SubsetExercise} from '../js/subset-exercise.js';
+import {LRDiagram} from '../js/lr-diagram.js';
 import {LRItemsExercise} from '../js/lr-items.js';
 import {FirstFollowExercise,LLTableExercise,LRTableExercise,parseSymbolSet} from '../js/grammar-exercises.js';
 import {derivationGraph,layoutDerivationGraph} from '../js/derivation-graph.js';
@@ -737,6 +738,24 @@ test('An accepting PDA with no transitions can export the supplied empty-word gr
  const source = A.machine('pda'); A.state(source).final = true;
  const exercise = new PDAGrammarExercise(source);
  equal(exercise.hint(),undefined); equal(tokenAccepts(exercise.export(),''),'accepted');
+});
+test('Free LR diagram accepts a non-canonical numbering and a reused loop target',()=>{
+ const ex=new LRDiagram(G.parseGrammar('S -> aS | λ')), start=ex.graph.states[0];
+ const other=ex.add(), initial=ex.add(); ex.remove(start.id); ex.initial(initial.id);
+ initial.items=ex.items.closure([[0,0]]);
+ const input=ex.goto(initial.id,'a'); assert(ex.goto(input,'a')===input);
+ other.items=ex.items.goto(initial.items,'S'); ex.connect(initial.id,'S',other.id);
+ ex.goto(input,'S'); assert(ex.check().correct,ex.check().errors.join(' '));
+ ex.connect(input,'a',other.id); assert(!ex.check().correct);
+ ex.goto(input,'a'); const duplicate=ex.add(); duplicate.items=initial.items; assert(!ex.check().correct);
+ ex.remove(duplicate.id); assert(ex.check().correct); ex.initial(other.id); assert(!ex.check().correct);
+});
+test('Free LR diagram detects unclosed sets, omitted links and removed nodes',()=>{
+ const ex=new LRDiagram(G.parseGrammar('S -> A\nA -> λ')); const n=ex.graph.states[0];
+ assert(!ex.check().correct); n.items=ex.items.closure(n.items);
+ ex.goto(n.id,'A'); assert(!ex.check().correct);
+ ex.goto(n.id,'S'); assert(ex.check().correct); ex.remove(n.id); assert(!ex.check().correct);
+ assert(ex.graph.transitions.length===0);
 });
 for(const result of await testContextHelp())test(result.name,()=>{if(result.error)throw result.error;});
 for(const result of await testImageExports())test(result.name,()=>{if(result.error)throw result.error;});

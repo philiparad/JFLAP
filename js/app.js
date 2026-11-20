@@ -35,6 +35,8 @@ const minimizationExercises=new WeakMap();
 import {SubsetExercise} from './subset-exercise.js';
 const subsetExercises=new WeakMap();
 import {LRItemsExercise} from './lr-items.js';
+import {LRDiagram} from './lr-diagram.js';
+import {mountLRDiagram} from './lr-diagram-panel.js';
 import {FirstFollowExercise,LLTableExercise,LRTableExercise} from './grammar-exercises.js';
 const grammarExercises=new WeakMap();
 import {derivationGraph,layoutDerivationGraph} from './derivation-graph.js';
@@ -527,8 +529,16 @@ function lrExercisePanel(session){
 }
 
 function lrItemsPanel(session){
+ if (!session.numberedItems) {
+    session.diagram ??= new LRDiagram(model().productions);
+    toolbar([['Numbered practice',()=>{session.numberedItems=true;lrItemsPanel(session);}],
+        ['FIRST / FOLLOW exercise',()=>{session.mode='first';grammarExercisePanel();}],
+        ['LR table exercise',()=>{session.mode='lr';grammarExercisePanel();}]],'Build the item diagram in any order.');
+    mountLRDiagram($('#content'),session.diagram,graphMarkup);
+    return;
+ }
  session.items??=new LRItemsExercise(model().productions);const ex=session.items;session.itemState??=0;
- toolbar([['FIRST / FOLLOW exercise',()=>{session.mode='first';grammarExercisePanel();}],['LR table exercise',()=>{session.mode='lr';grammarExercisePanel();}]],'Construct LR(0) item sets and the goto diagram. State numbers follow the canonical construction.');
+ toolbar([['Free diagram',()=>{session.numberedItems=false;lrItemsPanel(session);}],['FIRST / FOLLOW exercise',()=>{session.mode='first';grammarExercisePanel();}],['LR table exercise',()=>{session.mode='lr';grammarExercisePanel();}]],'Construct LR(0) item sets and the goto diagram. State numbers follow the canonical construction.');
  $('#content').innerHTML=`<div class="panel"><h3>LR item construction</h3><p>Use rule:dot pairs, separated by spaces. Rule 0 is the augmented start rule. Dot positions count symbols from 0. State slots are supplied; fill their items and connect them. Blank transitions mean no edge.</p><ol start="0">${ex.data.rules.map(r=>`<li>${E(r.left)} → ${E(r.right||emptySymbol())}</li>`).join('')}</ol><div class="split"><div><label class="field"><span>State to edit</span><select id="items-state">${ex.answers.map((_,i)=>`<option value="${i}" ${i===session.itemState?'selected':''}>${i}</option>`).join('')}</select></label><label class="field"><span>Items (rule:dot)</span><textarea id="items-answer" rows="4">${E(ex.answers[session.itemState])}</textarea></label><pre id="items-readable"></pre><div id="items-actions" class="actions"></div></div><div><h4>Connect selected state</h4><label class="field"><span>Goto symbol</span><select id="items-symbol">${ex.symbols.map(c=>`<option value="${E(c)}">${E(c)}</option>`).join('')}</select></label><label class="field"><span>Target state (blank removes edge)</span><input id="items-target"></label><div id="items-edge-actions" class="actions"></div></div></div><div id="items-feedback" role="status"></div><div id="items-diagram" class="scroll"></div></div>`;
  const feedback=text=>$('#items-feedback').textContent=text;
  const readable=()=>{try{$('#items-readable').textContent=ex.parse(ex.answers[session.itemState]).map(i=>ex.itemText(i)).join('\n');}catch(e){$('#items-readable').textContent=e.message;}};
