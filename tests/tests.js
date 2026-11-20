@@ -770,6 +770,30 @@ test('LL and LR conversion links retain original transition identity after out-o
  for(const mode of ['ll','lr']){const ex=new CFGPDAExercise({name:'linked',productions:G.parseGrammar('S -> aS | λ')},mode);ex.fill('3');
  const {graph,links}=ex.linkGraph();equal(links.get('3').edges,[graph.transitions[0].id]);equal(links.get('2').edges,[]);equal(links.get('3').states,[1,1]);}
 });
+test('Complete subtree distinguishes through an untouched sibling and undoes atomically',()=>{
+ const m=A.machine();for(let i=0;i<6;i++)A.state(m);[3,4,5].forEach(i=>m.states[i].final=true);
+ // Unary cycle N,N,N,F,F,F makes all six states distinguishable, even across a coarse sibling.
+ for(let i=0;i<6;i++)A.edge(m,i,(i+1)%6,'a');
+ const ex=new MinimizationExercise(m), [nonfinal,final]=ex.leaves;
+ const before=JSON.stringify(ex.nodes), sibling=JSON.stringify(ex.nodes[final]);
+ assert(ex.completeSubtree(nonfinal)===2);equal(JSON.stringify(ex.nodes[final]),sibling);
+ assert(ex.leaves.includes(final)&&ex.jobs().length>0);assert(ex.completeSubtree(nonfinal)===0);
+ assert(ex.history.length===1&&ex.undo());equal(JSON.stringify(ex.nodes),before);
+ ex.completeSubtree(nonfinal);ex.completeSubtree(final);ex.completeResult();assert(A.equivalent(m,ex.export()).equal);
+});
+test('Completing the root preserves equivalent states and an existing stable result',()=>{
+ const m=A.machine();for(let i=0;i<3;i++)A.state(m);m.states[2].final=true;
+ A.edge(m,0,1,'a');A.edge(m,0,2,'b');A.edge(m,1,1,'a');A.edge(m,1,2,'b');A.edge(m,2,2,'a');A.edge(m,2,2,'b');
+ const ex=new MinimizationExercise(m);ex.completeSubtree(0);ex.completeResult();const result=ex.result;
+ assert(ex.export().states.length===2);assert(ex.completeSubtree(0)===0&&ex.result===result);
+});
+test('A subtree can finish when its first distinguishing word crosses an unrefined sibling',()=>{
+ const m=A.machine();for(let i=0;i<4;i++)A.state(m);m.states[2].final=m.states[3].final=true;
+ [2,3,3,1].forEach((to,from)=>A.edge(m,from,to,'a'));
+ const ex=new MinimizationExercise(m),[nonfinal,final]=ex.leaves;assert(ex.expected(0,'a').length===1);
+ assert(ex.completeSubtree(nonfinal)===1);assert(ex.nodes[final].children.length===0);
+ ex.completeSubtree(0);ex.completeResult();assert(A.equivalent(m,ex.export()).equal);
+});
 for(const result of await testContextHelp())test(result.name,()=>{if(result.error)throw result.error;});
 for(const result of await testImageExports())test(result.name,()=>{if(result.error)throw result.error;});
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;
