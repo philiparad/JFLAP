@@ -83,7 +83,7 @@ Order: everyday simulation and teaching workflows first, missing algorithms and 
 | 72 | [x] | Minimization: Complete Subtree: Recursively complete only the selected partition subtree, leave unrelated groups untouched, and preserve language equivalence. | C04 residual |
 | 73 | [x] | Graphical minimization partition editing: Add/remove child groups and toggle source-state membership by clicking; Check Node validates the selected partition; retain undo. | C04 residual |
 | 74 | [x] | Detachable editor toolbar: Provide a movable/detachable equivalent of the original toolbar while preserving tool selection, keyboard use and an accessible reattach path. | NEW desktop presentation |
-| 75 | [ ] | Combine non-FA automata: Expose combination for PDA, Mealy, Moore and compatible Turing machines; reject mismatched tape counts, preserve outputs and discard the appended initial marker. | NEW |
+| 75 | [x] | Combine non-FA automata: Expose combination for PDA, Mealy, Moore and compatible Turing machines; reject mismatched tape counts, preserve outputs and discard the appended initial marker. | NEW |
 
 ## Commit gate
 
@@ -239,3 +239,5 @@ Task 72. Complete subtree refines only descendants of the selected tree node, in
 Task 73. The working DFA and partition tree support selecting children, assigning or removing states and checking a proposed split. Invalid drafts give feedback and undo restores child groups and memberships after a committed split. All 255 browser checks passed.
 
 Task 74. Graph editors can float the existing tools, move them by pointer or arrow keys, and reattach from the palette, the fixed editor button or Escape. Browser verification exercised dragging, tool shortcuts, operation switching and restoring focus. All 256 regressions passed.
+
+Task 75. Combine now supports FA, PDA, Mealy, Moore and same-tape Turing machines including building blocks. The new document remaps state and transition IDs, preserves outputs, tape and stack actions and notes, and clears the appended top-level initial marker. Browser checks covered Mealy output 0101 → 1010, incompatible tape counts, independent components and XML round trips. All 260 regressions passed.

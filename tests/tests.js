@@ -2,6 +2,7 @@ import {stateTitle,clearStateLabels} from '../js/state-labels.js';
 import {testContextHelp} from './context-help.js';
 import {emptySymbol,setEmptySymbol,displayWord,displayNotation,displaySymbolSet} from '../js/empty-display.js';
 import {testImageExports} from './image-export.js';
+import {combineMachines} from '../js/combine.js';
 import {mountEditorToolbar} from '../js/editor-toolbar.js';
 import {mountGrammarTable} from '../js/grammar-table.js';
 import {gemLayout,GEM_LIMITS} from '../js/gem-layout.js';
@@ -823,6 +824,46 @@ test('Floating toolbar retains controls, supports keyboard movement and reattach
   move.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));assert(slot.hidden&&document.activeElement===toggle);
   toggle.click();slot.click();assert(toggle.textContent==='Detach toolbar'&&slot.hidden);
  }finally{palette.dispose();frame.remove();slot.remove();}
+});
+test('Combined PDA, Mealy and Moore machines preserve behavior, outputs and both source documents',()=>{
+ for(const [type,word] of [['pda','aabb'],['mealy','0101'],['moore','101']]){
+  const first=example(type),second=example(type);second.notes=[{x:60,y:34,text:'second component'}];
+  if(type==='mealy')second.transitions[0].output='xy';if(type==='moore')second.states[0].output='xy';
+  const originals=JSON.stringify([first,second]),joined=combineMachines(first,second);
+  equal(joined.states.filter(s=>s.initial).map(s=>s.id),[first.states[0].id]);
+  equal(joined.transitions.length,first.transitions.length+second.transitions.length);
+  const idx=first.states.length;
+  assert(joined.states[idx].x>Math.max(...first.states.map(s=>s.x)));
+  assert(joined.notes[0].text===second.notes[0].text&&joined.notes[0].x>second.notes[0].x);
+  equal(simulate(joined,word).outputs,simulate(first,word).outputs);
+  joined.states.forEach((s,i)=>{s.initial=i===idx;});
+  const saved=deserialize(serialize(joined)),r=simulate(saved,word),expected=simulate(second,word);
+  equal(r.status,expected.status);equal(r.outputs,expected.outputs);assert(r.status==='accepted');
+  joined.states[idx].name='changed';equal(JSON.stringify([first,second]),originals);
+ }
+});
+test('Combine remaps sparse IDs and self-loops while preserving FA language',()=>{
+ const first=example('fa'), second=A.machine();const s=A.state(second);s.id=24;s.final=true;A.edge(second,24,24,'x').id=83;
+ const result=combineMachines(first,second), added=result.states.at(-1), loop=result.transitions.at(-1);
+ equal([loop.from,loop.to],[added.id,added.id]);assert(added.final&&!added.initial);
+ assert(new Set(result.transitions.map(t=>t.id)).size===result.transitions.length);assert(A.equivalent(first,result).equal);
+});
+test('Combined multi-tape Turing components execute independently after an XML round trip',()=>{
+ const first=example('multitape'),second=example('multitape');second.transitions[1].write=['x','y'];
+ const combined=combineMachines(first,second);equal(simulate(combined,['11','11']).outputs,[['1','1']]);
+ combined.states.forEach((s,i)=>{s.initial=i===first.states.length;});
+ equal(simulate(deserialize(serialize(combined)),['11','11']).outputs,[['x','y']]);
+ combined.transitions.at(-1).write[0]='z';equal(second.transitions[1].write,['x','y']);
+});
+test('Combine checks family and tape counts and isolates nested Turing blocks',()=>{
+ const ordinary=example('turing'),blocks=example('turingbb');blocks.states[0].block=example('turing');blocks.states[0].blockTag='Increment';
+ const mixed=combineMachines(ordinary,blocks);equal(mixed.type,'turingbb');
+ const appended=mixed.states[ordinary.states.length];assert(!appended.initial&&appended.block.states[0].initial);
+ assert(deserialize(serialize(mixed)).states[ordinary.states.length].block);appended.block.states[0].name='edited';
+ assert(blocks.states[0].block.states[0].name!=='edited');
+ for(const pair of [[ordinary,example('multitape')],[example('mealy'),example('moore')],[ordinary,{...blocks,states:[{...blocks.states[0],block:example('multitape')}]}]]){
+  const before=JSON.stringify(pair);let rejected=false;try{combineMachines(...pair);}catch{rejected=true;}assert(rejected);equal(JSON.stringify(pair),before);
+ }
 });
 for(const result of await testContextHelp())test(result.name,()=>{if(result.error)throw result.error;});
 for(const result of await testImageExports())test(result.name,()=>{if(result.error)throw result.error;});
