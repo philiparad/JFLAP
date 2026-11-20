@@ -757,6 +757,19 @@ test('Free LR diagram detects unclosed sets, omitted links and removed nodes',()
  ex.goto(n.id,'S'); assert(ex.check().correct); ex.remove(n.id); assert(!ex.check().correct);
  assert(ex.graph.transitions.length===0);
 });
+test('Linked FA and grammar objects follow normalized transitions and multi-edge paths',()=>{
+ const fa=A.machine(),p=A.state(fa),q=A.state(fa);q.final=true;A.edge(fa,p.id,q.id,'xy');
+ const forward=new FAGrammarExercise(fa), links=forward.linkGraph();
+ equal(links.links.get('edge0').states,[p.id,2]);equal(links.links.get('final1'),{states:[1],edges:[]});
+ const reverse=new GrammarFAExercise({name:'paths',productions:G.parseGrammar('S -> abS | xy')});
+ reverse.fill('1');let linked=reverse.linkGraph();assert(linked.links.get('0').edges.length===0);
+ equal(linked.links.get('1').edges,[0,1]);reverse.fill('0');linked=reverse.linkGraph();
+ for(const job of reverse.jobs){const path=linked.links.get(job.key);assert(path.edges.length===2&&path.states.length===3);equal(path.edges.map(id=>linked.graph.transitions.find(t=>t.id===id).read).join(''),job.expected.read);}
+});
+test('LL and LR conversion links retain original transition identity after out-of-order construction',()=>{
+ for(const mode of ['ll','lr']){const ex=new CFGPDAExercise({name:'linked',productions:G.parseGrammar('S -> aS | λ')},mode);ex.fill('3');
+ const {graph,links}=ex.linkGraph();equal(links.get('3').edges,[graph.transitions[0].id]);equal(links.get('2').edges,[]);equal(links.get('3').states,[1,1]);}
+});
 for(const result of await testContextHelp())test(result.name,()=>{if(result.error)throw result.error;});
 for(const result of await testImageExports())test(result.name,()=>{if(result.error)throw result.error;});
 document.querySelector('#summary').textContent=`${passed} passed · ${failed} failed`;document.title=`${failed?'FAIL':'PASS'} — JFLAP regression tests`;

@@ -9,10 +9,10 @@ export function mountPDAGrammarPanel(host, source, {graphMarkup, transitionLabel
         <p>Select a transition to build its productions. A variable ⟨[p,A,q]⟩ describes paths from p to q that remove A from the stack.</p>
         <div class="split"><section><div data-graph></div><div data-choices class="actions"></div></section>
         <section><p data-status role="status"></p><div data-actions class="actions"></div><label class="field">Production group<select data-group></select></label>
-        <pre data-rules></pre><div data-pages class="actions"></div></section></div></section>`;
+        <div data-rules class="conversion-rules"></div><div data-pages class="actions"></div></section></div></section>`;
     const find = name => host.querySelector('[data-' + name + ']');
     const accept = find('accept'), groups = find('group'), limit = 30;
-    let exercise, selected, page, markRemaining;
+    let exercise, selected, page, markRemaining, related = null, pickedRule = null;
     const stateNames = new Map(source.states.map(state => [state.id, state.name]));
     const describe = t => stateNames.get(t.from) + ' → ' + stateNames.get(t.to) + ' · ' + transitionLabel(t, source);
     function showRules() {
@@ -21,7 +21,17 @@ export function mountPDAGrammarPanel(host, source, {graphMarkup, transitionLabel
         const rules = index === null ? exercise.supplied : exercise.groups[index];
         const total = Math.max(1, Math.ceil(rules.length / limit));
         page = Math.max(0, Math.min(page, total - 1));
-        find('rules').textContent = displayNotation(tokenGrammarText({productions:rules.slice(page * limit, (page + 1) * limit)}));
+        find('rules').replaceChildren(...rules.slice(page * limit, (page + 1) * limit).map(rule => {
+            const key = JSON.stringify(rule);
+            const b = button(displayNotation(tokenGrammarText({productions:[rule]})), () => {
+                pickedRule = key;
+                related = exercise.groups.flatMap((group,i) => group.some(r => JSON.stringify(r) === key) ? [i] : []);
+                markRemaining = false;
+                refresh();
+            });
+            b.setAttribute('aria-pressed',String(key === pickedRule));
+            return b;
+        }));
         find('pages').replaceChildren();
         if (total > 1) {
             const prev = button('Previous rules', () => {page--; showRules();});
@@ -32,6 +42,7 @@ export function mountPDAGrammarPanel(host, source, {graphMarkup, transitionLabel
         }
     }
     function choose(index) {
+        related = null; pickedRule = null;
         exercise.build(index);
         selected = index;
         markRemaining = false;
@@ -40,10 +51,15 @@ export function mountPDAGrammarPanel(host, source, {graphMarkup, transitionLabel
     }
     function refresh() {
         const remaining = exercise.remaining;
-        const marks = markRemaining ? remaining : selected === null ? [] : [selected];
+        const marks = markRemaining ? remaining : related ?? (selected === null ? [] : [selected]);
         const edges = marks.map(index => source.transitions[index].id);
-        mountConversionGraph(find('graph'), graphMarkup(source, [], null, edges), {
-            label:'Source pushdown automaton', onTransition:id=>choose(source.transitions.findIndex(t=>t.id===id))
+        const states = [...new Set(marks.flatMap(i => [source.transitions[i].from,source.transitions[i].to]))];
+        mountConversionGraph(find('graph'), graphMarkup(source, states, null, edges), {
+            label:'Source pushdown automaton', onState:id=>{
+                related = source.transitions.flatMap((t,i)=>t.from===id || t.to===id ? [i] : []);
+                related.forEach(i=>exercise.build(i));
+                selected=related[0]??null; pickedRule=null; page=0; markRemaining=false; refresh();
+            }, onTransition:id=>choose(source.transitions.findIndex(t=>t.id===id))
         });
         find('choices').replaceChildren(...source.transitions.map((t,i) => {
             const b = button((exercise.built.has(i) ? '✓ ' : '') + describe(t), () => choose(i), marks.includes(i) ? 'active' : '');
@@ -51,12 +67,13 @@ export function mountPDAGrammarPanel(host, source, {graphMarkup, transitionLabel
             return b;
         }));
         find('status').textContent = exercise.built.size + ' of ' + source.transitions.length + ' transitions built.' +
+            (related && !markRemaining ? ' Source transitions: '+(related.map(i=>i+1).join(', ')||'supplied rule')+'.' : '') +
             (markRemaining ? ' Remaining transitions: ' + (remaining.map(i => i + 1).join(', ') || 'none') + '.' : '');
         groups.replaceChildren(new Option('Supplied start and acceptance rules (' + exercise.supplied.length + ')', 'supplied'));
         for (const i of [...exercise.built].sort((a,b)=>a-b)) groups.add(new Option('Transition ' + (i + 1) + ' · ' + describe(source.transitions[i]) + ' (' + exercise.groups[i].length + ')', String(i)));
         groups.value = selected === null ? 'supplied' : String(selected);
         const hint = button('Hint', () => choose(remaining[0]));
-        const all = button('Show All', () => {exercise.finish(); selected ??= source.transitions.length ? 0 : null; markRemaining=false; page=0; refresh();});
+        const all = button('Show All', () => {exercise.finish(); related=null; pickedRule=null; selected ??= source.transitions.length ? 0 : null; markRemaining=false; page=0; refresh();});
         const left = button('What’s left?', () => {markRemaining=true; refresh();});
         const output = button('Open completed grammar', () => onExport(exercise.export()), 'primary');
         hint.disabled = all.disabled = !remaining.length;
@@ -69,11 +86,12 @@ export function mountPDAGrammarPanel(host, source, {graphMarkup, transitionLabel
         for (const key of ['graph','choices','actions','rules','pages','group']) find(key).replaceChildren();
         try {
             exercise = new PDAGrammarExercise(source, {acceptance:accept.value});
-            selected = null; page = 0; markRemaining = false;
+            selected = null; related=null; pickedRule=null; page = 0; markRemaining = false;
             refresh();
         } catch (error) { find('status').textContent = error.message; }
     }
     groups.onchange = () => {
+        related=null; pickedRule=null;
         selected = groups.value === 'supplied' ? null : Number(groups.value);
         page = 0; markRemaining = false; refresh();
     };

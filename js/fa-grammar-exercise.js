@@ -2,6 +2,12 @@ import {validate,normalizeFA,empty} from './automata.js';
 import {V,T,tokenGrammar} from './token-grammar.js';
 export class FAGrammarExercise {
  constructor(input){validate(input);if(input.type!=='fa')throw Error('Select a finite automaton.');this.source=normalizeFA(input);this.jobs=[...this.source.transitions.map((t,i)=>({key:'edge'+i,description:`Transition ${t.from} —${t.read||'λ'}→ ${t.to}`,expected:{left:'Q'+t.from,terminal:t.read,target:'Q'+t.to}})),...this.source.states.filter(s=>s.final).map(s=>({key:'final'+s.id,description:'Final state '+s.id,expected:{left:'Q'+s.id,terminal:'',target:''}}))];this.reset();}
+ linkGraph() {
+    const links = new Map();
+    this.source.transitions.forEach((t,i) => links.set('edge'+i,{states:[t.from,t.to],edges:[t.id]}));
+    this.source.states.filter(s=>s.final).forEach(s=>links.set('final'+s.id,{states:[s.id],edges:[]}));
+    return {graph:this.source,links};
+ }
  reset(){this.answers=Object.fromEntries(this.jobs.map(j=>[j.key,{left:'',terminal:'',target:''}]));this.checked=new Set();}
  check(key){const job=this.jobs.find(j=>j.key===key);if(!job)throw Error('Select a production.');const a=this.answers[key],e=job.expected;const wrong=['left','terminal','target'].filter(k=>(k==='terminal'?empty(a[k]):a[k].trim())!==e[k]);if(wrong.length)this.checked.delete(key);else this.checked.add(key);return{correct:!wrong.length,wrong};}
  fill(key){const job=this.jobs.find(j=>j.key===key);if(!job)throw Error('Select a production.');this.answers[key]={...job.expected};this.check(key);}

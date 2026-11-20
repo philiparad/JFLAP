@@ -12,6 +12,18 @@ export class GrammarFAExercise {
  fill(key){const j=this.jobs.find(j=>j.key===key);if(!j)throw Error('Select a production.');this.answers[key]={...j.expected};this.check(key);}
  step(){const j=this.jobs.find(j=>!this.checked.has(j.key));if(!j)return null;this.fill(j.key);return j.key;}
  finish(){for(const j of this.jobs)this.fill(j.key);}
- graph(){const out=machine();out.name=this.grammar.name+' · guided FA';for(const name of this.variables)state(out).name=name;state(out).name='Accept';out.states[this.final].final=true;for(const j of this.jobs){if(!this.checked.has(j.key)||!this.check(j.key).correct)continue;const e=j.expected,chars=[...e.read];let from=Number(e.from);if(!chars.length)edge(out,from,Number(e.to),'');for(let i=0;i<chars.length;i++){const to=i===chars.length-1?Number(e.to):state(out).id;edge(out,from,to,chars[i]);from=to;}}return layout(out);}
+ graph(links){const out=machine();out.name=this.grammar.name+' · guided FA';for(const name of this.variables)state(out).name=name;state(out).name='Accept';out.states[this.final].final=true;for(const j of this.jobs){const e=j.expected, from=Number(e.from), to=Number(e.to);
+    const source={states:[from,to],edges:[]};
+    links?.set(j.key,source);
+    if(!this.checked.has(j.key)||!this.check(j.key).correct)continue;
+    const chars=[...e.read]; if(!chars.length)chars.push('');
+    let previous=from;
+    chars.forEach((c,index)=>{
+        const next=index===chars.length-1?to:state(out).id;
+        if(next!==to)source.states.push(next);
+        source.edges.push(edge(out,previous,next,c).id);
+        previous=next;
+    });}return layout(out);}
+ linkGraph(){const links=new Map();return {graph:this.graph(links),links};}
  export(){if(this.jobs.some(j=>!this.checked.has(j.key)||!this.check(j.key).correct))throw Error('Check every production transition before exporting.');return this.graph();}
 }

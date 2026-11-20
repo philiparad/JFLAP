@@ -9,5 +9,10 @@ export class CFGPDAExercise {
  step(){const j=this.jobs.find(j=>!this.checked.has(j.key));if(!j)return null;this.fill(j.key);return j.key;}
  finish(){for(const j of this.jobs)this.fill(j.key);}
  graph(){const m=clone(this.template);m.transitions=m.transitions.filter((t,i)=>this.checked.has(String(i))&&this.check(String(i)).correct);return m;}
+ linkGraph() {
+    const graph=this.graph(), visible=new Set(graph.transitions.map(t=>t.id));
+    const links=new Map(this.template.transitions.map((t,i)=>[String(i),{states:[t.from,t.to],edges:visible.has(t.id)?[t.id]:[]}]));
+    return {graph,links};
+ }
  export(){if(this.jobs.some(j=>!this.checked.has(j.key)||!this.check(j.key).correct))throw Error('Check every transition before exporting.');return this.graph();}
 }
