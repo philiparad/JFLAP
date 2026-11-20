@@ -2,6 +2,7 @@ import {stateTitle,clearStateLabels} from '../js/state-labels.js';
 import {testContextHelp} from './context-help.js';
 import {emptySymbol,setEmptySymbol,displayWord,displayNotation,displaySymbolSet} from '../js/empty-display.js';
 import {testImageExports} from './image-export.js';
+import {mountEditorToolbar} from '../js/editor-toolbar.js';
 import {mountGrammarTable} from '../js/grammar-table.js';
 import {gemLayout,GEM_LIMITS} from '../js/gem-layout.js';
 import {twoCircleLayout,chooseLayout,randomLayouts} from '../js/circle-layout.js';
@@ -808,6 +809,20 @@ test('Invalid graphical membership cannot affect another partition or consume an
  let blocked=false;try{ex.toggleMember(leaf,0,other);}catch{blocked=true;}assert(blocked&&ex.history.length===0);
  ex.addChild(leaf);ex.removeChild(leaf,1);assert(ex.undo());assert(ex.childGroups(leaf).length===3);
  ex.completeSubtree(leaf);assert(ex.undo());assert(ex.childGroups(leaf).length===3);equal(ex.nodes[sibling].children,[]);
+});
+test('Floating toolbar retains controls, supports keyboard movement and reattaches from either location',()=>{
+ const frame=document.createElement('div'),slot=document.createElement('button');
+ frame.innerHTML='<div data-tools id="fixture-tools"><button>State</button></div>';document.body.append(slot,frame);
+ const palette=mountEditorToolbar(frame,slot), original=frame.querySelector('[data-tools] button'),[move,toggle]=frame.querySelector('.palette-commands').children;
+ try{
+  palette.setEditor(true);toggle.click();assert(frame.classList.contains('floating')&&!slot.hidden);
+  const previous=parseFloat(frame.style.left);move.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
+  assert(parseFloat(frame.style.left)>=previous);assert(document.activeElement===move);
+  palette.setEditor(false);assert(slot.hidden&&!frame.classList.contains('floating'));palette.setEditor(true);
+  assert(frame.classList.contains('floating')&&original===frame.querySelector('[data-tools] button'));
+  move.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));assert(slot.hidden&&document.activeElement===toggle);
+  toggle.click();slot.click();assert(toggle.textContent==='Detach toolbar'&&slot.hidden);
+ }finally{palette.dispose();frame.remove();slot.remove();}
 });
 for(const result of await testContextHelp())test(result.name,()=>{if(result.error)throw result.error;});
 for(const result of await testImageExports())test(result.name,()=>{if(result.error)throw result.error;});
